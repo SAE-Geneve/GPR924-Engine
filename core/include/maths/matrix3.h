@@ -7,7 +7,7 @@ namespace core::maths {
   requires std::is_arithmetic_v<T>
   class Matrix3 {
   public:
-    explicit Matrix3(auto newMatrix) {
+    explicit Matrix3(std::array<std::array<T, 3>, 3> newMatrix) {
       matrix = newMatrix;
     }
 
