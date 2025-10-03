@@ -32,7 +32,7 @@ struct Vec3 {
   constexpr explicit Vec3(VectorT v) : x(v.x), y(v.y), z(v.z){}
 
   template <typename VectorT>
-    requires IsConvertibleVector3<VectorT, T> && !IsVector3<VectorT, T>
+    requires (IsConvertibleVector3<VectorT, T> && !IsVector3<VectorT, T>)
              constexpr explicit Vec3(VectorT v)
       : x(static_cast<T>(v.x)),
   y(static_cast<T>(v.y)), z(static_cast<T>(v.z))
