@@ -33,7 +33,7 @@ struct Degree {
   float value;
 };
 
-Radian::Radian(const Degree& degree)
+inline Radian::Radian(const Degree& degree)
     : value(degree.Value() * std::numbers::pi_v<float> / 180.0f) {}
 }  // namespace core::maths
 
