@@ -7,9 +7,10 @@ target_link_libraries(common PUBLIC core SDL3::SDL3)
 setup_warnings(common)
 
 if(ENABLE_TESTING)
+
     file(GLOB_RECURSE COMMON_TEST_SRC test/*.cc)
     add_executable(common_test ${COMMON_TEST_SRC})
-    target_link_libraries(common_test PRIVATE common GTest::gtest GTest::gtest_main GTest::gmock GTest::gmock_main)
+    target_link_libraries(common_test PRIVATE common GTest::gtest GTest::gtest_main)
     setup_warnings(common_test)
-    add_test(AllTestsInMain common_test)
+    gtest_discover_tests(common_test)
 endif()

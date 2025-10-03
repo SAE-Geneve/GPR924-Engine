@@ -4,6 +4,7 @@
 
 using namespace core::maths;
 
+
 TEST(Vec3, Constructor)
 {
   constexpr Vec3I vec_i(1, -2, 3);

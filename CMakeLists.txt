@@ -16,8 +16,10 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 include(cmake/warnings.cmake)
 
 if(ENABLE_TESTING)
+
     enable_testing()
     find_package(GTest CONFIG REQUIRED)
+    include(GoogleTest)
 endif ()
 
 add_subdirectory(core)
