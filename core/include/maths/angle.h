@@ -2,15 +2,14 @@
 #define CORE_MATHS_ANGLE_H
 
 #include <numbers>
-#include <type_traits>
 
 namespace core::maths {
 struct Degree;
 
 struct Radian {
-  constexpr explicit Radian(const float value) : value(value) {}
+  constexpr explicit Radian(float value) : value(value) {}
 
-  explicit Radian(const Degree& degree);
+  Radian(const Degree& degree);
 
   explicit constexpr operator float() const { return value; }
 
@@ -21,7 +20,9 @@ struct Radian {
 };
 
 struct Degree {
-  explicit Degree(const Radian& radian)
+  constexpr explicit Degree(float value) : value(value) {}
+
+  Degree(const Radian& radian)
       : value(radian.Value() * 180.0f / std::numbers::pi_v<float>) {}
 
   explicit constexpr operator float() const { return value; }
@@ -32,7 +33,7 @@ struct Degree {
   float value;
 };
 
-inline Radian::Radian(const Degree& degree)
+Radian::Radian(const Degree& degree)
     : value(degree.Value() * std::numbers::pi_v<float> / 180.0f) {}
 }  // namespace core::maths
 
