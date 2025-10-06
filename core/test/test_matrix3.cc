@@ -9,6 +9,5 @@ TEST(Matrix3Determinant, Matrix3) {
   }};
 
   core::maths::Matrix3 m(matrix);
-  // EXPECT_EQ(m.Det(), 0);
-  FAIL();
+  EXPECT_EQ(m.Det(), 0);
 }
