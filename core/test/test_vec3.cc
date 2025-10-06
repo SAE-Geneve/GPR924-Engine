@@ -318,8 +318,8 @@ TEST(Vec3, Reflection)
   constexpr float factor_f = 2 * vec_f1.Dot(vec_f2);
 
   constexpr core::maths::Vec3F vec_f12 = core::maths::Vec3F::Reflection(vec_f1, vec_f2);
-  constexpr core::maths::Vec3F vec__f_test(1.2f - 4.3f * factor_f, 2.2f - 5.3f * factor_f, 3.2f - 6.3f * factor_f);
-  EXPECT_EQ(vec_f12.x, vec__f_test.x);
-  EXPECT_EQ(vec_f12.y, vec__f_test.y);
-  EXPECT_EQ(vec_f12.z, vec__f_test.z);
+  constexpr core::maths::Vec3F vec_f_test(1.2f - 4.3f * factor_f, 2.2f - 5.3f * factor_f, 3.2f - 6.3f * factor_f);
+  EXPECT_EQ(vec_f12.x, vec_f_test.x);
+  EXPECT_EQ(vec_f12.y, vec_f_test.y);
+  EXPECT_EQ(vec_f12.z, vec_f_test.z);
 }
