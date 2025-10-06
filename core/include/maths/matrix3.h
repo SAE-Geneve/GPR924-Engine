@@ -4,14 +4,31 @@
 
 namespace core::maths {
   template <typename T>
-  requires std::is_arithmetic_v<T>
   class Matrix3 {
+    static_assert(std::is_arithmetic_v<T>, "Matrix3 requires arithmetic value type");
+
   public:
     explicit Matrix3(std::array<std::array<T, 3>, 3> newMatrix) {
       matrix = newMatrix;
     }
 
-    T Det() {
+    explicit Matrix3() noexcept {
+      matrix = {
+        {0, 0, 0},
+        {0, 0, 0},
+        {0, 0, 0}
+      };
+    }
+
+    [[nodiscard]] static Matrix3 Identity() noexcept {
+      return Matrix3(std::array<std::array<T, 3>, 3>{
+          std::array<T,3>{1,0,0},
+          std::array<T,3>{0,1,0},
+          std::array<T,3>{0,0,1}
+      });
+    }
+
+    [[nodiscard]] T Det() {
       T toAdd = 0;
       T toSub = 0;
 
@@ -25,6 +42,9 @@ namespace core::maths {
 
       return toAdd - toSub;
     }
+
+    T& operator()(size_t i, size_t j) { return matrix[i][j]; }
+    const T& operator()(size_t i, size_t j) const { return matrix[i][j]; }
 
   private:
     std::array<std::array<T, 3>, 3> matrix;
