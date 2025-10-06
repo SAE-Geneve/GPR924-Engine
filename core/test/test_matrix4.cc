@@ -164,3 +164,51 @@ TEST(Matrix4OperatorsTest, MatrixMultiplication) {
         for (int j = 0; j < 4; ++j)
             EXPECT_FLOAT_EQ(result.GetMatrix()[i][j], b[i][j]);
 }
+
+TEST(Matrix4Test, InverseOfIdentityIsIdentity) {
+  std::array<std::array<float, 4>, 4> identity = {{
+    {{1, 0, 0, 0}},
+    {{0, 1, 0, 0}},
+    {{0, 0, 1, 0}},
+    {{0, 0, 0, 1}}
+  }};
+  core::maths::Matrix4<float> mat(identity);
+  auto inv = mat.inverse();
+
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j)
+      EXPECT_FLOAT_EQ(inv.GetMatrix()[i][j], identity[i][j]);
+}
+
+TEST(Matrix4Test, InverseMultipliedByOriginalGivesIdentity) {
+  std::array<std::array<float, 4>, 4> data = {{
+    {{4, 7, 2, 0}},
+    {{3, 6, 1, 0}},
+    {{2, 5, 1, 0}},
+    {{0, 0, 0, 1}}
+  }};
+  core::maths::Matrix4<float> mat(data);
+  auto inv = mat.inverse();
+  auto result = mat * inv;
+
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j)
+      EXPECT_NEAR(result.GetMatrix()[i][j], (i == j) ? 1.0f : 0.0f, 1e-5);
+}
+
+using core::maths::Matrix4;
+
+TEST(Matrix4Test, TransposeWorks) {
+  std::array<std::array<float, 4>, 4> arr = {{
+    {{1, 2, 3, 4}},
+    {{5, 6, 7, 8}},
+    {{9, 10, 11, 12}},
+    {{13, 14, 15, 16}}
+  }};
+  Matrix4<float> mat(arr);
+  auto transposed = mat.transpose();
+
+  for (int i = 0; i < 4; ++i)
+    for (int j = 0; j < 4; ++j)
+      EXPECT_FLOAT_EQ(transposed.GetMatrix()[i][j], arr[j][i]);
+}

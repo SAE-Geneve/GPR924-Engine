@@ -16,6 +16,10 @@ public:
     m = newMatrix;
   }
 
+  // explicit Matrix4(Matrix4<T>& newMatrix) {
+  //   m = newMatrix;
+  // }
+
   explicit Matrix4() {
     m =  {{{{1, 0, 0, 0}}, {{0, 1, 0, 0}}, {{0, 0, 1, 0}}, {{0, 0, 0, 1}}}};
   }
@@ -50,10 +54,53 @@ public:
     return det;
   }
 
-  T transposer() const {}
+  Matrix4 transpose() const {
+    Matrix4<T> trans;
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        trans.m[i][j] = m[j][i];
+      }
+    }
+    return trans;
+  }
 
-  T inverse() const {}
+  Matrix4<T> inverse() const {
+    Matrix4<T> inv({{}});
+    const auto& a = m;
 
+    // Compute determinant first
+    T det = determinant();
+    if (det == static_cast<T>(0))
+      throw std::runtime_error("Matrix not invertible");
+
+    // Build the adjugate (transpose of cofactors)
+    for (int i = 0; i < 4; i++) {
+      for (int j = 0; j < 4; j++) {
+        // Build 3x3 minor
+        std::array<std::array<T, 3>, 3> minor{};
+        int rowIdx = 0;
+        for (int r = 0; r < 4; r++) {
+          if (r == i) continue;
+          int colIdx = 0;
+          for (int c = 0; c < 4; c++) {
+            if (c == j) continue;
+            minor[rowIdx][colIdx] = a[r][c];
+            ++colIdx;
+          }
+          ++rowIdx;
+        }
+
+        // Determinant of 3x3 minor
+        T minorDet =
+            minor[0][0]*(minor[1][1]*minor[2][2]-minor[1][2]*minor[2][1]) -
+            minor[0][1]*(minor[1][0]*minor[2][2]-minor[1][2]*minor[2][0]) +
+            minor[0][2]*(minor[1][0]*minor[2][1]-minor[1][1]*minor[2][0]);
+
+        inv.m[j][i] = ((i+j)%2==0 ? 1 : -1) * minorDet / det;
+      }
+    }
+    return inv;
+  }
 
   [[nodiscard]] constexpr Matrix4 operator+(const Matrix4 other) const
   {
