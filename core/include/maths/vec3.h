@@ -149,6 +149,11 @@ struct Vec3 {
     return Vec3(new_x, new_y, z);
   }
 
+  // [[nodiscard]] Vec3 RotateEuler(const float x, const float y, const float z) const requires std::floating_point<T>
+  // {
+  //
+  // }
+
   [[nodiscard]] static constexpr Vec3 Lerp(const Vec3 v0, const Vec3 v1, const float t) requires std::is_floating_point_v<T>
   {
     return Vec3{
