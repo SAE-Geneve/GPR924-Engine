@@ -11,7 +11,7 @@ namespace core::maths {
     explicit constexpr Matrix3(const std::array<T, 9>& newMatrix) : matrix(newMatrix) {}
 
     explicit constexpr Matrix3() noexcept
-        : matrix({ T(0), T(0), T(0),
+        : matrix({ (0), T(0), T(0),
                    T(0), T(0), T(0),
                    T(0), T(0), T(0) }) {}
 
@@ -47,16 +47,43 @@ namespace core::maths {
       return result;
     }
 
+    [[nodiscard]] Matrix3 Inverse() const {
+      const T det = Det();
+      if (det == static_cast<T>(0))
+        throw std::runtime_error("Matrix not invertible (determinant = 0)");
+
+      Matrix3 cof;
+      for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+          std::array<T, 4> minor;
+          size_t idx = 0;
+          for (size_t r = 0; r < 3; ++r) {
+            if (r == i) continue;
+            for (size_t c = 0; c < 3; ++c) {
+              if (c == j) continue;
+              minor[idx++] = minor[idx++] = (*this)(r, c);
+            }
+          }
+
+          T minorDet = minor[0] * minor[3] - minor[1] * minor[2]; // Determinant 2x2
+
+          T sign = (i+j) % 2 == 0 ? T(1) : T(-1);
+
+          cof(i, j) = sign * minorDet;
+        }
+      }
+    }
+
     template<typename I>
     T& operator()(I i, I j) {
       static_assert(std::is_integral_v<I>, "Indices must be integral");
-      return matrix[static_cast<std::size_t>(i) * 3 + static_cast<std::size_t>(j)];
+      return matrix[static_cast<size_t>(i) * 3 + static_cast<size_t>(j)];
     }
 
     template<typename I>
     const T& operator()(I i, I j) const {
       static_assert(std::is_integral_v<I>, "Indices must be integral");
-      return matrix[static_cast<std::size_t>(i) * 3 + static_cast<std::size_t>(j)];
+      return matrix[static_cast<size_t>(i) * 3 + static_cast<size_t>(j)];
     }
 
   private:
