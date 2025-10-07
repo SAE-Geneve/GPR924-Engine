@@ -72,6 +72,6 @@ TEST(Matrix3, Multiplication) {
 
   for (int i = 0; i < 3; ++i)
     for (int j = 0; j < 3; ++j)
-      EXPECT_EQ(expected[i*3 + j],
+      EXPECT_EQ(expected[static_cast<size_t>(i*3 + j)],
                 A(i,0)*B(0,j) + A(i,1)*B(1,j) + A(i,2)*B(2,j));
 }
