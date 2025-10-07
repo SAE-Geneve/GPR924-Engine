@@ -43,8 +43,17 @@ namespace core::maths {
       return toAdd - toSub;
     }
 
-    T& operator()(T i, T j) { return matrix[i][j]; }
-    const T& operator()(T i, T j) const { return matrix[i][j]; }
+    template<typename I>
+    T& operator()(I i, I j) {
+      static_assert(std::is_integral_v<I>, "Indices must be integral");
+      return matrix[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+    }
+
+    template<typename I>
+    const T& operator()(I i, I j) const {
+      static_assert(std::is_integral_v<I>, "Indices must be integral");
+      return matrix[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+    }
 
   private:
     std::array<std::array<T, 3>, 3> matrix;
