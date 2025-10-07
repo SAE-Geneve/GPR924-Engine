@@ -37,6 +37,16 @@ namespace core::maths {
       return toAdd - toSub;
     }
 
+    [[nodiscard]] Matrix3 Transpose() const noexcept {
+      Matrix3 result;
+      for (std::size_t i = 0; i < 3; ++i) {
+        for (std::size_t j = 0; j < 3; ++j) {
+          result(i, j) = (*this)(j, i);
+        }
+      }
+      return result;
+    }
+
     template<typename I>
     T& operator()(I i, I j) {
       static_assert(std::is_integral_v<I>, "Indices must be integral");
