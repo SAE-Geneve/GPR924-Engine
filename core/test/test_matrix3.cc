@@ -44,7 +44,7 @@ TEST(Matrix3, InverseDeterminantToZero) {
   constexpr core::maths::Matrix3<int> m;
   EXPECT_THROW({
     auto inv = m.Inverse();
-  }, std::runtime_error);
+  }, std::domain_error);
 }
 
 TEST(Matrix3, InverseOfIdentityIsIdentity) {

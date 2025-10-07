@@ -46,7 +46,7 @@ namespace core::maths {
     [[nodiscard]] Matrix3 Inverse() const {
       const T det = Det();
       if (det == static_cast<T>(0))
-        throw std::runtime_error("Matrix not invertible (determinant = 0)");
+        throw std::domain_error("Matrix not invertible (determinant = 0)");
 
       Matrix3 cof;
       for (size_t i = 0; i < 3; ++i) {
