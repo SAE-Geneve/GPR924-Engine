@@ -40,6 +40,13 @@ TEST(Matrix3, Identity) {
       EXPECT_EQ(m(i,j), i==j ? 1 : 0);
 }
 
+TEST(Matrix3, InverseDeterminantToZero) {
+  constexpr core::maths::Matrix3<int> m;
+  EXPECT_THROW({
+    auto inv = m.Inverse();
+  }, std::runtime_error);
+}
+
 TEST(Matrix3, InverseOfIdentityIsIdentity) {
   constexpr auto m = core::maths::Matrix3<int>::Identity();
 
