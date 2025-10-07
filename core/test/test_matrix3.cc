@@ -48,3 +48,30 @@ TEST(Matrix3, InverseOfIdentityIsIdentity) {
     for (int j = 0; j < 3; ++j)
       EXPECT_EQ(m(i, j), inv(i, j));
 }
+
+TEST(Matrix3, Multiplication) {
+  constexpr std::array<float, 9> a = {
+    1, 2, 3,
+    4, 5, 6,
+    7, 8, 9
+};
+  constexpr std::array<float, 9> b = {
+    9, 8, 7,
+    6, 5, 4,
+    3, 2, 1
+};
+
+  constexpr core::maths::Matrix3 A(a);
+  constexpr core::maths::Matrix3 B(b);
+
+  constexpr std::array<float, 9> expected = {
+    30, 24, 18,
+    84, 69, 54,
+    138, 114, 90
+};
+
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      EXPECT_EQ(expected[i*3 + j],
+                A(i,0)*B(0,j) + A(i,1)*B(1,j) + A(i,2)*B(2,j));
+}

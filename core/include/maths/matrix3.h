@@ -9,7 +9,6 @@ namespace core::maths {
 
   public:
     explicit constexpr Matrix3(const std::array<T, 9>& newMatrix) : matrix_(newMatrix) {}
-
     explicit constexpr Matrix3() noexcept : matrix_(){}
 
     [[nodiscard]] static constexpr Matrix3 Identity() noexcept {
@@ -54,6 +53,7 @@ namespace core::maths {
         for (size_t j = 0; j < 3; ++j) {
           std::array<T, 4> minor;
           size_t idx = 0;
+
           for (size_t r = 0; r < 3; ++r) {
             if (r == i) continue;
             for (size_t c = 0; c < 3; ++c) {
@@ -89,6 +89,17 @@ namespace core::maths {
     const T& operator()(I i, I j) const {
       static_assert(std::is_integral_v<I>, "Indices must be integral");
       return matrix_[static_cast<size_t>(i) * 3 + static_cast<size_t>(j)];
+    }
+
+    T operator*(const Matrix3& other) {
+      const Matrix3 result;
+      for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+          for (size_t k = 0; k < 3; ++k)
+            result(i, j) += matrix_(i, k) * other(k, j);
+        }
+      }
+      return result;
     }
 
   private:
