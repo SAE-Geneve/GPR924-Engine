@@ -24,6 +24,7 @@ TEST(Engine, RunEngine) {
   ClosingSystem closingSystem;
   common::SystemObserverSubject::AddObserver(&closingSystem);
   common::RunEngine();
+  common::SystemObserverSubject::RemoveObserver(&closingSystem);
 }
 
 class ClosingSystemWithGui : public ClosingSystem, public common::OnGuiInterface {
@@ -40,4 +41,6 @@ TEST(Engine, Gui) {
   common::SystemObserverSubject::AddObserver(&closingSystem);
   common::OnGuiObserverSubject::AddObserver(&closingSystem);
   common::RunEngine();
+  common::OnGuiObserverSubject::RemoveObserver(&closingSystem);
+  common::SystemObserverSubject::RemoveObserver(&closingSystem);
 }
