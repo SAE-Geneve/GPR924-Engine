@@ -61,17 +61,67 @@ TEST(Matrix3, Multiplication) {
     3, 2, 1
 };
 
-  const core::maths::Matrix3 A(a);
-  const core::maths::Matrix3 B(b);
-  const core::maths::Matrix3 Result = A * B;
-
   constexpr std::array<float, 9> expected = {
     30, 24, 18,
     84, 69, 54,
     138, 114, 90
   };
 
+  const core::maths::Matrix3 A(a);
+  const core::maths::Matrix3 B(b);
+  const core::maths::Matrix3 result = A * B;
+  constexpr core::maths::Matrix3 E(expected);
+
   for (size_t i = 0; i < 3; ++i)
     for (size_t j = 0; j < 3; ++j)
-      EXPECT_EQ(Result(i, j), expected[i * 3 + j]);
+      EXPECT_EQ(result(i, j), E(i, j));
+}
+
+TEST(Matrix3, Addition) {
+  constexpr std::array<float, 9> a = {
+    1, 2, 3,
+    4, 5, 6,
+    7, 8, 9
+};
+  constexpr std::array<float, 9> b = {
+    9, 8, 7,
+    6, 5, 4,
+    3, 2, 1
+};
+
+  const core::maths::Matrix3 A(a);
+  const core::maths::Matrix3 B(b);
+  const core::maths::Matrix3 result = A + B;
+
+  for (size_t i = 0; i < 3; ++i)
+    for (size_t j = 0; j < 3; ++j)
+      EXPECT_EQ(result(i, j), 10);
+}
+
+TEST(Matrix3, Subtraction) {
+  constexpr std::array<float, 9> a = {
+    1, 2, 3,
+    4, 5, 6,
+    7, 8, 9
+};
+  constexpr std::array<float, 9> b = {
+    9, 8, 7,
+    6, 5, 4,
+    3, 2, 1
+};
+
+  constexpr std::array<float, 9> expected = {
+    1-9,  2-8,  3-7,
+    4-6,  5-5,  6-4,
+    7-3,  8-2,  9-1
+};
+
+  const core::maths::Matrix3 A(a);
+  const core::maths::Matrix3 B(b);
+  const core::maths::Matrix3 result = A - B;
+  constexpr core::maths::Matrix3 E(expected);
+
+  for (size_t i = 0; i < 3; ++i)
+    for (size_t j = 0; j < 3; ++j)
+      EXPECT_EQ(result(i, j), E(i, j));
 }

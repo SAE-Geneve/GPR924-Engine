@@ -91,6 +91,26 @@ namespace core::maths {
       return matrix_[static_cast<size_t>(i) * 3 + static_cast<size_t>(j)];
     }
 
+    [[nodiscard]] Matrix3 operator+(const Matrix3& other) const noexcept {
+      Matrix3 result;
+      for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+          result(i, j) = (*this)(i, j) + other(i, j);
+        }
+      }
+      return result;
+    }
+
+    [[nodiscard]] Matrix3 operator-(const Matrix3& other) const noexcept {
+      Matrix3 result;
+      for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+          result(i, j) = (*this)(i, j) - other(i, j);
+        }
+      }
+      return result;
+    }
+
     [[nodiscard]] Matrix3 operator*(const Matrix3& other) const noexcept {
       Matrix3 result;
       for (size_t i = 0; i < 3; ++i) {
