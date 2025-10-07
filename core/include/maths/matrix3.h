@@ -10,10 +10,7 @@ namespace core::maths {
   public:
     explicit constexpr Matrix3(const std::array<T, 9>& newMatrix) : matrix_(newMatrix) {}
 
-    explicit constexpr Matrix3() noexcept
-        : matrix_({ (0), T(0), T(0),
-                   T(0), T(0), T(0),
-                   T(0), T(0), T(0) }) {}
+    explicit constexpr Matrix3() noexcept : matrix_(){}
 
     [[nodiscard]] static constexpr Matrix3 Identity() noexcept {
       return Matrix3(std::array<T,9>{
@@ -67,7 +64,7 @@ namespace core::maths {
 
           T minorDet = minor[0] * minor[3] - minor[1] * minor[2]; // Determinant 2x2
 
-          T sign = (i+j) % 2 == 0 ? T(1) : T(-1);
+          T sign = (i+j) % 2 == 0 ? static_cast<T>(1) : static_cast<T>(-1);
 
           cof(i, j) = sign * minorDet;
         }
