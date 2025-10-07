@@ -43,8 +43,8 @@ namespace core::maths {
       return toAdd - toSub;
     }
 
-    T& operator()(size_t i, size_t j) { return matrix[i][j]; }
-    const T& operator()(size_t i, size_t j) const { return matrix[i][j]; }
+    T& operator()(T i, T j) { return matrix[i][j]; }
+    const T& operator()(T i, T j) const { return matrix[i][j]; }
 
   private:
     std::array<std::array<T, 3>, 3> matrix;
