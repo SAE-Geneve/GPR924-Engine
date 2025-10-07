@@ -6,16 +6,17 @@
 #include "gtest/gtest.h"
 
 class ClosingSystem : public common::SystemInterface {
-  public:
-  void Begin() override{}
-  void End() override{}
-  void Update([[maybe_unused]]float dt) override {
+ public:
+  void Begin() override {}
+  void End() override {}
+  void Update([[maybe_unused]] float dt) override {
     ++count_;
     if (count_ > kCloseCount) {
       common::CloseWindow();
     }
   }
-protected:
+
+ protected:
   static constexpr int kCloseCount = 100;
   int count_ = 0;
 };
@@ -27,7 +28,8 @@ TEST(Engine, RunEngine) {
   common::SystemObserverSubject::RemoveObserver(&closingSystem);
 }
 
-class ClosingSystemWithGui : public ClosingSystem, public common::OnGuiInterface {
+class ClosingSystemWithGui : public ClosingSystem,
+                             public common::OnGuiInterface {
  public:
   void OnGui() override {
     ImGui::Begin("New Gui Window");
