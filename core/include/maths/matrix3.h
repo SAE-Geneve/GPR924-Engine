@@ -58,7 +58,7 @@ namespace core::maths {
             if (r == i) continue;
             for (size_t c = 0; c < 3; ++c) {
               if (c == j) continue;
-              minor[idx++] = minor[idx++] = (*this)(r, c);
+              minor[idx++] = (*this)(r, c);
             }
           }
 
@@ -69,6 +69,14 @@ namespace core::maths {
           cof(i, j) = sign * minorDet;
         }
       }
+
+      Matrix3 adj = cof.Transpose();
+
+      for (size_t i = 0; i < 3; ++i)
+        for (size_t j = 0; j < 3; ++j)
+          adj(i, j) /= det;
+
+      return adj;
     }
 
     template<typename I>

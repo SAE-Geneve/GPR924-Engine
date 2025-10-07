@@ -39,3 +39,12 @@ TEST(Matrix3, Identity) {
     for (int j = 0; j < 3; ++j)
       EXPECT_EQ(m(i,j), i==j ? 1 : 0);
 }
+
+TEST(Matrix3, InverseOfIdentityIsIdentity) {
+  constexpr auto m = core::maths::Matrix3<int>::Identity();
+
+  const auto inv = m.Inverse();
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+      EXPECT_EQ(m(i, j), inv(i, j));
+}
