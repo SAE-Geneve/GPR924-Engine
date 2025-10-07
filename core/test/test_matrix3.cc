@@ -61,17 +61,17 @@ TEST(Matrix3, Multiplication) {
     3, 2, 1
 };
 
-  constexpr core::maths::Matrix3 A(a);
-  constexpr core::maths::Matrix3 B(b);
+  const core::maths::Matrix3 A(a);
+  const core::maths::Matrix3 B(b);
+  const core::maths::Matrix3 Result = A * B;
 
   constexpr std::array<float, 9> expected = {
     30, 24, 18,
     84, 69, 54,
     138, 114, 90
-};
+  };
 
-  for (int i = 0; i < 3; ++i)
-    for (int j = 0; j < 3; ++j)
-      EXPECT_EQ(expected[static_cast<size_t>(i*3 + j)],
-                A(i,0)*B(0,j) + A(i,1)*B(1,j) + A(i,2)*B(2,j));
+  for (size_t i = 0; i < 3; ++i)
+    for (size_t j = 0; j < 3; ++j)
+      EXPECT_EQ(Result(i, j), expected[i * 3 + j]);
 }

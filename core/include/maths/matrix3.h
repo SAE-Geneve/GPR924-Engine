@@ -91,12 +91,12 @@ namespace core::maths {
       return matrix_[static_cast<size_t>(i) * 3 + static_cast<size_t>(j)];
     }
 
-    T operator*(const Matrix3& other) {
-      const Matrix3 result;
+    [[nodiscard]] Matrix3 operator*(const Matrix3& other) const noexcept {
+      Matrix3 result;
       for (size_t i = 0; i < 3; ++i) {
         for (size_t j = 0; j < 3; ++j) {
           for (size_t k = 0; k < 3; ++k)
-            result(i, j) += matrix_(i, k) * other(k, j);
+            result(i, j) += (*this)(i, k) * other(k, j);
         }
       }
       return result;
