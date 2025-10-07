@@ -8,37 +8,31 @@ namespace core::maths {
     static_assert(std::is_arithmetic_v<T>, "Matrix3 requires arithmetic value type");
 
   public:
-    explicit Matrix3(std::array<std::array<T, 3>, 3> newMatrix) {
-      matrix = newMatrix;
-    }
+    explicit constexpr Matrix3(const std::array<T, 9>& newMatrix) : matrix(newMatrix) {}
 
-    explicit Matrix3() noexcept {
-      matrix = {
-        {0, 0, 0},
-        {0, 0, 0},
-        {0, 0, 0}
-      };
-    }
+    explicit constexpr Matrix3() noexcept
+        : matrix{{ T(0), T(0), T(0),
+                   T(0), T(0), T(0),
+                   T(0), T(0), T(0) }} {}
 
-    [[nodiscard]] static Matrix3 Identity() noexcept {
-      return Matrix3(std::array<std::array<T, 3>, 3>{
-          std::array<T,3>{1,0,0},
-          std::array<T,3>{0,1,0},
-          std::array<T,3>{0,0,1}
+    [[nodiscard]] static constexpr Matrix3 Identity() noexcept {
+      return Matrix3(std::array<T,9>{
+          T(1), T(0), T(0),
+          T(0), T(1), T(0),
+          T(0), T(0), T(1)
       });
     }
 
-    [[nodiscard]] T Det() {
-      T toAdd = 0;
-      T toSub = 0;
+    [[nodiscard]] T Det() const noexcept {
+      const T toAdd =
+          matrix[0] * matrix[4] * matrix[8] +
+          matrix[1] * matrix[5] * matrix[6] +
+          matrix[2] * matrix[3] * matrix[7];
 
-      toAdd += matrix[0][0] * matrix[1][1] * matrix[2][2];
-      toAdd += matrix[0][1] * matrix[1][2] * matrix[2][0];
-      toAdd += matrix[0][2] * matrix[1][0] * matrix[2][1];
-
-      toSub += matrix[2][0] * matrix[1][1] * matrix[0][2];
-      toSub += matrix[2][1] * matrix[1][2] * matrix[0][0];
-      toSub += matrix[2][2] * matrix[1][0] * matrix[0][1];
+      const T toSub =
+          matrix[6] * matrix[4] * matrix[2] +
+          matrix[7] * matrix[5] * matrix[0] +
+          matrix[8] * matrix[3] * matrix[1];
 
       return toAdd - toSub;
     }
@@ -46,17 +40,17 @@ namespace core::maths {
     template<typename I>
     T& operator()(I i, I j) {
       static_assert(std::is_integral_v<I>, "Indices must be integral");
-      return matrix[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+      return matrix[static_cast<std::size_t>(i) * 3 + static_cast<std::size_t>(j)];
     }
 
     template<typename I>
     const T& operator()(I i, I j) const {
       static_assert(std::is_integral_v<I>, "Indices must be integral");
-      return matrix[static_cast<std::size_t>(i)][static_cast<std::size_t>(j)];
+      return matrix[static_cast<std::size_t>(i) * 3 + static_cast<std::size_t>(j)];
     }
 
   private:
-    std::array<std::array<T, 3>, 3> matrix;
+    std::array<T, 9> matrix;
   };
 }
 
