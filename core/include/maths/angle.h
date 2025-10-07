@@ -7,9 +7,9 @@ namespace core::maths {
 struct Degree;
 
 struct Radian {
-  constexpr explicit Radian(float value) : value(value) {}
+  constexpr explicit Radian(const float value) : value(value) {}
 
-  Radian(const Degree& degree);
+  explicit Radian(const Degree& degree);
 
   explicit constexpr operator float() const { return value; }
 
@@ -20,9 +20,9 @@ struct Radian {
 };
 
 struct Degree {
-  constexpr explicit Degree(float value) : value(value) {}
+  constexpr explicit Degree(const float value) : value(value) {}
 
-  Degree(const Radian& radian)
+  explicit Degree(const Radian& radian)
       : value(radian.Value() * 180.0f / std::numbers::pi_v<float>) {}
 
   explicit constexpr operator float() const { return value; }

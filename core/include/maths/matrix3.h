@@ -11,9 +11,9 @@ namespace core::maths {
     explicit constexpr Matrix3(const std::array<T, 9>& newMatrix) : matrix(newMatrix) {}
 
     explicit constexpr Matrix3() noexcept
-        : matrix{{ T(0), T(0), T(0),
+        : matrix({ T(0), T(0), T(0),
                    T(0), T(0), T(0),
-                   T(0), T(0), T(0) }} {}
+                   T(0), T(0), T(0) }) {}
 
     [[nodiscard]] static constexpr Matrix3 Identity() noexcept {
       return Matrix3(std::array<T,9>{
