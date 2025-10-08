@@ -112,21 +112,15 @@ struct Vec2 {
     }
     return *this / man;
   }
-  //Delete this, make a simple Rotate function with a rotation matrix
-  [[nodiscard]] Vec2 RotateX(const Radian angle) const
-    requires std::floating_point<T>
-  {
-    const T c = std::cos(static_cast<float>(angle));
-    const T new_y = y * c;
-    return Vec2(x, new_y);
-  }
 
-  [[nodiscard]] Vec2 RotateY(const Radian angle) const
+  [[nodiscard]] Vec2 Rotate(const Radian angle) const
     requires std::floating_point<T>
   {
     const T c = std::cos(static_cast<float>(angle));
-    const T new_x = x * c;
-    return Vec2(new_x, y);
+    const T s = std::cos(static_cast<float>(angle));
+    const T new_x = x * c - y * s;
+    const T new_y = x * s + y * c;
+    return Vec2(new_x, new_y);
   }
 
   [[nodiscard]] static constexpr Vec2 Lerp(const Vec2 v0, const Vec2 v1,
@@ -169,6 +163,15 @@ struct Vec2 {
                                                  const Vec2 normal) {
     T factor = 2 * v.Dot(normal);
     return Vec2{v.x - normal.x * factor, v.y - normal.y * factor};
+  }
+
+  [[nodiscard]] Vec2 constexpr PerpendicularClockWise() const
+  {
+    return Vec2(y, -x);
+  }
+  [[nodiscard]] Vec2 constexpr PerpendicularCounterClockWise() const
+  {
+    return Vec2(-y, x);
   }
 };
 
