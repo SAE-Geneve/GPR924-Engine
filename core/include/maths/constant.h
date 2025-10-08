@@ -6,7 +6,7 @@
 
 namespace core
 {
-  static constexpr float Epslon = 1e-6f;
+  static constexpr float Epsilon = 1e-6f;
 }
 
 #endif //CONSTANT_H
