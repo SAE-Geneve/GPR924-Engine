@@ -107,7 +107,8 @@ TEST(Vec3, Dot)
   EXPECT_FLOAT_EQ(vec_f1.Dot(vec_f2), 4.3f * 1.2f + 5.3f * 2.2f + 6.3f * 3.2f);
   EXPECT_FLOAT_EQ(core::Vec3F::Dot(vec_f1, vec_f2), 4.3f * 1.2f + 5.3f * 2.2f + 6.3f * 3.2f);
 }
-//Test dot of result with vec1 and vec2 is 0/constant epsilon
+
+//TODO : Test dot of result with vec1 and vec2 is 0/constant epsilon
 TEST(Vec3, Cross)
 {
   constexpr core::Vec3I vec1(4, 5, 6);
