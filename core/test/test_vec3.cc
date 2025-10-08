@@ -97,18 +97,19 @@ TEST(Vec3, Muli)
 
 TEST(Vec3, Dot)
 {
-  constexpr core::Vec3I vec1(4, 5, 6);
-  constexpr core::Vec3I vec2(1, 2, 3);
-  EXPECT_EQ(vec1.Dot(vec2), 4 * 1 + 5 * 2 + 6 * 3);
-  EXPECT_EQ(core::Vec3I::Dot(vec1, vec2), 4 * 1 + 5 * 2 + 6 * 3);
+  constexpr core::Vec3I vec1(1, 2, -2);
+  constexpr core::Vec3I vec2(2, -1, 0);
+  EXPECT_EQ(vec1.Dot(vec2), 0);
+  EXPECT_EQ(core::Vec3I::Dot(vec1, vec2), 0);
 
-  constexpr core::Vec3F vec_f1(4.3f, 5.3f, 6.3f);
-  constexpr core::Vec3F vec_f2(1.2f, 2.2f, 3.2f);
-  EXPECT_FLOAT_EQ(vec_f1.Dot(vec_f2), 4.3f * 1.2f + 5.3f * 2.2f + 6.3f * 3.2f);
-  EXPECT_FLOAT_EQ(core::Vec3F::Dot(vec_f1, vec_f2), 4.3f * 1.2f + 5.3f * 2.2f + 6.3f * 3.2f);
+  constexpr core::Vec3F vec_f1(1.2f, -3.5f, 2.1f);
+  constexpr core::Vec3F vec_f2(3.5f, 1.2f, 0.0f);
+  EXPECT_FLOAT_EQ(vec_f1.Dot(vec_f2), 0);
+  EXPECT_FLOAT_EQ(core::Vec3F::Dot(vec_f1, vec_f2), 0);
 }
 
 //TODO : Test dot of result with vec1 and vec2 is 0/constant epsilon
+
 TEST(Vec3, Cross)
 {
   constexpr core::Vec3I vec1(4, 5, 6);
