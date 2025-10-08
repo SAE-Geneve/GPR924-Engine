@@ -1,6 +1,9 @@
-#ifndef MATRIX3_H
-#define MATRIX3_H
+#ifndef CORE_MATH_MATRIX3_H
+#define CORE_MATH_MATRIX3_H
 #include <array>
+
+#include "matrix2.h"
+#include "vec3.h"
 
 namespace core {
 template <typename T>
@@ -9,84 +12,93 @@ class Matrix3 {
                 "Matrix3 requires arithmetic value type");
 
  public:
-  explicit constexpr Matrix3(const std::array<T, 9>& newMatrix)
-      : matrix_(newMatrix) {}
-  // TODO 3 vec3
-  explicit constexpr Matrix3() noexcept : matrix_() {}
+  explicit constexpr Matrix3(const std::array<std::array<T, 3>, 3>& matrix) {
+    new_matrix_ = {
+      Vec3<T>(matrix[0][0], matrix[0][1], matrix[0][2]),
+      Vec3<T>(matrix[1][0], matrix[1][1], matrix[1][2]),
+      Vec3<T>(matrix[2][0], matrix[2][1], matrix[2][2])
+    };
+  }
+  explicit constexpr Matrix3(Vec3<T> v1, Vec3<T> v2, Vec3<T> v3) : new_matrix_{v1, v2, v3} {}
+  explicit constexpr Matrix3() noexcept : new_matrix_{} {}
 
   [[nodiscard]] static constexpr Matrix3 Identity() noexcept {
+    return Matrix3(std::array<std::array<T, 3>, 3>{{
+        { T(1), T(0), T(0) },
+        { T(0), T(1), T(0) },
+        { T(0), T(0), T(1) }
+    }});
+  }
+
+  [[nodiscard]] constexpr T determinant() const noexcept {
+    return new_matrix_[0].Dot(new_matrix_[1].Cross(new_matrix_[2]));
+  }
+
+  [[nodiscard]] constexpr Matrix3 Transpose() const noexcept {
     return Matrix3(
-        std::array<T, 9>{T(1), T(0), T(0), T(0), T(1), T(0), T(0), T(0), T(1)});
-  }
-
-  [[nodiscard]] constexpr T Det() const noexcept {
-    const T toAdd = matrix_[0] * matrix_[4] * matrix_[8] +
-                    matrix_[1] * matrix_[5] * matrix_[6] +
-                    matrix_[2] * matrix_[3] * matrix_[7];
-
-    const T toSub = matrix_[6] * matrix_[4] * matrix_[2] +
-                    matrix_[7] * matrix_[5] * matrix_[0] +
-                    matrix_[8] * matrix_[3] * matrix_[1];
-
-    return toAdd - toSub;
-  }
-
-  [[nodiscard]] Matrix3 Transpose() const noexcept {
-    Matrix3 result;
-    for (std::size_t i = 0; i < 3; ++i) {
-      for (std::size_t j = 0; j < 3; ++j) {
-        result(i, j) = (*this)(j, i);
-      }
-    }
-    return result;
+        Vec3<T>(new_matrix_[0].x, new_matrix_[1].x, new_matrix_[2].x),
+        Vec3<T>(new_matrix_[0].y, new_matrix_[1].y, new_matrix_[2].y),
+        Vec3<T>(new_matrix_[0].z, new_matrix_[1].z, new_matrix_[2].z)
+    );
   }
 
   [[nodiscard]] Matrix3 Inverse() const {
-    const T det = Det();
+    const T det = determinant();
     if (det == static_cast<T>(0))
       throw std::domain_error("Matrix not invertible (determinant = 0)");
 
     Matrix3 cof;
-    for (size_t i = 0; i < 3; ++i) {
-      for (size_t j = 0; j < 3; ++j) {
-        std::array<T, 4> minor; //MAt2?
-        size_t idx = 0;
-
+    for (int i = 0; i < 3; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        Matrix2<T> minor;
+        int mi = 0, mj = 0;
         for (size_t r = 0; r < 3; ++r) {
           if (r == i) continue;
+          mj = 0;
           for (size_t c = 0; c < 3; ++c) {
             if (c == j) continue;
-            minor[idx++] = (*this)(r, c);
+            minor(mi, mj++) = (*this)(r, c);
           }
+          mi++;
         }
-
-        T minorDet =
-            minor[0] * minor[3] - minor[1] * minor[2];  // Determinant 2x2
 
         T sign = (i + j) % 2 == 0 ? static_cast<T>(1) : static_cast<T>(-1);
 
-        cof(i, j) = sign * minorDet;
+        cof(i, j) = sign * minor.determinant();
       }
     }
 
     Matrix3 adj = cof.Transpose();
 
     for (size_t i = 0; i < 3; ++i)
-      for (size_t j = 0; j < 3; ++j) adj(i, j) /= det;
+      for (size_t j = 0; j < 3; ++j)
+        adj(i, j) /= det;
 
     return adj;
   }
 
   template <typename I>
-  T& operator()(I i, I j) {
+  constexpr T& operator()(I i, I j) {
     static_assert(std::is_integral_v<I>, "Indices must be integral");
-    return matrix_[static_cast<size_t>(i) * 3 + static_cast<size_t>(j)];
+    auto& row = new_matrix_[static_cast<size_t>(i)];
+    switch (j) {
+      case 0: return row.x;
+      case 1: return row.y;
+      case 2: return row.z;
+      default: throw std::out_of_range("Vec3 index");
+    }
   }
 
   template <typename I>
-  const T& operator()(I i, I j) const {
+  constexpr const T& operator()(I i, I j) const {
     static_assert(std::is_integral_v<I>, "Indices must be integral");
-    return matrix_[static_cast<size_t>(i) * 3 + static_cast<size_t>(j)];
+    const auto& row = new_matrix_[static_cast<size_t>(i)];
+    switch (j) {
+      case 0: return row.x;
+      case 1: return row.y;
+      case 2: return row.z;
+      default: throw std::out_of_range("Vec3 index");
+    }
   }
 
   [[nodiscard]] Matrix3 operator+(const Matrix3& other) const noexcept {
@@ -121,8 +133,8 @@ class Matrix3 {
   }
 
  private:
-  std::array<T, 9> matrix_;
+  std::array<Vec3<T>, 3> new_matrix_;
 };
 }  // namespace core::maths
 
-#endif  // MATRIX3_H
+#endif  // CORE_MATH_MATRIX3_H

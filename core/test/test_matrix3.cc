@@ -2,34 +2,34 @@
 #include "maths/matrix3.h"
 
 TEST(Matrix3, Determinant) {
-  constexpr std::array<float, 9> matrix ={
-    1, 2, 3,
-    4, 5, 6,
-    7, 8, 9
-  };
+  constexpr std::array<std::array<float, 3>, 3> matrix = {{
+       {1, 2, 3},
+      {4, 5, 6},
+      {7, 8, 9}
+  }};
 
   constexpr core::Matrix3 m(matrix);
-  EXPECT_EQ(m.Det(), 0);
+  EXPECT_EQ(m.determinant(), 0);
 }
 
 TEST(Matrix3, ZeroMatrix) {
   constexpr core::Matrix3<int> m;
-  EXPECT_EQ(m.Det(), 0);
+  EXPECT_EQ(m.determinant(), 0);
 }
 
 TEST(Matrix3, Transpose) {
-  constexpr std::array<float, 9> matrix ={
-    1, 2, 3,
-    4, 5, 6,
-    7, 8, 9
-  };
+  constexpr std::array<std::array<float, 3>, 3> matrix = {{
+       {1, 2, 3},
+      {4, 5, 6},
+      {7, 8, 9}
+  }};
 
   constexpr core::Matrix3 m(matrix);
   const auto t = m.Transpose();
 
   EXPECT_EQ(t(0,1), m(1,0));
   EXPECT_NE(t(0,1), m(0,1));
-  EXPECT_EQ(m.Det(), t.Det());
+  EXPECT_EQ(m.determinant(), t.determinant());
 }
 
 TEST(Matrix3, Identity) {
@@ -55,25 +55,26 @@ TEST(Matrix3, InverseOfIdentityIsIdentity) {
 }
 
 TEST(Matrix3, Multiplication) {
-  constexpr std::array<float, 9> a = {
-    1, 2, 3,
-    4, 5, 6,
-    7, 8, 9
-};
-  constexpr std::array<float, 9> b = {
-    9, 8, 7,
-    6, 5, 4,
-    3, 2, 1
-};
+  constexpr std::array<std::array<float, 3>, 3> a = {{
+      {1, 2, 3},
+      {4, 5, 6},
+      {7, 8, 9}
+  }};
 
-  constexpr std::array<float, 9> expected = {
-    30, 24, 18,
-    84, 69, 54,
-    138, 114, 90
-  };
+  constexpr std::array<std::array<float, 3>, 3> b = {{
+    {9, 8, 7},
+    {6, 5, 4},
+    {3, 2, 1}
+  }};
 
-  const core::Matrix3 A(a);
-  const core::Matrix3 B(b);
+  constexpr std::array<std::array<float, 3>, 3> expected = {{
+    {30, 24, 18},
+    {84, 69, 54},
+    {138, 114, 90}
+  }};
+
+  constexpr core::Matrix3 A(a);
+  constexpr core::Matrix3 B(b);
   const core::Matrix3 result = A * B;
   constexpr core::Matrix3 E(expected);
 
@@ -83,19 +84,20 @@ TEST(Matrix3, Multiplication) {
 }
 
 TEST(Matrix3, Addition) {
-  constexpr std::array<float, 9> a = {
-    1, 2, 3,
-    4, 5, 6,
-    7, 8, 9
-};
-  constexpr std::array<float, 9> b = {
-    9, 8, 7,
-    6, 5, 4,
-    3, 2, 1
-};
+  constexpr std::array<std::array<float, 3>, 3> a = {{
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+  }};
 
-  const core::Matrix3 A(a);
-  const core::Matrix3 B(b);
+  constexpr std::array<std::array<float, 3>, 3> b = {{
+    {9, 8, 7},
+    {6, 5, 4},
+    {3, 2, 1}
+  }};
+
+  constexpr core::Matrix3 A(a);
+  constexpr core::Matrix3 B(b);
   const core::Matrix3 result = A + B;
 
   for (size_t i = 0; i < 3; ++i)
@@ -104,25 +106,26 @@ TEST(Matrix3, Addition) {
 }
 
 TEST(Matrix3, Subtraction) {
-  constexpr std::array<float, 9> a = {
-    1, 2, 3,
-    4, 5, 6,
-    7, 8, 9
-};
-  constexpr std::array<float, 9> b = {
-    9, 8, 7,
-    6, 5, 4,
-    3, 2, 1
-};
+  constexpr std::array<std::array<float, 3>, 3> a = {{
+    {1, 2, 3},
+    {4, 5, 6},
+    {7, 8, 9}
+  }};
 
-  constexpr std::array<float, 9> expected = {
-    1-9,  2-8,  3-7,
-    4-6,  5-5,  6-4,
-    7-3,  8-2,  9-1
-};
+  constexpr std::array<std::array<float, 3>, 3> b = {{
+    {9, 8, 7},
+    {6, 5, 4},
+    {3, 2, 1}
+  }};
 
-  const core::Matrix3 A(a);
-  const core::Matrix3 B(b);
+  constexpr std::array<std::array<float, 3>, 3> expected = {{
+    {1-9,  2-8,  3-7},
+    {4-6,  5-5,  6-4},
+    {7-3,  8-2,  9-1}
+}};
+
+  constexpr core::Matrix3 A(a);
+  constexpr core::Matrix3 B(b);
   const core::Matrix3 result = A - B;
   constexpr core::Matrix3 E(expected);
 

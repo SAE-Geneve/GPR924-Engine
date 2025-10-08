@@ -12,12 +12,12 @@ TEST(Matrix2, Determinant) {
   };
 
   constexpr core::Matrix2 m(matrix);
-  EXPECT_EQ(m.Det(), -2);
+  EXPECT_EQ(m.determinant(), -2);
 }
 
 TEST(Matrix2, ZeroMatrix) {
   constexpr core::Matrix2<int> m;
-  EXPECT_EQ(m.Det(), 0);
+  EXPECT_EQ(m.determinant(), 0);
 }
 
 TEST(Matrix2, Transpose) {
@@ -31,7 +31,7 @@ TEST(Matrix2, Transpose) {
 
   EXPECT_EQ(t(0,1), m(1,0));
   EXPECT_NE(t(0,1), m(0,1));
-  EXPECT_EQ(m.Det(), t.Det());
+  EXPECT_EQ(m.determinant(), t.determinant());
 }
 
 TEST(Matrix2, Identity) {

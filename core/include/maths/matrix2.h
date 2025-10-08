@@ -25,7 +25,7 @@ class Matrix2 {
     return Matrix2(std::array<T, 4>{T(1), T(0), T(0), T(1)});
   }
 
-  [[nodiscard]] constexpr T Det() const noexcept {
+  [[nodiscard]] constexpr T determinant() const noexcept {
     return matrix_[0] * matrix_[3] - matrix_[1] * matrix_[2];
   }
 
@@ -40,7 +40,7 @@ class Matrix2 {
   }
 
   [[nodiscard]] Matrix2 Inverse() const {
-    const T det = Det();
+    const T det = determinant();
     if (det == static_cast<T>(0))
       throw std::domain_error("Matrix not invertible (determinant = 0)");
 
