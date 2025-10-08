@@ -117,7 +117,7 @@ struct Vec2 {
     requires std::floating_point<T>
   {
     const T c = std::cos(static_cast<float>(angle));
-    const T s = std::cos(static_cast<float>(angle));
+    const T s = std::sin(static_cast<float>(angle));
     const T new_x = x * c - y * s;
     const T new_y = x * s + y * c;
     return Vec2(new_x, new_y);

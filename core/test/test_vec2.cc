@@ -180,7 +180,7 @@ TEST(Vec2, Rotate)
 
   auto c = std::cos(
       static_cast<float>(core::Radian(core::Degree(90))));
-  auto s = std::cos(
+  auto s = std::sin(
       static_cast<float>(core::Radian(core::Degree(90))));
 
   float new_x = test_vec.x * c - test_vec.y * s;
