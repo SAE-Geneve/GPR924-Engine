@@ -9,7 +9,7 @@
 
 #include "angle.h"
 
-namespace core::maths {
+namespace core {
 template <typename Vector3T, typename T>
 concept IsVector3 = requires(Vector3T v) {
   { v.x } -> std::same_as<T&>;
@@ -89,29 +89,29 @@ struct Vec3 {
     return {x / t, y / t, z / t};
   }
 
-  [[nodiscard]] T MagnitudeSqr() const
+  [[nodiscard]] constexpr T magnitude_sqr() const
     requires std::is_floating_point_v<T>
   {
     return x * x + y * y + z * z;
   }
 
-  [[nodiscard]] T Magnitude() const
+  [[nodiscard]] T magnitude() const
     requires std::is_floating_point_v<T>
   {
-    return std::sqrt(MagnitudeSqr());
+    return std::sqrt(magnitude_sqr());
   }
 
   [[nodiscard]] Vec3 Normalize() const
     requires std::is_floating_point_v<T>
   {
-    const T man = Magnitude();
+    const T man = magnitude();
     if (man == 0.0f) {
       return Vec3(0, 0, 0);
     }
     return *this / man;
   }
 
-  [[nodiscard]] Vec3 RotateX(const Radian angle) const
+  [[nodiscard]] Vec3 Pitch(const Radian angle) const
     requires std::floating_point<T>
   {
     const T c = std::cos(static_cast<float>(angle));
@@ -121,7 +121,7 @@ struct Vec3 {
     return Vec3(x, new_y, new_z);
   }
 
-  [[nodiscard]] Vec3 RotateY(const Radian angle) const
+  [[nodiscard]] Vec3 Yaw(const Radian angle) const
     requires std::floating_point<T>
   {
     const T c = std::cos(static_cast<float>(angle));
@@ -131,7 +131,7 @@ struct Vec3 {
     return Vec3(new_x, y, new_z);
   }
 
-  [[nodiscard]] Vec3 RotateZ(const Radian angle) const
+  [[nodiscard]] Vec3 Roll(const Radian angle) const
     requires std::floating_point<T>
   {
     const T c = std::cos(static_cast<float>(angle));

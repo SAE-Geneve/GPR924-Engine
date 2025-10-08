@@ -6,7 +6,7 @@
 
 #include <numbers>
 
-namespace core::maths {
+namespace core {
 struct Degree;
 
 struct Radian {
