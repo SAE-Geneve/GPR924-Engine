@@ -264,3 +264,18 @@ TEST(Vec2, Reflection)
   EXPECT_EQ(vec_f12.x, vec_f_test.x);
   EXPECT_EQ(vec_f12.y, vec_f_test.y);
 }
+
+TEST(Vec2, Perpendicular)
+{
+  constexpr core::Vec2F test_vec(1.2f, 2.2f);
+
+  auto result_float_1 = test_vec.PerpendicularClockWise();
+  core::Vec2F result_test_1(test_vec.y, -test_vec.x);;
+  EXPECT_FLOAT_EQ(result_float_1.x, result_test_1.x);
+  EXPECT_FLOAT_EQ(result_float_1.y, result_test_1.y);
+
+  auto result_float_2 = test_vec.PerpendicularCounterClockWise();
+  core::Vec2F result_test_2(-test_vec.y, test_vec.x);;
+  EXPECT_FLOAT_EQ(result_float_2.x, result_test_2.x);
+  EXPECT_FLOAT_EQ(result_float_2.y, result_test_2.y);
+}

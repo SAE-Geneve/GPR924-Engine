@@ -164,6 +164,15 @@ struct Vec2 {
     T factor = 2 * v.Dot(normal);
     return Vec2{v.x - normal.x * factor, v.y - normal.y * factor};
   }
+
+  [[nodiscard]] Vec2 constexpr PerpendicularClockWise() const
+  {
+    return Vec2(y, -x);
+  }
+  [[nodiscard]] Vec2 constexpr PerpendicularCounterClockWise() const
+  {
+    return Vec2(-y, x);
+  }
 };
 
 using Vec2F = Vec2<float>;
