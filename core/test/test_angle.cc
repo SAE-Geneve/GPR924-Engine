@@ -1,3 +1,6 @@
+//
+// Contributors: Anthony Barman
+//
 #include <gtest/gtest.h>
 #include <numbers>
 #include "maths/angle.h"

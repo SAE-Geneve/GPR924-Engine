@@ -1,3 +1,6 @@
+//
+// Contributors: Anthony Barman
+//
 #include <gtest/gtest.h>
 
 #include "maths/vec3.h"
