@@ -52,11 +52,11 @@ class Matrix3 {
       for (int j = 0; j < 3; ++j) {
         Matrix2<T> minor;
         int mi = 0, mj = 0;
-        for (size_t r = 0; r < 3; ++r) {
-          if (r == i) continue;
+        for (int r = 0; r < 3; ++r) {
+          if (r == static_cast<int>(i)) continue;
           mj = 0;
-          for (size_t c = 0; c < 3; ++c) {
-            if (c == j) continue;
+          for (int c = 0; c < 3; ++c) {
+            if (c == static_cast<int>(j)) continue;
             minor(mi, mj++) = (*this)(r, c);
           }
           mi++;
@@ -70,8 +70,8 @@ class Matrix3 {
 
     Matrix3 adj = cof.Transpose();
 
-    for (size_t i = 0; i < 3; ++i)
-      for (size_t j = 0; j < 3; ++j)
+    for (int i = 0; i < 3; ++i)
+      for (int j = 0; j < 3; ++j)
         adj(i, j) /= det;
 
     return adj;
@@ -103,8 +103,8 @@ class Matrix3 {
 
   [[nodiscard]] Matrix3 operator+(const Matrix3& other) const noexcept {
     Matrix3 result;
-    for (size_t i = 0; i < 3; ++i) {
-      for (size_t j = 0; j < 3; ++j) {
+    for (int i = 0; i < 3; ++i) {
+      for (int j = 0; j < 3; ++j) {
         result(i, j) = (*this)(i, j) + other(i, j);
       }
     }
@@ -113,8 +113,8 @@ class Matrix3 {
 
   [[nodiscard]] Matrix3 operator-(const Matrix3& other) const noexcept {
     Matrix3 result;
-    for (size_t i = 0; i < 3; ++i) {
-      for (size_t j = 0; j < 3; ++j) {
+    for (int i = 0; i < 3; ++i) {
+      for (int j = 0; j < 3; ++j) {
         result(i, j) = (*this)(i, j) - other(i, j);
       }
     }
@@ -123,9 +123,9 @@ class Matrix3 {
 
   [[nodiscard]] Matrix3 operator*(const Matrix3& other) const noexcept {
     Matrix3 result;
-    for (size_t i = 0; i < 3; ++i) {
-      for (size_t j = 0; j < 3; ++j) {
-        for (size_t k = 0; k < 3; ++k)
+    for (int i = 0; i < 3; ++i) {
+      for (int j = 0; j < 3; ++j) {
+        for (int k = 0; k < 3; ++k)
           result(i, j) += (*this)(i, k) * other(k, j);
       }
     }
