@@ -13,17 +13,16 @@ namespace core::maths {
 
 template <typename T>
 class Matrix4 {
-  static_assert(std::is_arithmetic<T>::value, "Matrix4 requires arithmetic type");
+  static_assert(std::is_arithmetic<T>::value,
+                "Matrix4 requires arithmetic type");
 
-public:
+ public:
   // Constructors
-  explicit Matrix4(const std::array<std::array<T, 4>, 4>& newMatrix) noexcept : m(newMatrix) {}
-
+  explicit Matrix4(const std::array<std::array<T, 4>, 4>& newMatrix) noexcept
+      : m(newMatrix) {}
+  //4 vec4
   explicit Matrix4() noexcept {
-    m = {{{{1, 0, 0, 0}},
-          {{0, 1, 0, 0}},
-          {{0, 0, 1, 0}},
-          {{0, 0, 0, 1}}}};
+    m = {{{{1, 0, 0, 0}}, {{0, 1, 0, 0}}, {{0, 0, 1, 0}}, {{0, 0, 0, 1}}}};
   }
 
   // Determinant
@@ -57,8 +56,7 @@ public:
   [[nodiscard]] Matrix4<T> transpose() const noexcept {
     Matrix4<T> trans;
     for (size_t i = 0; i < 4; ++i)
-      for (size_t j = 0; j < 4; ++j)
-        trans.m[i][j] = m[j][i];
+      for (size_t j = 0; j < 4; ++j) trans.m[i][j] = m[j][i];
     return trans;
   }
 
@@ -87,12 +85,16 @@ public:
         }
 
         const T minorDet =
-            minor[0][0] * (minor[1][1] * minor[2][2] - minor[1][2] * minor[2][1]) -
-            minor[0][1] * (minor[1][0] * minor[2][2] - minor[1][2] * minor[2][0]) +
-            minor[0][2] * (minor[1][0] * minor[2][1] - minor[1][1] * minor[2][0]);
+            minor[0][0] *
+                (minor[1][1] * minor[2][2] - minor[1][2] * minor[2][1]) -
+            minor[0][1] *
+                (minor[1][0] * minor[2][2] - minor[1][2] * minor[2][0]) +
+            minor[0][2] *
+                (minor[1][0] * minor[2][1] - minor[1][1] * minor[2][0]);
 
-        const T sign = ((i + j) % 2 == 0) ? static_cast<T>(1) : static_cast<T>(-1);
-        inv.m[j][i] = (sign * minorDet) / det; // transpose of cofactor
+        const T sign =
+            ((i + j) % 2 == 0) ? static_cast<T>(1) : static_cast<T>(-1);
+        inv.m[j][i] = (sign * minorDet) / det;  // transpose of cofactor
       }
     }
 
@@ -103,24 +105,21 @@ public:
   [[nodiscard]] Matrix4<T> operator+(const Matrix4<T>& other) const noexcept {
     Matrix4<T> result;
     for (size_t i = 0; i < 4; ++i)
-      for (size_t j = 0; j < 4; ++j)
-        result.m[i][j] = m[i][j] + other.m[i][j];
+      for (size_t j = 0; j < 4; ++j) result.m[i][j] = m[i][j] + other.m[i][j];
     return result;
   }
 
   [[nodiscard]] Matrix4<T> operator-(const Matrix4<T>& other) const noexcept {
     Matrix4<T> result;
     for (size_t i = 0; i < 4; ++i)
-      for (size_t j = 0; j < 4; ++j)
-        result.m[i][j] = m[i][j] - other.m[i][j];
+      for (size_t j = 0; j < 4; ++j) result.m[i][j] = m[i][j] - other.m[i][j];
     return result;
   }
 
   [[nodiscard]] Matrix4<T> operator*(const T& scalar) const noexcept {
     Matrix4<T> result;
     for (size_t i = 0; i < 4; ++i)
-      for (size_t j = 0; j < 4; ++j)
-        result.m[i][j] = m[i][j] * scalar;
+      for (size_t j = 0; j < 4; ++j) result.m[i][j] = m[i][j] * scalar;
     return result;
   }
 
@@ -130,8 +129,7 @@ public:
 
     Matrix4<T> result;
     for (size_t i = 0; i < 4; ++i)
-      for (size_t j = 0; j < 4; ++j)
-        result.m[i][j] = m[i][j] / scalar;
+      for (size_t j = 0; j < 4; ++j) result.m[i][j] = m[i][j] / scalar;
     return result;
   }
 
@@ -146,15 +144,16 @@ public:
     }
     return result;
   }
-
-  [[nodiscard]] const std::array<std::array<T, 4>, 4>& GetMatrix() const noexcept {
+  //Delete this
+  [[nodiscard]] const std::array<std::array<T, 4>, 4>& GetMatrix()
+      const noexcept {
     return m;
   }
 
-private:
+ private:
   std::array<std::array<T, 4>, 4> m;
 };
 
-} // namespace core::maths
+}  // namespace core::maths
 
-#endif // MATRIX4_H
+#endif  // MATRIX4_H

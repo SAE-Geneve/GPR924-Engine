@@ -146,15 +146,15 @@ TEST(Vec2, Div)
 TEST(Vec2, MagnitudeSqu)
 {
   constexpr core::maths::Vec2F vec_1(1.2f, 2.2f);
-  const auto result_float = vec_1.MagnitudeSqr();
+  const auto result_float = vec_1.magnitude_sqr();
   EXPECT_FLOAT_EQ(result_float, 1.2f * 1.2f + 2.2f * 2.2f);
 }
 
 TEST(Vec2, Magnitude)
 {
   constexpr core::maths::Vec2F vec_1(1.2f, 2.2f);
-  const auto result_float = vec_1.Magnitude();
-  EXPECT_FLOAT_EQ(result_float, std::sqrt(vec_1.MagnitudeSqr()));
+  const auto result_float = vec_1.magnitude();
+  EXPECT_FLOAT_EQ(result_float, std::sqrt(vec_1.magnitude_sqr()));
 }
 
 TEST(Vec2, Normalize)
@@ -162,7 +162,7 @@ TEST(Vec2, Normalize)
   constexpr core::maths::Vec2F vec_1(1.2f, 2.2f);
   const auto result_float = vec_1.Normalize();
 
-  const float result_test = vec_1.Magnitude();
+  const float result_test = vec_1.magnitude();
   core::maths::Vec2F vec_1_test(0, 0);
   if (result_test != 0.0f)
   {

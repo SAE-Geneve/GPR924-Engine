@@ -1,3 +1,6 @@
+//
+// Contributors: Anthony Barman
+//
 #ifndef CORE_MATHS_ANGLE_H
 #define CORE_MATHS_ANGLE_H
 

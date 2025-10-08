@@ -4,7 +4,7 @@
 #include <cmath>
 #include <concepts>
 
-#include "angle.h"
+#include "maths/angle.h"
 
 namespace core::maths {
 
