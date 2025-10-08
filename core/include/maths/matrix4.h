@@ -9,7 +9,7 @@
 #include <stdexcept>
 #include <type_traits>
 
-namespace core::maths {
+namespace core {
 
 template <typename T>
 class Matrix4 {

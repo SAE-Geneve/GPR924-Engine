@@ -8,7 +8,7 @@ TEST(Matrix4DeterminantTest, IdentityMatrix) {
     {{0, 0, 1, 0}},
     {{0, 0, 0, 1}}
   }};
-  core::maths::Matrix4<float> m(mat);
+  core::Matrix4<float> m(mat);
   EXPECT_FLOAT_EQ(m.determinant(), 1.0f);
 }
 
@@ -19,7 +19,7 @@ TEST(Matrix4DeterminantTest, ZeroMatrix) {
     {{0, 0, 0, 0}},
     {{0, 0, 0, 0}}
   }};
-  core::maths::Matrix4<float> m(mat);
+  core::Matrix4<float> m(mat);
   EXPECT_FLOAT_EQ(m.determinant(), 0.0f);
 }
 
@@ -30,7 +30,7 @@ TEST(Matrix4DeterminantTest, DiagonalMatrix) {
     {{0, 0, 4, 0}},
     {{0, 0, 0, 5}}
   }};
-  core::maths::Matrix4<float> m(mat);
+  core::Matrix4<float> m(mat);
   EXPECT_FLOAT_EQ(m.determinant(), 120.0f);
 }
 
@@ -41,7 +41,7 @@ TEST(Matrix4DeterminantTest, KnownMatrix) {
     {{3, 0, 2, 1}},
     {{9, 2, 3, 1}}
   }};
-  core::maths::Matrix4<size_t> m(mat);
+  core::Matrix4<size_t> m(mat);
   EXPECT_EQ(m.determinant(), 24);
 }
 
@@ -52,7 +52,7 @@ TEST(Matrix4Test, InverseOfIdentityIsIdentity) {
     {{0, 0, 1, 0}},
     {{0, 0, 0, 1}}
   }};
-  core::maths::Matrix4<float> mat(identity);
+  core::Matrix4<float> mat(identity);
   auto inv = mat.inverse();
   for (size_t i = 0; i < 4; ++i)
     for (size_t j = 0; j < 4; ++j)
@@ -66,7 +66,7 @@ TEST(Matrix4Test, InverseMultipliedByOriginalGivesIdentity) {
     {{2, 5, 1, 0}},
     {{0, 0, 0, 1}}
   }};
-  core::maths::Matrix4<float> mat(data);
+  core::Matrix4<float> mat(data);
   auto inv = mat.inverse();
   auto result = mat * inv;
   for (size_t i = 0; i < 4; ++i)
@@ -81,7 +81,7 @@ TEST(Matrix4Test, TransposeWorks) {
     {{9, 10, 11, 12}},
     {{13, 14, 15, 16}}
   }};
-  core::maths::Matrix4<float> mat(arr);
+  core::Matrix4<float> mat(arr);
   auto transposed = mat.transpose();
 
   for (size_t i = 0; i < 4; ++i)

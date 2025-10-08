@@ -6,7 +6,7 @@
 
 #include "angle.h"
 
-namespace core::maths {
+namespace core {
 // Templates allow to write code for any type of data
 // Typename is a parameter for templates that takes in any type of data
 template <typename Vector2T, typename T>

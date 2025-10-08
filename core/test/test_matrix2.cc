@@ -11,12 +11,12 @@ TEST(Matrix2, Determinant) {
     3, 4
   };
 
-  constexpr core::maths::Matrix2 m(matrix);
+  constexpr core::Matrix2 m(matrix);
   EXPECT_EQ(m.Det(), -2);
 }
 
 TEST(Matrix2, ZeroMatrix) {
-  constexpr core::maths::Matrix2<int> m;
+  constexpr core::Matrix2<int> m;
   EXPECT_EQ(m.Det(), 0);
 }
 
@@ -26,7 +26,7 @@ TEST(Matrix2, Transpose) {
     3, 4
   };
 
-  constexpr core::maths::Matrix2 m(matrix);
+  constexpr core::Matrix2 m(matrix);
   const auto t = m.Transpose();
 
   EXPECT_EQ(t(0,1), m(1,0));
@@ -35,7 +35,7 @@ TEST(Matrix2, Transpose) {
 }
 
 TEST(Matrix2, Identity) {
-  constexpr auto m = core::maths::Matrix2<int>::Identity();
+  constexpr auto m = core::Matrix2<int>::Identity();
 
   for (int i = 0; i < 2; ++i)
     for (int j = 0; j < 2; ++j)
@@ -43,12 +43,12 @@ TEST(Matrix2, Identity) {
 }
 
 TEST(Matrix2, InverseDeterminantToZero) {
-  constexpr core::maths::Matrix2<int> m;
+  constexpr core::Matrix2<int> m;
   EXPECT_THROW((void)m.Inverse();, std::domain_error);
 }
 
 TEST(Matrix2, InverseOfIdentityIsIdentity) {
-  constexpr auto m = core::maths::Matrix2<int>::Identity();
+  constexpr auto m = core::Matrix2<int>::Identity();
 
   const auto inv = m.Inverse();
   for (int i = 0; i < 2; ++i)
@@ -71,10 +71,10 @@ TEST(Matrix2, Multiplication) {
     10, 8
   };
 
-  const core::maths::Matrix2 A(a);
-  const core::maths::Matrix2 B(b);
-  const core::maths::Matrix2 result = A * B;
-  constexpr core::maths::Matrix2 E(expected);
+  const core::Matrix2 A(a);
+  const core::Matrix2 B(b);
+  const core::Matrix2 result = A * B;
+  constexpr core::Matrix2 E(expected);
 
   for (size_t i = 0; i < 2; ++i)
     for (size_t j = 0; j < 2; ++j)
@@ -91,9 +91,9 @@ TEST(Matrix2, Addition) {
     2, 1
   };
 
-  const core::maths::Matrix2 A(a);
-  const core::maths::Matrix2 B(b);
-  const core::maths::Matrix2 result = A + B;
+  const core::Matrix2 A(a);
+  const core::Matrix2 B(b);
+  const core::Matrix2 result = A + B;
 
   for (size_t i = 0; i < 2; ++i)
     for (size_t j = 0; j < 2; ++j)
@@ -115,10 +115,10 @@ TEST(Matrix2, Subtraction) {
     3-2, 4-1
   };
 
-  const core::maths::Matrix2 A(a);
-  const core::maths::Matrix2 B(b);
-  const core::maths::Matrix2 result = A - B;
-  constexpr core::maths::Matrix2 E(expected);
+  const core::Matrix2 A(a);
+  const core::Matrix2 B(b);
+  const core::Matrix2 result = A - B;
+  constexpr core::Matrix2 E(expected);
 
   for (size_t i = 0; i < 2; ++i)
     for (size_t j = 0; j < 2; ++j)

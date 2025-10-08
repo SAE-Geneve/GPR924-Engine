@@ -2,7 +2,7 @@
 #define MATRIX3_H
 #include <array>
 
-namespace core::maths {
+namespace core {
 template <typename T>
 class Matrix3 {
   static_assert(std::is_arithmetic_v<T>,

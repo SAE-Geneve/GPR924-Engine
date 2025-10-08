@@ -8,12 +8,12 @@ TEST(Matrix3, Determinant) {
     7, 8, 9
   };
 
-  constexpr core::maths::Matrix3 m(matrix);
+  constexpr core::Matrix3 m(matrix);
   EXPECT_EQ(m.Det(), 0);
 }
 
 TEST(Matrix3, ZeroMatrix) {
-  constexpr core::maths::Matrix3<int> m;
+  constexpr core::Matrix3<int> m;
   EXPECT_EQ(m.Det(), 0);
 }
 
@@ -24,7 +24,7 @@ TEST(Matrix3, Transpose) {
     7, 8, 9
   };
 
-  constexpr core::maths::Matrix3 m(matrix);
+  constexpr core::Matrix3 m(matrix);
   const auto t = m.Transpose();
 
   EXPECT_EQ(t(0,1), m(1,0));
@@ -33,7 +33,7 @@ TEST(Matrix3, Transpose) {
 }
 
 TEST(Matrix3, Identity) {
-  constexpr auto m = core::maths::Matrix3<int>::Identity();
+  constexpr auto m = core::Matrix3<int>::Identity();
 
   for (int i = 0; i < 3; ++i)
     for (int j = 0; j < 3; ++j)
@@ -41,12 +41,12 @@ TEST(Matrix3, Identity) {
 }
 
 TEST(Matrix3, InverseDeterminantToZero) {
-  constexpr core::maths::Matrix3<int> m;
+  constexpr core::Matrix3<int> m;
   EXPECT_THROW((void)m.Inverse();, std::domain_error);
 }
 
 TEST(Matrix3, InverseOfIdentityIsIdentity) {
-  constexpr auto m = core::maths::Matrix3<int>::Identity();
+  constexpr auto m = core::Matrix3<int>::Identity();
 
   const auto inv = m.Inverse();
   for (int i = 0; i < 3; ++i)
@@ -72,10 +72,10 @@ TEST(Matrix3, Multiplication) {
     138, 114, 90
   };
 
-  const core::maths::Matrix3 A(a);
-  const core::maths::Matrix3 B(b);
-  const core::maths::Matrix3 result = A * B;
-  constexpr core::maths::Matrix3 E(expected);
+  const core::Matrix3 A(a);
+  const core::Matrix3 B(b);
+  const core::Matrix3 result = A * B;
+  constexpr core::Matrix3 E(expected);
 
   for (size_t i = 0; i < 3; ++i)
     for (size_t j = 0; j < 3; ++j)
@@ -94,9 +94,9 @@ TEST(Matrix3, Addition) {
     3, 2, 1
 };
 
-  const core::maths::Matrix3 A(a);
-  const core::maths::Matrix3 B(b);
-  const core::maths::Matrix3 result = A + B;
+  const core::Matrix3 A(a);
+  const core::Matrix3 B(b);
+  const core::Matrix3 result = A + B;
 
   for (size_t i = 0; i < 3; ++i)
     for (size_t j = 0; j < 3; ++j)
@@ -121,10 +121,10 @@ TEST(Matrix3, Subtraction) {
     7-3,  8-2,  9-1
 };
 
-  const core::maths::Matrix3 A(a);
-  const core::maths::Matrix3 B(b);
-  const core::maths::Matrix3 result = A - B;
-  constexpr core::maths::Matrix3 E(expected);
+  const core::Matrix3 A(a);
+  const core::Matrix3 B(b);
+  const core::Matrix3 result = A - B;
+  constexpr core::Matrix3 E(expected);
 
   for (size_t i = 0; i < 3; ++i)
     for (size_t j = 0; j < 3; ++j)

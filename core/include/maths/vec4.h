@@ -6,7 +6,7 @@
 
 #include "maths/angle.h"
 
-namespace core::maths {
+namespace core {
 
 template <typename Vector4T, typename T>
 concept IsVector4 = requires(Vector4T v) {
