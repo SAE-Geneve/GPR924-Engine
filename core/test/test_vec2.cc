@@ -175,27 +175,17 @@ TEST(Vec2, Normalize)
 
 TEST(Vec2, Rotate)
 {
-  constexpr core::maths::Vec2F vec_1(1.2f, 2.2f);
-  auto result_float = vec_1.RotateX(core::maths::Radian(core::maths::Degree(90)));
+  constexpr core::maths::Vec2F test_vec(1.2f, 2.2f);
+  auto result_float = test_vec.Rotate(core::maths::Radian(core::maths::Degree(90)));
 
   auto c = std::cos(
       static_cast<float>(core::maths::Radian(core::maths::Degree(90))));
-
-  float new_x = vec_1.x;
-  float new_y = vec_1.y * c;
-  core::maths::Vec2F result_test(new_x, new_y);
-
-  EXPECT_FLOAT_EQ(result_float.x, result_test.x);
-  EXPECT_FLOAT_EQ(result_float.y, result_test.y);
-
-  result_float = vec_1.RotateY(core::maths::Radian(core::maths::Degree(90)));
-
-  c = std::cos(
+  auto s = std::cos(
       static_cast<float>(core::maths::Radian(core::maths::Degree(90))));
 
-  new_x = vec_1.x * c;
-  new_y = vec_1.y;
-  result_test = {new_x, new_y};
+  float new_x = test_vec.x * c - test_vec.y * s;
+  float new_y = test_vec.x * s + test_vec.y * c;
+  core::maths::Vec2F result_test(new_x, new_y);
 
   EXPECT_FLOAT_EQ(result_float.x, result_test.x);
   EXPECT_FLOAT_EQ(result_float.y, result_test.y);
@@ -274,3 +264,21 @@ TEST(Vec2, Reflection)
   EXPECT_EQ(vec_f12.x, vec_f_test.x);
   EXPECT_EQ(vec_f12.y, vec_f_test.y);
 }
+
+/*TEST(Vec2, Perpendicular)
+{
+  constexpr core::maths::Vec2F test_vec(1.2f, 2.2f);
+  auto result_float = test_vec.Perpendicular();
+
+  auto c = std::cos(
+      static_cast<float>(core::maths::Radian(core::maths::Degree(90))));
+  auto s = std::cos(
+      static_cast<float>(core::maths::Radian(core::maths::Degree(90))));
+
+  float new_x = test_vec.x * c - test_vec.y * s;
+  float new_y = test_vec.x * s + test_vec.y * c;
+  core::maths::Vec2F result_test(new_x, new_y);
+
+  EXPECT_FLOAT_EQ(result_float.x, result_test.x);
+  EXPECT_FLOAT_EQ(result_float.y, result_test.y);
+}*/
