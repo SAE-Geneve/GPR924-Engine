@@ -4,123 +4,84 @@
 
 #include "gtest/gtest.h"
 #include "maths/matrix2.h"
+#include "maths/vec2.h"
+
+using core::Matrix2;
+using core::Vec2;
 
 TEST(Matrix2, Determinant) {
-  constexpr std::array<float, 4> matrix = {
-    1, 2,
-    3, 4
-  };
-
-  constexpr core::Matrix2 m(matrix);
-  EXPECT_EQ(m.determinant(), -2);
+    constexpr Matrix2<float> m(Vec2<float>{1, 2}, Vec2<float>{3, 4});
+    EXPECT_EQ(m.determinant(), -2);
 }
 
 TEST(Matrix2, ZeroMatrix) {
-  constexpr core::Matrix2<int> m;
-  EXPECT_EQ(m.determinant(), 0);
+    constexpr Matrix2<int> m;
+    EXPECT_EQ(m.determinant(), 0);
 }
 
 TEST(Matrix2, Transpose) {
-  constexpr std::array<float, 4> matrix = {
-    1, 2,
-    3, 4
-  };
+    constexpr Matrix2<float> m(Vec2<float>{1, 2}, Vec2<float>{3, 4});
+    const auto t = m.Transpose();
 
-  constexpr core::Matrix2 m(matrix);
-  const auto t = m.Transpose();
-
-  EXPECT_EQ(t(0,1), m(1,0));
-  EXPECT_NE(t(0,1), m(0,1));
-  EXPECT_EQ(m.determinant(), t.determinant());
+    EXPECT_EQ(t(0, 1), m(1, 0));
+    EXPECT_NE(t(0, 1), m(0, 1));
+    EXPECT_EQ(m.determinant(), t.determinant());
 }
 
 TEST(Matrix2, Identity) {
-  constexpr auto m = core::Matrix2<int>::Identity();
+    constexpr auto m = Matrix2<int>::Identity();
 
-  for (int i = 0; i < 2; ++i)
-    for (int j = 0; j < 2; ++j)
-      EXPECT_EQ(m(i,j), i==j ? 1 : 0);
+    for (int i = 0; i < 2; ++i)
+        for (int j = 0; j < 2; ++j)
+            EXPECT_EQ(m(i,j), i == j ? 1 : 0);
 }
 
 TEST(Matrix2, InverseDeterminantToZero) {
-  constexpr core::Matrix2<int> m;
-  EXPECT_THROW((void)m.Inverse();, std::domain_error);
+    constexpr Matrix2<int> m;
+    EXPECT_THROW((void)m.Inverse(), std::domain_error);
 }
 
 TEST(Matrix2, InverseOfIdentityIsIdentity) {
-  constexpr auto m = core::Matrix2<int>::Identity();
+    constexpr auto m = Matrix2<int>::Identity();
+    const auto inv = m.Inverse();
 
-  const auto inv = m.Inverse();
-  for (int i = 0; i < 2; ++i)
-    for (int j = 0; j < 2; ++j)
-      EXPECT_EQ(m(i, j), inv(i, j));
+    for (int i = 0; i < 2; ++i)
+        for (int j = 0; j < 2; ++j)
+            EXPECT_EQ(m(i, j), inv(i, j));
 }
 
 TEST(Matrix2, Multiplication) {
-  constexpr std::array<float, 4> a = {
-    1, 2,
-    3, 4
-  };
-  constexpr std::array<float, 4> b = {
-    2, 0,
-    1, 2
-  };
+    constexpr Matrix2<float> A(Vec2<float>{1, 2}, Vec2<float>{3, 4});
+    constexpr Matrix2<float> B(Vec2<float>{2, 0}, Vec2<float>{1, 2});
+    constexpr Matrix2<float> expected(Vec2<float>{4, 4}, Vec2<float>{10, 8});
 
-  constexpr std::array<float, 4> expected = {
-    4, 4,
-    10, 8
-  };
+    const auto result = A * B;
 
-  const core::Matrix2 A(a);
-  const core::Matrix2 B(b);
-  const core::Matrix2 result = A * B;
-  constexpr core::Matrix2 E(expected);
-
-  for (size_t i = 0; i < 2; ++i)
-    for (size_t j = 0; j < 2; ++j)
-      EXPECT_EQ(result(i, j), E(i, j));
+    for (size_t i = 0; i < 2; ++i)
+        for (size_t j = 0; j < 2; ++j)
+            EXPECT_EQ(result(i, j), expected(i, j));
 }
 
 TEST(Matrix2, Addition) {
-  constexpr std::array<float, 4> a = {
-    1, 2,
-    3, 4
-  };
-  constexpr std::array<float, 4> b = {
-    4, 3,
-    2, 1
-  };
+    constexpr Matrix2<float> A(Vec2<float>{1, 2}, Vec2<float>{3, 4});
+    constexpr Matrix2<float> B(Vec2<float>{4, 3}, Vec2<float>{2, 1});
+    constexpr Matrix2<float> expected(Vec2<float>{5, 5}, Vec2<float>{5, 5});
 
-  const core::Matrix2 A(a);
-  const core::Matrix2 B(b);
-  const core::Matrix2 result = A + B;
+    const auto result = A + B;
 
-  for (size_t i = 0; i < 2; ++i)
-    for (size_t j = 0; j < 2; ++j)
-      EXPECT_EQ(result(i, j), 5);
+    for (size_t i = 0; i < 2; ++i)
+        for (size_t j = 0; j < 2; ++j)
+            EXPECT_EQ(result(i, j), expected(i, j));
 }
 
 TEST(Matrix2, Subtraction) {
-  constexpr std::array<float, 4> a = {
-    1, 2,
-    3, 4
-  };
-  constexpr std::array<float, 4> b = {
-    4, 3,
-    2, 1
-  };
+    constexpr Matrix2<float> A(Vec2<float>{1, 2}, Vec2<float>{3, 4});
+    constexpr Matrix2<float> B(Vec2<float>{4, 3}, Vec2<float>{2, 1});
+    constexpr Matrix2<float> expected(Vec2<float>{-3, -1}, Vec2<float>{1, 3});
 
-  constexpr std::array<float, 4> expected = {
-    1-4, 2-3,
-    3-2, 4-1
-  };
+    const auto result = A - B;
 
-  const core::Matrix2 A(a);
-  const core::Matrix2 B(b);
-  const core::Matrix2 result = A - B;
-  constexpr core::Matrix2 E(expected);
-
-  for (size_t i = 0; i < 2; ++i)
-    for (size_t j = 0; j < 2; ++j)
-      EXPECT_EQ(result(i, j), E(i, j));
+    for (size_t i = 0; i < 2; ++i)
+        for (size_t j = 0; j < 2; ++j)
+            EXPECT_EQ(result(i, j), expected(i, j));
 }

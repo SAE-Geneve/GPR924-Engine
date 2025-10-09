@@ -2,12 +2,13 @@
 // Created by WIXXEL on 07.10.2025.
 //
 
-#ifndef MATRIX2_H
-#define MATRIX2_H
+#ifndef CORE_MATHS_MATRIX2_H
+#define CORE_MATHS_MATRIX2_H
 
 #include <array>
 #include <stdexcept>
 #include <type_traits>
+#include "vec2.h"
 
 namespace core {
 template <typename T>
@@ -16,28 +17,30 @@ class Matrix2 {
                 "Matrix2 requires arithmetic value type");
 
  public:
-  explicit constexpr Matrix2(const std::array<T, 4>& newMatrix)
+  explicit constexpr Matrix2(const std::array<Vec2<T>, 2>& newMatrix)
       : matrix_(newMatrix) {}
-  //TODO 2 vec2?
+  explicit constexpr Matrix2(Vec2<T> v1, Vec2<T> v2) noexcept : matrix_{v1, v2}{}
   explicit constexpr Matrix2() noexcept : matrix_() {}
 
   [[nodiscard]] static constexpr Matrix2 Identity() noexcept {
-    return Matrix2(std::array<T, 4>{T(1), T(0), T(0), T(1)});
+    return Matrix2(std::array<Vec2<T>, 2>{{ Vec2<T>{T(1), T(0)}, Vec2<T>{T(0), T(1)} }});
   }
 
+
+
   [[nodiscard]] constexpr T determinant() const noexcept {
-    return matrix_[0] * matrix_[3] - matrix_[1] * matrix_[2];
+    return matrix_[0].x * matrix_[1].y - matrix_[0].y * matrix_[1].x;
   }
 
   [[nodiscard]] Matrix2 Transpose() const noexcept {
     Matrix2 result;
-    for (int i = 0; i < 2; ++i) {
-      for (int j = 0; j < 2; ++j) {
-        result(i, j) = (*this)(j, i);
-      }
-    }
+    result.matrix_[0].x = matrix_[0].x;
+    result.matrix_[0].y = matrix_[1].x;
+    result.matrix_[1].x = matrix_[0].y;
+    result.matrix_[1].y = matrix_[1].y;
     return result;
   }
+
 
   [[nodiscard]] Matrix2 Inverse() const {
     const T det = determinant();
@@ -45,56 +48,73 @@ class Matrix2 {
       throw std::domain_error("Matrix not invertible (determinant = 0)");
 
     Matrix2 result;
-    result(0, 0) = matrix_[3];
-    result(0, 1) = -matrix_[1];
-    result(1, 0) = -matrix_[2];
-    result(1, 1) = matrix_[0];
+    result(0, 0) = matrix_[1].y;
+    result(0, 1) = -matrix_[0].y;
+    result(1, 0) = -matrix_[1].x;
+    result(1, 1) = matrix_[0].x;
 
-    for (auto& val : result.matrix_) val /= det;
-
+    for (auto& row : result.matrix_) {
+      row.x /= det;
+      row.y /= det;
+    }
     return result;
   }
 
   template <typename I>
-  T& operator()(I i, I j) {
+ T& operator()(I i, I j) {
     static_assert(std::is_integral_v<I>, "Indices must be integral");
-    return matrix_[static_cast<size_t>(i) * 2 + static_cast<size_t>(j)];
+    auto& row = matrix_[static_cast<size_t>(i)];  // pas const ici !
+    switch (static_cast<size_t>(j)) {
+      case 0: return row.x;
+      case 1: return row.y;
+      default: throw std::out_of_range("Matrix2 index out of range");
+    }
   }
 
   template <typename I>
   const T& operator()(I i, I j) const {
     static_assert(std::is_integral_v<I>, "Indices must be integral");
-    return matrix_[static_cast<size_t>(i) * 2 + static_cast<size_t>(j)];
+    const auto& row = matrix_[static_cast<size_t>(i)]; // ici c’est bien const
+    switch (static_cast<size_t>(j)) {
+      case 0: return row.x;
+      case 1: return row.y;
+      default: throw std::out_of_range("Matrix2 index out of range");
+    }
   }
 
-  [[nodiscard]] Matrix2 operator+(const Matrix2& other) const noexcept {
+
+  [[nodiscard]] constexpr Matrix2 operator+(const Matrix2& other) const noexcept {
     Matrix2 result;
     for (size_t i = 0; i < 2; ++i)
-      for (size_t j = 0; j < 2; ++j) result(i, j) = (*this)(i, j) + other(i, j);
+      for (size_t j = 0; j < 2; ++j)
+        result(i, j) = (*this)(i, j) + other(i, j);
     return result;
   }
 
-  [[nodiscard]] Matrix2 operator-(const Matrix2& other) const noexcept {
+  [[nodiscard]] constexpr Matrix2 operator-(const Matrix2& other) const noexcept {
     Matrix2 result;
     for (size_t i = 0; i < 2; ++i)
-      for (size_t j = 0; j < 2; ++j) result(i, j) = (*this)(i, j) - other(i, j);
+      for (size_t j = 0; j < 2; ++j)
+        result(i, j) = (*this)(i, j) - other(i, j);
     return result;
   }
 
-  [[nodiscard]] Matrix2 operator*(const Matrix2& other) const noexcept {
+  [[nodiscard]] constexpr Matrix2 operator*(const Matrix2& other) const noexcept {
     Matrix2 result;
     for (size_t i = 0; i < 2; ++i) {
       for (size_t j = 0; j < 2; ++j) {
-        for (size_t k = 0; k < 2; ++k)
+        result(i, j) = T(0);
+        for (size_t k = 0; k < 2; ++k) {
           result(i, j) += (*this)(i, k) * other(k, j);
+        }
       }
     }
     return result;
   }
 
  private:
-  std::array<T, 4> matrix_; //why not array<array<T,2>2>? why not array<vec2, 2>?
+  std::array<Vec2<T>, 2> matrix_;
 };
 }  // namespace core::maths
 
-#endif  // MATRIX2_H
+#endif  // CORE_MATHS_MATRIX2_H
