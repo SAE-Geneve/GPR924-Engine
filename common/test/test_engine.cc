@@ -2,6 +2,7 @@
 
 #include "engine/engine.h"
 #include "engine/gui.h"
+#include "engine/renderer.h"
 #include "engine/window.h"
 #include "gtest/gtest.h"
 
@@ -45,4 +46,22 @@ TEST(Engine, Gui) {
   common::RunEngine();
   common::OnGuiObserverSubject::RemoveObserver(&closingSystem);
   common::SystemObserverSubject::RemoveObserver(&closingSystem);
+}
+
+class Circle : public common::DrawInterface
+{
+  void Draw() override {
+    SDL_RenderClear(common::GetRenderer());
+
+    common::DrawCircle(400, 300, 40, {255, 255, 0, 255}); // Soleil
+    common::DrawCircle(550, 300, 10, {0, 0, 255, 255}); // Planète
+    
+  }
+};
+
+TEST(Render, Circle)
+{
+  Circle circle;
+  common::DrawObserverSubject::AddObserver(&circle);
+  common::RunEngine();
 }
