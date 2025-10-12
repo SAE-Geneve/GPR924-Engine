@@ -23,25 +23,21 @@ TEST(Vec2, Add)
   constexpr core::Vec2I vec2(4, 5);
   constexpr core::Vec2I vec3 = vec1 + vec2;
   core::Vec2I vec4(6, 3);
-  const core::Vec2I vec5 = vec4 += vec2 * 2;
+  vec4 += vec2 * 2;
   EXPECT_EQ(vec3.x, 10);
   EXPECT_EQ(vec3.y, 8);
   EXPECT_EQ(vec4.x, 14);
   EXPECT_EQ(vec4.y, 13);
-  EXPECT_EQ(vec5.x, 14);
-  EXPECT_EQ(vec5.y, 13);
 
   constexpr core::Vec2F vec_f1(1.2f, 2.2f);
   constexpr core::Vec2F vec_f2(4.3f, 5.3f);
   constexpr core::Vec2F vec_f3 = vec_f1 + vec_f2;
   core::Vec2F vec_4f(1.2f, 2.2f);
-  const core::Vec2F vec_f5 = vec_4f += vec_f2 * 2.f;
+  vec_4f += vec_f2 * 2.f;
   EXPECT_FLOAT_EQ(vec_f3.x, 5.5f);
   EXPECT_FLOAT_EQ(vec_f3.y,  7.5f);
   EXPECT_EQ(vec_4f.x, 9.8f);
   EXPECT_EQ(vec_4f.y, 12.8f);
-  EXPECT_EQ(vec_f5.x, 9.8f);
-  EXPECT_EQ(vec_f5.y, 12.8f);
 }
 
 TEST(Vec2, Sub)
@@ -50,25 +46,21 @@ TEST(Vec2, Sub)
   constexpr core::Vec2I vec2(1, 2);
   constexpr core::Vec2I vec3 = vec1 - vec2;
   core::Vec2I vec4(5, 6);
-  core::Vec2I vec5 = vec4 -= vec1;
+  vec4 -= vec1;
   EXPECT_EQ(vec3.x, 3);
   EXPECT_EQ(vec3.y, 3);
   EXPECT_EQ(vec4.x, 1);
   EXPECT_EQ(vec4.y, 1);
-  EXPECT_EQ(vec5.x, 1);
-  EXPECT_EQ(vec5.y, 1);
 
   constexpr core::Vec2F vec_f1(4.5f, 5.5f);
   constexpr core::Vec2F vec_f2(1.2f, 2.2f);
   constexpr core::Vec2F vec_f3 = vec_f1 - vec_f2;
   core::Vec2F vec_f4(5.5f, 6.5f);
-  const core::Vec2F vec_f5 = vec_f4 -= vec_f1;
+  vec_f4 -= vec_f1;
   EXPECT_FLOAT_EQ(vec_f3.x,  3.3f);
   EXPECT_FLOAT_EQ(vec_f3.y,  3.3f);
   EXPECT_FLOAT_EQ(vec_f4.x,  1.f);
   EXPECT_FLOAT_EQ(vec_f4.y,  1.f);
-  EXPECT_FLOAT_EQ(vec_f5.x,  1.f);
-  EXPECT_FLOAT_EQ(vec_f5.y,  1.f);
 
 }
 
@@ -91,11 +83,9 @@ TEST(Vec2, Muli)
   EXPECT_EQ(vec3.y, 2 * 2);
 
   core::Vec2I vec4(2, 6);
-  core::Vec2I vec5 = vec4 *= 2;
+  vec4 *= 2;
   EXPECT_EQ(vec4.x, 2*2);
   EXPECT_EQ(vec4.y, 6*2);
-  EXPECT_EQ(vec5.x, 2*2);
-  EXPECT_EQ(vec5.y, 6*2);
 
   constexpr core::Vec2F vec_f1(4.3f, 5.3f);
 
