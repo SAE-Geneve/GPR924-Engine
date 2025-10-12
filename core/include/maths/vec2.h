@@ -56,12 +56,6 @@ struct Vec2 {
     return Vec2(x + other.x, y + other.y);
   }
 
-  [[nodiscard]] Vec2& operator+=(const Vec2& other) {
-    x += other.x;
-    y += other.y;
-    return *this;
-  }
-
   [[nodiscard]] constexpr Vec2 operator-(const Vec2& other) const {
     return Vec2(x - other.x, y - other.y);
   }
@@ -76,19 +70,19 @@ struct Vec2 {
     return other * t;
   }
 
-  constexpr Vec2& operator+=(const Vec2& other) {
+  [[nodiscard]] constexpr Vec2& operator+=(const Vec2& other) {
     x += other.x;
     y += other.y;
     return *this;
   }
 
-  constexpr Vec2& operator-=(const Vec2& other) {
+  [[nodiscard]] constexpr Vec2& operator-=(const Vec2& other) {
     x -= other.x;
     y -= other.y;
     return *this;
   }
 
-  constexpr Vec2& operator*=(const T t) {
+  [[nodiscard]] constexpr Vec2& operator*=(const T t) {
     x *= t;
     y *= t;
     return *this;
