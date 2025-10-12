@@ -55,7 +55,7 @@ class Circle : public common::DrawInterface
 
     common::DrawCircle(400, 300, 40, {255, 255, 0, 255}); // Soleil
     common::DrawCircle(550, 300, 10, {0, 0, 255, 255}); // Planète
-    
+
   }
 };
 
