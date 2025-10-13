@@ -88,9 +88,15 @@ struct Vec2 {
     return *this;
   }
 
+  bool operator==(const Vec2& vec2) const
+  {
+    return x == vec2.x && y == vec2.y;
+  }
+
   [[nodiscard]] constexpr T Dot(const Vec2& other) const {
     return x * other.x + y * other.y;
   }
+
   [[nodiscard]] static constexpr T Dot(const Vec2& v1, const Vec2& v2) {
     return v1.x * v2.x + v1.y * v2.y;
   }

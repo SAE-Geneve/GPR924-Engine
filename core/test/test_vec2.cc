@@ -104,6 +104,22 @@ TEST(Vec2, Muli)
   EXPECT_FLOAT_EQ(vec_f3.y, 2.2f * 2);
 }
 
+TEST(Vec2, Equal)
+{
+  constexpr core::Vec2I vec1(4, 5);
+  constexpr core::Vec2I vec2(1, 2);
+  constexpr core::Vec2I vec3(4, 5);
+  constexpr core::Vec2F vec_f1(4.5f, 5.5f);
+  constexpr core::Vec2F vec_f2(1.2f, 2.2f);
+  constexpr core::Vec2F vec_f3(4.5f, 5.5f);
+
+  EXPECT_TRUE(vec1 == vec3);
+  EXPECT_FALSE(vec1 == vec2);
+
+  EXPECT_TRUE(vec_f1 == vec_f3);
+  EXPECT_FALSE(vec_f1 == vec_f2);
+}
+
 TEST(Vec2, Dot)
 {
   constexpr core::Vec2I vec1(4, 5);
