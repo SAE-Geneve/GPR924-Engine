@@ -54,10 +54,10 @@ void DrawCircle(const float centerX, const float centerY, const float radius,
     const float angle1 = 2 * core::PI * static_cast<float>(i) / nbSegments;
     const float angle2 = 2 * core::PI * static_cast<float>(i + 1) / nbSegments;
 
-    const float x1 = centerX + radius * cos(angle1);
-    const float y1 = centerY + radius * sin(angle1);
-    const float x2 = centerX + radius * cos(angle2);
-    const float y2 = centerY + radius * sin(angle2);
+    const float x1 = centerX + radius * std::cos(angle1);
+    const float y1 = centerY + radius * std::sin(angle1);
+    const float x2 = centerX + radius * std::cos(angle2);
+    const float y2 = centerY + radius * std::sin(angle2);
 
     SDL_Vertex vertices[3];
     vertices[0].position = { centerX, centerY };
