@@ -1,3 +1,6 @@
+//
+// Contributor Yanis Fornari
+//
 #ifndef CORE_MATHS_VEC4_H
 #define CORE_MATHS_VEC4_H
 
