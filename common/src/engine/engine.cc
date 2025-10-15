@@ -13,7 +13,8 @@ Uint64 currentTime = 0u;
 }  // namespace
 static void BeginEngine() {
   if (!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_GAMEPAD)) {
-    throw(std::format("SDL failed to initialise: {}", SDL_GetError()));
+    throw std::runtime_error(
+        std::format("SDL failed to initialise: {}", SDL_GetError()));
   }
   BeginWindow();
   BeginRenderer();

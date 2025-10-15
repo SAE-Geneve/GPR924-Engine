@@ -3,11 +3,13 @@
 #include <format>
 
 #include "engine/gui.h"
+#include "maths/vec2.h"
 
 namespace common {
 namespace {
 WindowConfig windowConfig;
 SDL_Window* window = nullptr;
+core::Vec2I windowSize;
 bool isOpen = false;
 }  // namespace
 SDL_Window* GetWindow() { return window; }
@@ -16,6 +18,7 @@ void BeginWindow() {
   if (windowConfig.resizable) {
     flags |= SDL_WINDOW_RESIZABLE;
   }
+  windowSize = {windowConfig.width, windowConfig.height};
   window = SDL_CreateWindow(windowConfig.title.data(), windowConfig.width,
                             windowConfig.height, flags);
   if (window == nullptr) {
@@ -32,6 +35,8 @@ void UpdateWindow() {
     if (e.type == SDL_EVENT_QUIT ||
         e.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
       isOpen = false;
+    } else if (e.type == SDL_EVENT_WINDOW_RESIZED) {
+      windowSize = {e.window.data1, e.window.data2};
     }
     ManageGuiEvent(e);
     for (auto* eventInterface : OnEventObserverSubject::GetObservers()) {
@@ -40,11 +45,7 @@ void UpdateWindow() {
   }
 }
 void EndWindow() { SDL_DestroyWindow(window); }
-std::pair<int, int> GetWindowSize() {
-  std::pair<int, int> windowSize;
-  SDL_GetWindowSize(window, &windowSize.first, &windowSize.second);
-  return windowSize;
-}
+core::Vec2I GetWindowSize() { return windowSize; }
 bool IsWindowOpen() { return isOpen; }
 void SetWindowConfig(const WindowConfig& config) { windowConfig = config; }
 void CloseWindow() { isOpen = false; }

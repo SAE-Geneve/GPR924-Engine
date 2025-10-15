@@ -1,13 +1,13 @@
 #ifndef GPR924_ENGINE_WINDOW_H
 #define GPR924_ENGINE_WINDOW_H
 
+#include "maths/vec2.h"
 #include "third_party/sdl3_include.h"
 #include "utils/observer.h"
 
 namespace common {
-class OnEventInterface
-{
-public:
+class OnEventInterface {
+ public:
   virtual ~OnEventInterface() = default;
   virtual void OnEvent(const SDL_Event& event) = 0;
 };
@@ -27,9 +27,9 @@ SDL_Window* GetWindow();
 void BeginWindow();
 void UpdateWindow();
 void EndWindow();
-std::pair<int, int> GetWindowSize();
+core::Vec2I GetWindowSize();
 bool IsWindowOpen();
 void SetWindowConfig(const WindowConfig& config);
 void CloseWindow();
-}
+}  // namespace common
 #endif  // GPR924_ENGINE_WINDOW_H
