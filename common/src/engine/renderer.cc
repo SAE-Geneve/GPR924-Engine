@@ -47,13 +47,12 @@ void EndRenderer() {
 }
 
 void DrawCircle(const float centerX, const float centerY, const float radius,
-                const SDL_FColor color)
+                const SDL_FColor color, const int nbSegments)
 {
-  constexpr int nbSegments = 72;
   for (int i = 0; i < nbSegments; ++i)
   {
-    const float angle1 = 2 * core::PI * static_cast<float>(i) / nbSegments;
-    const float angle2 = 2 * core::PI * static_cast<float>(i + 1) / nbSegments;
+    const float angle1 = 2 * core::PI * static_cast<float>(i) /  static_cast<float>(nbSegments);
+    const float angle2 = 2 * core::PI * static_cast<float>(i + 1) /  static_cast<float>(nbSegments);
 
     const float x1 = centerX + radius * static_cast<float>(cos(static_cast<double>(angle1)));
     const float y1 = centerY + radius * static_cast<float>(sin(static_cast<double>(angle1)));
