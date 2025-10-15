@@ -23,6 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Contributors: Elias Farhan
+Contributors: Anthony Barman
 */
 
 #include "third_party/sdl3_include.h"
