@@ -70,9 +70,33 @@ struct Vec2 {
     return other * t;
   }
 
+  constexpr Vec2& operator+=(const Vec2& other) {
+    x += other.x;
+    y += other.y;
+    return *this;
+  }
+
+  constexpr Vec2& operator-=(const Vec2& other) {
+    x -= other.x;
+    y -= other.y;
+    return *this;
+  }
+
+  constexpr Vec2& operator*=(const T t) {
+    x *= t;
+    y *= t;
+    return *this;
+  }
+
+  bool operator==(const Vec2& vec2) const
+  {
+    return x == vec2.x && y == vec2.y;
+  }
+
   [[nodiscard]] constexpr T Dot(const Vec2& other) const {
     return x * other.x + y * other.y;
   }
+
   [[nodiscard]] static constexpr T Dot(const Vec2& v1, const Vec2& v2) {
     return v1.x * v2.x + v1.y * v2.y;
   }
@@ -117,7 +141,7 @@ struct Vec2 {
     requires std::floating_point<T>
   {
     const T c = std::cos(static_cast<float>(angle));
-    const T s = std::cos(static_cast<float>(angle));
+    const T s = std::sin(static_cast<float>(angle));
     const T new_x = x * c - y * s;
     const T new_y = x * s + y * c;
     return Vec2(new_x, new_y);

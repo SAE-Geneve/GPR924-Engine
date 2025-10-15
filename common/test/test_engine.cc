@@ -70,3 +70,20 @@ TEST(Engine, Render) {
 
   common::DrawObserverSubject::RemoveObserver(&draw_something);
 }
+class Circle : public common::DrawInterface
+{
+  void Draw() override {
+    SDL_RenderClear(common::GetRenderer());
+
+    common::DrawCircle(400, 300, 40, {255, 255, 0, 255}); // Soleil
+    common::DrawCircle(550, 300, 10, {0, 0, 255, 255}); // Planète
+
+  }
+};
+
+TEST(Render, Circle)
+{
+  Circle circle;
+  common::DrawObserverSubject::AddObserver(&circle);
+  common::RunEngine();
+}

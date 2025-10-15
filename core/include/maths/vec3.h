@@ -170,7 +170,7 @@ struct Vec3 {
     const float theta = std::acos(dot);
     const float sinTheta = std::sin(theta);
 
-    if (sinTheta < Epslon) {
+    if (sinTheta < Epsilon) {
       return Vec3{
           v0.x * (1 - t) + v1.x * t,
           v0.y * (1 - t) + v1.y * t,

@@ -1,3 +1,6 @@
+//
+// Contributor Yanis Fornari
+//
 #include <gtest/gtest.h>
 
 #include "maths/vec4.h"

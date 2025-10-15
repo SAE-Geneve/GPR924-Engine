@@ -20,6 +20,8 @@ void BeginRenderer();
 void UpdateRenderer();
 void DrawRenderer();
 void EndRenderer();
+void DrawCircle(float centerX, float centerY, float radius,
+                SDL_FColor color, int nbSegments = 20);
 
 
 SDL_Renderer* GetRenderer();
