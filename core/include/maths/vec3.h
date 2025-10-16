@@ -27,6 +27,7 @@ Contributors: Anthony Barman
 
 #include <cmath>
 #include <concepts>
+#include <cstdint>
 
 #include "maths/angle.h"
 #include "maths/constant.h"

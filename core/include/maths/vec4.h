@@ -6,6 +6,7 @@
 
 #include <cmath>
 #include <concepts>
+#include <cstdint>
 
 #include "maths/angle.h"
 
