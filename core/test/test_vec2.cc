@@ -62,6 +62,12 @@ TEST(Vec2, Sub)
   EXPECT_FLOAT_EQ(vec_f4.x,  1.f);
   EXPECT_FLOAT_EQ(vec_f4.y,  1.f);
 
+  constexpr core::Vec2I vec5(4, 5);
+  constexpr core::Vec2F vec_f5(4.5f, 5.5f);
+  EXPECT_EQ(-vec5.x, -4);
+  EXPECT_EQ(-vec5.y, -5);
+  EXPECT_FLOAT_EQ(-vec_f5.x,  -4.5f);
+  EXPECT_FLOAT_EQ(-vec_f5.y,  -5.5f);
 }
 
 TEST(Vec2, Muli)
