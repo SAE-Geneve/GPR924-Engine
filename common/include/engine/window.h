@@ -42,7 +42,7 @@ struct WindowConfig {
   int height = 720;
   bool fullscreen = false;
   bool resizable = false;
-  float fixed_dt = 0.16f;
+  float fixed_dt = 0.016f;
 };
 
 using OnEventObserverSubject = ObserverSubject<OnEventInterface>;
