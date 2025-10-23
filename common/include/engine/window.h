@@ -42,6 +42,7 @@ struct WindowConfig {
   int height = 720;
   bool fullscreen = false;
   bool resizable = false;
+  float fixed_dt = 0.16f;
 };
 
 using OnEventObserverSubject = ObserverSubject<OnEventInterface>;
@@ -52,6 +53,7 @@ void BeginWindow();
 void UpdateWindow();
 void EndWindow();
 core::Vec2I GetWindowSize();
+float GetFixedDT();
 bool IsWindowOpen();
 void SetWindowConfig(const WindowConfig& config);
 void CloseWindow();

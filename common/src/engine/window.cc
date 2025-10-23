@@ -34,6 +34,7 @@ namespace {
 WindowConfig windowConfig;
 SDL_Window* window = nullptr;
 core::Vec2I windowSize;
+float fixedDt;
 bool isOpen = false;
 }  // namespace
 SDL_Window* GetWindow() { return window; }
@@ -43,6 +44,7 @@ void BeginWindow() {
     flags |= SDL_WINDOW_RESIZABLE;
   }
   windowSize = {windowConfig.width, windowConfig.height};
+  fixedDt = windowConfig.fixed_dt;
   window = SDL_CreateWindow(windowConfig.title.data(), windowConfig.width,
                             windowConfig.height, flags);
   if (window == nullptr) {
@@ -70,6 +72,7 @@ void UpdateWindow() {
 }
 void EndWindow() { SDL_DestroyWindow(window); }
 core::Vec2I GetWindowSize() { return windowSize; }
+float GetFixedDT() { return fixedDt; }
 bool IsWindowOpen() { return isOpen; }
 void SetWindowConfig(const WindowConfig& config) { windowConfig = config; }
 void CloseWindow() { isOpen = false; }

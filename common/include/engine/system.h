@@ -33,6 +33,7 @@ public:
   virtual void Begin() = 0;
   virtual void End() = 0;
   virtual void Update(float dt) = 0;
+  virtual void FixedUpdate() = 0;
 };
 }
 #endif  // GPR924_ENGINE_SYSTEM_H

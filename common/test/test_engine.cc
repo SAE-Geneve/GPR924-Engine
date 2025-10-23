@@ -43,6 +43,12 @@ class ClosingSystem : public common::SystemInterface {
       common::CloseWindow();
     }
   }
+  void FixedUpdate() override {
+    ++count_;
+    if (count_ > kCloseCount) {
+      common::CloseWindow();
+    }
+  }
 
  protected:
   static constexpr int kCloseCount = 100;
@@ -95,6 +101,7 @@ TEST(Engine, Render) {
 
   common::DrawObserverSubject::RemoveObserver(&draw_something);
 }
+
 class Circle : public common::DrawInterface
 {
   void Draw() override {

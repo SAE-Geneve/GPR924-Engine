@@ -61,6 +61,7 @@ void RunEngine() {
   BeginEngine();
   auto freq = static_cast<double>(SDL_GetPerformanceFrequency());
   Uint64 previous = SDL_GetPerformanceCounter();
+  float dt_fix_ = 0;
   while (IsWindowOpen()) {
     currentTime = SDL_GetPerformanceCounter();
     auto delta = static_cast<double>(currentTime - previous);
@@ -72,6 +73,11 @@ void RunEngine() {
     for (auto& system : SystemObserverSubject::GetObservers()) {
       if (system == nullptr) continue;
       system->Update(dt);
+      dt_fix_ += dt;
+      while (dt_fix_ >= GetFixedDT()) {
+      system->FixedUpdate();
+        dt_fix_ -= GetFixedDT();
+      }
     }
     DrawRenderer();
   }
