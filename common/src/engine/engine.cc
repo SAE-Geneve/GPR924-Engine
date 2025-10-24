@@ -20,9 +20,13 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Contributors: Elias Farhan
+Contributors: Anthony Barman
 */
 
 #include "engine/engine.h"
+
+#include <imgui.h>
+#include <imgui_impl_sdl3.h>
 
 #include <format>
 
@@ -62,30 +66,30 @@ void RunEngine() {
   auto freq = static_cast<double>(SDL_GetPerformanceFrequency());
   Uint64 previous = SDL_GetPerformanceCounter();
   float dt_fix_ = 0;
-  bool fixed_update = false;
   while (IsWindowOpen()) {
     currentTime = SDL_GetPerformanceCounter();
     auto delta = static_cast<double>(currentTime - previous);
     previous = currentTime;
     dt = static_cast<float>(delta / freq);
-    dt_fix_ += dt;
 
-    if (dt_fix_ >= GetFixedDT()) {
-      fixed_update = true;
-    }
     UpdateWindow();
     UpdateRenderer();
+
     for (auto& system : SystemObserverSubject::GetObservers()) {
       if (system == nullptr) continue;
       system->Update(dt);
-      if (fixed_update){
-        system->FixedUpdate();
-      }
     }
 
-    if (fixed_update) {
+    dt_fix_ += dt;
+    while (dt_fix_ >= GetFixedDT()) {
+      for (auto& system : SystemObserverSubject::GetObservers()) {
+        if (!IsWindowOpen()) break;  // <-- arrêt immédiat si la fenêtre vient d’être fermée
+        if (system == nullptr) continue;
+        system->FixedUpdate();
+      }
+
+      if (!IsWindowOpen()) break; // <-- sécurité supplémentaire après la boucle interne
       dt_fix_ -= GetFixedDT();
-      fixed_update = false;
     }
 
     DrawRenderer();
