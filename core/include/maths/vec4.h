@@ -26,6 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Contributors: Yanis Fornari
+Contributors: Anthony Barman
 */
 
 #include <cmath>
@@ -90,6 +91,15 @@ struct Vec4 {
 
   [[nodiscard]] friend constexpr Vec4 operator*(const T t, const Vec4& other) {
     return other * t;
+  }
+
+  template <typename OtherT>
+  constexpr Vec4& operator=(const Vec4<OtherT>& other) {
+    x = static_cast<T>(other.x);
+    y = static_cast<T>(other.y);
+    z = static_cast<T>(other.z);
+    w = static_cast<T>(other.w);
+    return *this;
   }
 
   [[nodiscard]] constexpr T Dot(const Vec4& other) const {

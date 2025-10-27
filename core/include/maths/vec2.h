@@ -87,9 +87,7 @@ struct Vec2 {
     return Vec2(x - other.x, y - other.y);
   }
 
-  [[nodiscard]] constexpr Vec2 operator-() const {
-    return Vec2(-x, -y);
-  }
+  [[nodiscard]] constexpr Vec2 operator-() const { return Vec2(-x, -y); }
 
   [[nodiscard]] constexpr Vec2 operator*(const Vec2& other) const {
     return {x * other.x, y * other.y};
@@ -119,9 +117,13 @@ struct Vec2 {
     return *this;
   }
 
-  bool operator==(const Vec2& vec2) const
-  {
-    return x == vec2.x && y == vec2.y;
+  [[nodiscard]] bool operator==(const Vec2& vec2) const { return x == vec2.x && y == vec2.y; }
+
+  template <typename OtherT>
+  constexpr Vec2& operator=(const Vec2<OtherT>& other) {
+    x = static_cast<T>(other.x);
+    y = static_cast<T>(other.y);
+    return *this;
   }
 
   [[nodiscard]] constexpr T Dot(const Vec2& other) const {
@@ -131,11 +133,11 @@ struct Vec2 {
   [[nodiscard]] static constexpr T Dot(const Vec2& v1, const Vec2& v2) {
     return v1.x * v2.x + v1.y * v2.y;
   }
-  //Delete this
+  // Delete this
   [[nodiscard]] constexpr Vec2 Cross(const Vec2& other) const {
     return Vec2{y * other.x - x * other.y, x * other.y - y * other.x};
   }
-  //Delete this
+  // Delete this
   [[nodiscard]] static constexpr Vec2 Cross(const Vec2& v1, const Vec2& v2) {
     return Vec2{v1.y * v2.x - v1.x * v2.y, v1.x * v2.y - v1.y * v2.x};
   }
@@ -220,12 +222,10 @@ struct Vec2 {
     return Vec2{v.x - normal.x * factor, v.y - normal.y * factor};
   }
 
-  [[nodiscard]] Vec2 constexpr PerpendicularClockWise() const
-  {
+  [[nodiscard]] Vec2 constexpr PerpendicularClockWise() const {
     return Vec2(y, -x);
   }
-  [[nodiscard]] Vec2 constexpr PerpendicularCounterClockWise() const
-  {
+  [[nodiscard]] Vec2 constexpr PerpendicularCounterClockWise() const {
     return Vec2(-y, x);
   }
 };
@@ -234,5 +234,5 @@ using Vec2F = Vec2<float>;
 using Vec2I = Vec2<int32_t>;
 using Vec2U = Vec2<uint32_t>;
 
-}  // namespace core::maths
+}  // namespace core
 #endif  // CORE_MATHS_VEC2_H

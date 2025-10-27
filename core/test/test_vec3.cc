@@ -40,6 +40,14 @@ TEST(Vec3, Constructor)
   EXPECT_EQ(vec_u.x, 1);
   EXPECT_EQ(vec_u.y, 2);
   EXPECT_EQ(vec_u.z, 3);
+
+  // La conversion est à l’inférieur.
+  core::Vec3I vec_i2(0, 0, 0);
+  constexpr core::Vec3F vec_f2(1.5f, 2.5f, 3.5f);
+  vec_i2 = vec_f2;
+  EXPECT_EQ(vec_i2.x, 1);
+  EXPECT_EQ(vec_i2.y, 2);
+  EXPECT_EQ(vec_i2.z, 3);
 }
 
 TEST(Vec3, add)

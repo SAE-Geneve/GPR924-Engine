@@ -27,6 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Contributors: Yanis Fornari
+Contributors: Anthony Barman
 */
 
 TEST(Vec4, Constructor) {
@@ -45,6 +46,15 @@ TEST(Vec4, Constructor) {
   EXPECT_EQ(vec_u.y, 2);
   EXPECT_EQ(vec_u.z, 3);
   EXPECT_EQ(vec_u.w, 6);
+
+  // La conversion est à l’inférieur.
+  core::Vec4I vec_i2(0, 0, 0, 0);
+  constexpr core::Vec4F vec_f2(1.5f, 2.5f, 3.5f, 4.5f);
+  vec_i2 = vec_f2;
+  EXPECT_EQ(vec_i2.x, 1);
+  EXPECT_EQ(vec_i2.y, 2);
+  EXPECT_EQ(vec_i2.z, 3);
+  EXPECT_EQ(vec_i2.w, 4);
 }
 
 TEST(Vec4, add) {

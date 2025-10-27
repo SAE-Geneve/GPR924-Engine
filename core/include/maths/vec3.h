@@ -86,6 +86,14 @@ struct Vec3 {
     return other * t;
   }
 
+  template <typename OtherT>
+  constexpr Vec3& operator=(const Vec3<OtherT>& other) {
+    x = static_cast<T>(other.x);
+    y = static_cast<T>(other.y);
+    z = static_cast<T>(other.z);
+    return *this;
+  }
+
   [[nodiscard]] constexpr T Dot(const Vec3& other) const {
     return x * other.x + y * other.y + z * other.z;
   }
