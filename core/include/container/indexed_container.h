@@ -126,7 +126,7 @@ public:
   }
   [[nodiscard]] size_t size() const noexcept{
     return std::count_if(values_.begin(), values_.end(),[](const auto& v) {
-      return !v.IsInvalid();
+      return !v.first.IsInvalid();
     });
   }
 private:
