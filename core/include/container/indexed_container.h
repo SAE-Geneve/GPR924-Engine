@@ -49,6 +49,8 @@ public:
   bool operator==(const Index & index) const {
     return index_ == index.index_ && generationIndex_ == index.generationIndex_;
   }
+  IndexType index() const { return index_; }
+  GenerationIndexType generationIndex() const { return generationIndex_; }
 private:
   template<typename U>
   friend class IndexedContainer;
