@@ -47,7 +47,8 @@ class Index {
   bool operator==(const Index& index) const {
     return index_ == index.index_ && generationIndex_ == index.generationIndex_;
   }
-
+  IndexType index() const { return index_; }
+  GenerationIndexType generationIndex() const { return generationIndex_; }
  private:
   template <typename U>
   friend class IndexedContainer;
@@ -125,9 +126,11 @@ class IndexedContainer {
     pair.first = T::GenerateInvalidValue();
     ++pair.second;
   }
-  [[nodiscard]] size_t size() const noexcept {
-    return std::count_if(values_.begin(), values_.end(),
-                         [](const auto& v) { return !v.IsInvalid(); });
+
+  [[nodiscard]] size_t size() const noexcept{
+    return std::count_if(values_.begin(), values_.end(),[](const auto& v) {
+      return !v.first.IsInvalid();
+    });
   }
 
   class Iterator {
