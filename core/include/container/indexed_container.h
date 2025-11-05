@@ -49,6 +49,7 @@ class Index {
   }
   IndexType index() const { return index_; }
   GenerationIndexType generationIndex() const { return generationIndex_; }
+
  private:
   template <typename U>
   friend class IndexedContainer;
@@ -127,10 +128,9 @@ class IndexedContainer {
     ++pair.second;
   }
 
-  [[nodiscard]] size_t size() const noexcept{
-    return std::count_if(values_.begin(), values_.end(),[](const auto& v) {
-      return !v.first.IsInvalid();
-    });
+  [[nodiscard]] size_t size() const noexcept {
+    return std::count_if(values_.begin(), values_.end(),
+                         [](const auto& v) { return !v.first.IsInvalid(); });
   }
 
   class Iterator {
@@ -178,30 +178,45 @@ class IndexedContainer {
     difference_type operator-(const Iterator& other) const {
       return m_ptr - other.m_ptr;
     }
-    bool operator==(const Iterator& other) const { return m_ptr == other.m_ptr; }
-    bool operator!=(const Iterator& other) const { return m_ptr != other.m_ptr; }
+    bool operator==(const Iterator& other) const {
+      return m_ptr == other.m_ptr;
+    }
+    bool operator!=(const Iterator& other) const {
+      return m_ptr != other.m_ptr;
+    }
     bool operator<(const Iterator& other) const { return m_ptr < other.m_ptr; }
     bool operator>(const Iterator& other) const { return m_ptr > other.m_ptr; }
-    bool operator<=(const Iterator& other) const { return m_ptr <= other.m_ptr; }
-    bool operator>=(const Iterator& other) const { return m_ptr >= other.m_ptr; }
+    bool operator<=(const Iterator& other) const {
+      return m_ptr <= other.m_ptr;
+    }
+    bool operator>=(const Iterator& other) const {
+      return m_ptr >= other.m_ptr;
+    }
 
    private:
     pair_type* m_ptr;
   };
 
-  auto begin() {
-    return Iterator { values_.data()};
+  [[nodiscard]] auto begin() { return Iterator{values_.data()}; }
+  [[nodiscard]] auto end() { return Iterator{values_.data() + values_.size()}; }
+
+  [[nodiscard]] std::span<
+      const std::pair<T, typename Index<T>::generation_index_type>>
+  values() const {
+    return values_;
   }
-    auto end() {
-    return Iterator{ values_.data()+values_.size()};
+  [[nodiscard]] std::span<
+      std::pair<T, typename Index<T>::generation_index_type>>
+  values() {
+    return values_;
   }
 
-   private:
-    static_assert(
-        CanBeInvalid<T>,
-        "requires function bool IsInvalid() && GenerateInvalidValue();");
-    std::vector<std::pair<T, typename Index<T>::generation_index_type>> values_;
-  };
-}
+ private:
+  static_assert(
+      CanBeInvalid<T>,
+      "requires function bool IsInvalid() && GenerateInvalidValue();");
+  std::vector<std::pair<T, typename Index<T>::generation_index_type>> values_;
+};
+}  // namespace core
 
 #endif  // GPR924_ENGINE_INDEXED_CONTAINER_H
