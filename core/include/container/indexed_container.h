@@ -28,6 +28,7 @@ Contributors: Elias Farhan
 #include <algorithm>
 #include <stdexcept>
 #include <vector>
+#include <span>
 
 namespace core {
 template <typename T>
