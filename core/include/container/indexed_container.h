@@ -1,7 +1,6 @@
 #ifndef GPR924_ENGINE_INDEXED_CONTAINER_H
 #define GPR924_ENGINE_INDEXED_CONTAINER_H
 
-
 /*
 Copyright 2025 SAE Institute Switzerland SA
 
@@ -31,87 +30,88 @@ Contributors: Elias Farhan
 #include <vector>
 
 namespace core {
-template<typename T>
-concept CanBeInvalid = requires(const T value)
-{
-  {value.IsInvalid()} -> std::same_as<bool>;
-  {T::GenerateInvalidValue()}->std::convertible_to<T>;
+template <typename T>
+concept CanBeInvalid = requires(const T value) {
+  { value.IsInvalid() } -> std::same_as<bool>;
+  { T::GenerateInvalidValue() } -> std::convertible_to<T>;
 };
 
-
-template<typename T, typename IndexType=int, typename GenerationIndexType=int>
-class Index
-{
-public:
+template <typename T, typename IndexType = int,
+          typename GenerationIndexType = int>
+class Index {
+ public:
   using index_type = IndexType;
   using generation_index_type = GenerationIndexType;
-  explicit Index(int index, int generationIndex = 0) : index_(index), generationIndex_(generationIndex) {}
-  bool operator==(const Index & index) const {
+  explicit Index(int index, int generationIndex = 0)
+      : index_(index), generationIndex_(generationIndex) {}
+  bool operator==(const Index& index) const {
     return index_ == index.index_ && generationIndex_ == index.generationIndex_;
   }
-private:
-  template<typename U>
+
+ private:
+  template <typename U>
   friend class IndexedContainer;
   IndexType index_ = -1;
   GenerationIndexType generationIndex_ = 0;
 };
 
-
-template<typename T>
+template <typename T>
 class IndexedContainer {
-public:
+ public:
   Index<T> Add(T&& new_value) {
-    auto it = std::find_if(values_.begin(), values_.end(),[](const auto& v) {
-      return v.first.IsInvalid();
-    });
+    auto it = std::find_if(values_.begin(), values_.end(),
+                           [](const auto& v) { return v.first.IsInvalid(); });
     if (it == values_.end()) {
       Index<T> index{static_cast<Index<T>::index_type>(std::ssize(values_))};
       values_.push_back({std::move(new_value), 0});
       return index;
     }
-    Index<T> index{static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
+    Index<T> index{
+        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
     it->first = std::move(new_value);
     return index;
   }
 
   Index<T> Add(const T& new_value) {
-    auto it = std::find_if(values_.begin(), values_.end(),[](const auto& v) {
-      return v.first.IsInvalid();
-    });
+    auto it = std::find_if(values_.begin(), values_.end(),
+                           [](const auto& v) { return v.first.IsInvalid(); });
     if (it == values_.end()) {
       Index<T> index{static_cast<Index<T>::index_type>(std::ssize(values_))};
       values_.push_back({new_value, 0});
       return index;
     }
-    Index<T> index{static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
+    Index<T> index{
+        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
     it->first = new_value;
     return index;
   }
 
   Index<T> Add() {
-    auto it = std::find_if(values_.begin(), values_.end(),[](const auto& v) {
-      return v.first.IsInvalid();
-    });
+    auto it = std::find_if(values_.begin(), values_.end(),
+                           [](const auto& v) { return v.first.IsInvalid(); });
     if (it == values_.end()) {
       Index<T> index{static_cast<Index<T>::index_type>(std::ssize(values_))};
       values_.push_back({{}, 0});
       return index;
     }
-    Index<T> index{static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
+    Index<T> index{
+        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
     it->first = {};
     return index;
   }
   [[nodiscard]] const T& At(Index<T> index) const {
     const auto& pair = values_.at(index.index_);
     if (index.generationIndex_ != pair.second) {
-      throw std::runtime_error("Trying to get value at index with invalid generation_index");
+      throw std::runtime_error(
+          "Trying to get value at index with invalid generation_index");
     }
     return pair.first;
   }
   [[nodiscard]] T& At(Index<T> index) {
     auto& pair = values_.at(index.index_);
     if (index.generationIndex_ != pair.second) {
-      throw std::runtime_error("Trying to get value at index with invalid generation_index");
+      throw std::runtime_error(
+          "Trying to get value at index with invalid generation_index");
     }
     return pair.first;
   }
@@ -119,21 +119,86 @@ public:
   void Remove(Index<T> index) {
     auto& pair = values_.at(index.index_);
     if (index.generationIndex_ != pair.second) {
-      throw std::runtime_error("Trying to remove value at index with invalid generation_index");
+      throw std::runtime_error(
+          "Trying to remove value at index with invalid generation_index");
     }
     pair.first = T::GenerateInvalidValue();
     ++pair.second;
   }
-  [[nodiscard]] size_t size() const noexcept{
-    return std::count_if(values_.begin(), values_.end(),[](const auto& v) {
-      return !v.IsInvalid();
-    });
+  [[nodiscard]] size_t size() const noexcept {
+    return std::count_if(values_.begin(), values_.end(),
+                         [](const auto& v) { return !v.IsInvalid(); });
   }
-private:
-  static_assert(CanBeInvalid<T>, "requires function bool IsInvalid() && GenerateInvalidValue();");
-  std::vector<std::pair<T, typename Index<T>::generation_index_type>> values_;
-};
 
+  class Iterator {
+   public:
+    using iterator_category = std::random_access_iterator_tag;
+    using value_type = T;
+    using difference_type = std::ptrdiff_t;
+    using pointer = T*;
+    using reference = T&;
+    using pair_type = std::pair<T, typename Index<T>::generation_index_type>;
+
+    explicit Iterator(pair_type* ptr) : m_ptr(ptr) {}
+
+    reference operator*() const { return m_ptr->first; }
+    pointer operator->() const { return &m_ptr->first; }
+
+    Iterator& operator++() {
+      ++m_ptr;
+      return *this;
+    }
+
+    Iterator operator++(int) {
+      Iterator tmp = *this;
+      ++(*this);
+      return tmp;
+    }
+
+    Iterator& operator--() {
+      --m_ptr;
+      return *this;
+    }
+
+    Iterator operator--(int) {
+      Iterator tmp = *this;
+      --(*this);
+      return tmp;
+    }
+
+    Iterator operator+(difference_type n) const {
+      return MyIterator(m_ptr + n);
+    }
+    Iterator operator-(difference_type n) const {
+      return MyIterator(m_ptr - n);
+    }
+    difference_type operator-(const Iterator& other) const {
+      return m_ptr - other.m_ptr;
+    }
+    bool operator==(const Iterator& other) const { return m_ptr == other.m_ptr; }
+    bool operator!=(const Iterator& other) const { return m_ptr != other.m_ptr; }
+    bool operator<(const Iterator& other) const { return m_ptr < other.m_ptr; }
+    bool operator>(const Iterator& other) const { return m_ptr > other.m_ptr; }
+    bool operator<=(const Iterator& other) const { return m_ptr <= other.m_ptr; }
+    bool operator>=(const Iterator& other) const { return m_ptr >= other.m_ptr; }
+
+   private:
+    pair_type* m_ptr;
+  };
+
+  auto begin() {
+    return Iterator { values_.data()};
+  }
+    auto end() {
+    return Iterator{ values_.data()+values_.size()};
+  }
+
+   private:
+    static_assert(
+        CanBeInvalid<T>,
+        "requires function bool IsInvalid() && GenerateInvalidValue();");
+    std::vector<std::pair<T, typename Index<T>::generation_index_type>> values_;
+  };
 }
 
 #endif  // GPR924_ENGINE_INDEXED_CONTAINER_H

@@ -53,6 +53,22 @@ TEST(IndexBasedContainer, RemoveValue) {
   EXPECT_THROW(auto v = values.At(index), std::runtime_error);
 }
 
+TEST(IndexBasedContainer, RangeBasedFor) {
+  core::IndexedContainer<Value> values = {};
+  int init_count = 0;
+  for (int i = 0; i < 10; i++) {
+    auto index = values.Add({i});
+    init_count += i;
+  }
+  int result_count = 0;
+  for (const auto& v : values) {
+    if (v.IsInvalid())
+      continue;
+    result_count += v.value;
+  }
+  EXPECT_EQ(init_count, result_count);
+}
+
 class MoveOnlyValue {
  public:
   int value = 0;
