@@ -49,16 +49,19 @@ TEST(IndexBasedContainer, AddValue) {
 
 TEST(IndexBasedContainer, RemoveValue) {
   core::IndexedContainer<Value> values = {};
-  auto index = values.Add();
+  const auto index = values.Add();
   values.Remove(index);
-  EXPECT_THROW(auto v = values.At(index), std::runtime_error);
+  Value v{};
+  EXPECT_THROW(v = values.At(index), std::runtime_error);
 }
 
 TEST(IndexBasedContainer, RangeBasedFor) {
   core::IndexedContainer<Value> values = {};
   int init_count = 0;
   for (int i = 0; i < 10; i++) {
-    auto index = values.Add({i});
+    if (auto index = values.Add({i}); index.index() != i) {
+      FAIL();
+    }
     init_count += i;
   }
   int result_count = 0;

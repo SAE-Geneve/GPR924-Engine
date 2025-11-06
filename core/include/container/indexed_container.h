@@ -25,6 +25,8 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
+#include <imgui.h>
+
 #include <algorithm>
 #include <span>
 #include <stdexcept>
@@ -96,7 +98,7 @@ class IndexedContainer {
                            [](const auto& v) { return v.first.IsInvalid(); });
     if (it == values_.end()) {
       Index<T> index{static_cast<Index<T>::index_type>(std::ssize(values_))};
-      values_.push_back({{}, 0});
+      values_.emplace_back(T{}, 0);
       return index;
     }
     Index<T> index{
@@ -114,7 +116,7 @@ class IndexedContainer {
     return pair.first;
   }
   [[nodiscard]] T& At(Index<T> index) {
-    auto& pair = values_.at(index.index_);
+    auto& pair = values_.at(static_cast<size_t>(index.index_));
     if (index.generationIndex_ != pair.second) {
       throw std::runtime_error(
           "Trying to get value at index with invalid generation_index");
@@ -123,7 +125,7 @@ class IndexedContainer {
   }
 
   void Remove(Index<T> index) {
-    auto& pair = values_.at(index.index_);
+    auto& pair = values_.at(static_cast<size_t>(index.index_));
     if (index.generationIndex_ != pair.second) {
       throw std::runtime_error(
           "Trying to remove value at index with invalid generation_index");
