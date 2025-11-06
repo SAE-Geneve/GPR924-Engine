@@ -26,9 +26,9 @@ Contributors: Elias Farhan
 */
 
 #include <algorithm>
+#include <span>
 #include <stdexcept>
 #include <vector>
-#include <span>
 
 namespace core {
 template <typename T>
@@ -70,7 +70,8 @@ class IndexedContainer {
       return index;
     }
     Index<T> index{
-        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
+        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it)),
+        it->second};
     it->first = std::move(new_value);
     return index;
   }
@@ -84,7 +85,8 @@ class IndexedContainer {
       return index;
     }
     Index<T> index{
-        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
+        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it)),
+        it->second};
     it->first = new_value;
     return index;
   }
@@ -98,7 +100,8 @@ class IndexedContainer {
       return index;
     }
     Index<T> index{
-        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it))};
+        static_cast<Index<T>::index_type>(std::distance(values_.begin(), it)),
+        it->second};
     it->first = {};
     return index;
   }
