@@ -1,5 +1,6 @@
 file(GLOB_RECURSE CORE_SRC include/*.h src/*.cc)
-add_library(core STATIC ${CORE_SRC})
+add_library(core STATIC ${CORE_SRC}
+        include/physics/quadtree.h)
 target_include_directories(core PUBLIC include/)
 setup_warnings(core)
 
