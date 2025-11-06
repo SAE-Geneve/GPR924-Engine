@@ -1,5 +1,4 @@
 #include <gtest/gtest.h>
-
 #include "maths/vec2.h"
 
 /*
