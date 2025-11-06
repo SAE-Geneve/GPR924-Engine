@@ -20,6 +20,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Contributors: Elias Farhan
+Contributors: Anthony Barman
 */
 
 #include <gtest/gtest.h>
@@ -67,6 +68,22 @@ TEST(IndexBasedContainer, RangeBasedFor) {
     result_count += v.value;
   }
   EXPECT_EQ(init_count, result_count);
+}
+
+TEST(IndexBasedContainer, RemoveAndAddValue) {
+  core::IndexedContainer<Value> values = {};
+  const auto index_1 = values.Add();
+  const auto index_2 = values.Add();
+  EXPECT_EQ(index_1.index(), 0);
+  EXPECT_EQ(index_1.generationIndex(), 0);
+  EXPECT_EQ(index_2.index(), 1);
+  EXPECT_EQ(index_2.generationIndex(), 0);
+
+  values.Remove(index_1);
+
+  const auto index_3 = values.Add();
+  EXPECT_EQ(index_3.index(), 0);
+  EXPECT_EQ(index_3.generationIndex(), 1);
 }
 
 class MoveOnlyValue {
