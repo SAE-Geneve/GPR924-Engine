@@ -26,6 +26,7 @@ Contributors: Elias Farhan
 Contributors: Anthony Barman
 */
 
+#include "maths/vec2.h"
 #include "third_party/sdl3_include.h"
 #include "utils/observer.h"
 
@@ -47,6 +48,7 @@ void DrawRenderer();
 void EndRenderer();
 void DrawCircle(float centerX, float centerY, float radius,
                 SDL_FColor color, int nbSegments = 20);
+void DrawAABB(core::Vec2F pos, core::Vec2F rectSize, SDL_FColor color);
 
 
 SDL_Renderer* GetRenderer();

@@ -49,3 +49,33 @@ TEST(Geometry, CircleOverlap) {
   c2 = core::Vec2F{10.0f, 0.0f};
   EXPECT_FALSE(CircleOverlap(c1, r1, c2, r2));
 }
+
+TEST(Geometry, AABBOverlap) {
+  constexpr core::Vec2F c1{0.0f, 0.0f};
+  constexpr core::Vec2F s1 = {10.f,10.f};
+  core::Vec2F c2{4.0f, 0.0f};
+  constexpr core::Vec2F s2 = {10.f,10.f};
+
+  EXPECT_TRUE(AABBOverlap(c1, s1, c2, s2));
+
+  c2 = core::Vec2F{2.0f, 0.0f};
+  EXPECT_TRUE(AABBOverlap(c1, s1, c2, s2));
+
+  c2 = core::Vec2F{30.0f, 0.0f};
+  EXPECT_FALSE(AABBOverlap(c1, s1, c2, s2));
+}
+
+TEST(Geometry, CircleAABBOverlap) {
+  constexpr core::Vec2F c1{0.0f, 0.0f};
+  constexpr core::Vec2F s1 = {10.f,10.f};
+  core::Vec2F c2{4.0f, 0.0f};
+  constexpr float radius = 10.f;
+
+  EXPECT_TRUE(AABBCircleOverlap(c1, s1, c2, radius));
+
+  c2 = core::Vec2F{2.0f, 0.0f};
+  EXPECT_TRUE(AABBCircleOverlap(c1, s1, c2, radius));
+
+  c2 = core::Vec2F{30.0f, 0.0f};
+  EXPECT_FALSE(AABBCircleOverlap(c1, s1, c2, radius));
+}

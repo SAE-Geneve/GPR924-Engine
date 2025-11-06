@@ -101,5 +101,15 @@ void DrawCircle(const float centerX, const float centerY, const float radius,
   }
 }
 
+void DrawAABB(core::Vec2F pos, core::Vec2F rectSize, SDL_FColor color) {
+  SDL_FRect rect(pos.x - rectSize.x / 2,
+                 pos.y - rectSize.y / 2, rectSize.x,
+                 rectSize.y);
+
+  SDL_SetRenderDrawColorFloat(GetRenderer(), color.r, color.g,
+                              color.b, color.a);
+  SDL_RenderFillRect(GetRenderer(), &rect);
+}
+
 SDL_Renderer* GetRenderer() { return renderer; }
 }  // namespace common

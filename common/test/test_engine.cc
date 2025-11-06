@@ -119,3 +119,20 @@ TEST(Render, Circle)
   common::DrawObserverSubject::AddObserver(&circle);
   common::RunEngine();
 }
+
+
+class AABB : public common::DrawInterface
+{
+  void Draw() override {
+    SDL_RenderClear(common::GetRenderer());
+
+    common::DrawAABB({50,50}, {10,10}, {255, 255, 0, 255});
+  }
+};
+
+TEST(Render, AABB)
+{
+  AABB aabb;
+  common::DrawObserverSubject::AddObserver(&aabb);
+  common::RunEngine();
+}
