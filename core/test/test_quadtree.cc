@@ -62,3 +62,5 @@ TEST(QuadNodeTest, ClearEmptiesTree) {
 
   EXPECT_TRUE(collisions.empty());
 }
+
+
