@@ -25,7 +25,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Contributors: Jemoel
+Contributors: Jemoel Ablay, Hugo Zeidan
 */
 
 namespace core {
@@ -41,50 +41,48 @@ constexpr bool CircleOverlap(const Vec2F& center1, const float radius1,
   return diff.magnitude_sqr() <= radiusSum * radiusSum;
 }
 
-constexpr bool AABBOverlap(Vec2F pos1, Vec2F size1, Vec2F pos2, Vec2F size2) {
+constexpr bool AABBOverlap(const Vec2F pos1, const Vec2F size1,
+                           const Vec2F pos2, const Vec2F size2) {
   // Half sizes of both AABBs
-  float halfWidth1 = size1.x * 0.5f;
-  float halfHeight1 = size1.y * 0.5f;
-  float halfWidth2 = size2.x * 0.5f;
-  float halfHeight2 = size2.x * 0.5f;
+  const float halfWidth1 = size1.x * 0.5f;
+  const float halfHeight1 = size1.y * 0.5f;
+  const float halfWidth2 = size2.x * 0.5f;
+  const float halfHeight2 = size2.x * 0.5f;
 
   // Difference between centers
   float dx = pos1.x - pos2.x;
-  if (dx < 0) {
-    dx *= -1;
-  }
-
   float dy = pos1.y - pos2.y;
-  if (dy < 0) {
-    dy *= -1;
-  }
+
+  if (dx < 0) dx *= -1;
+  if (dy < 0) dy *= -1;
 
   // Check for overlap on both axes
-  bool overlapX = dx <= (halfWidth1 + halfWidth2);
-  bool overlapY = dy <= (halfHeight1 + halfHeight2);
+  const bool overlapX = dx <= (halfWidth1 + halfWidth2);
+  const bool overlapY = dy <= (halfHeight1 + halfHeight2);
 
   return overlapX && overlapY;
 }
 
-constexpr bool AABBCircleOverlap(const Vec2F& rectCenter, Vec2F rectSize,
-                                 const Vec2F& circleCenter, float radius) {
+constexpr bool AABBCircleOverlap(const Vec2F& rectCenter, const Vec2F rectSize,
+                                 const Vec2F& circleCenter,
+                                 const float radius) {
   // Half extents of the AABB
-  float halfWidth = rectSize.x * 0.5f;
-  float halfHeight = rectSize.y * 0.5f;
+  const float halfWidth = rectSize.x * 0.5f;
+  const float halfHeight = rectSize.y * 0.5f;
 
   // Compute the vector from AABB center to circle center
-  core::Vec2F diff = circleCenter - rectCenter;
+  const Vec2F diff = circleCenter - rectCenter;
 
   // Clamp that vector to the box's extents (find the closest point on box)
-  float clampedX = std::clamp(diff.x, -halfWidth, halfWidth);
-  float clampedY = std::clamp(diff.y, -halfHeight, halfHeight);
+  const float clampedX = std::clamp(diff.x, -halfWidth, halfWidth);
+  const float clampedY = std::clamp(diff.y, -halfHeight, halfHeight);
 
   // Closest point on the AABB to the circle center
-  core::Vec2F closestPoint = rectCenter + core::Vec2F(clampedX, clampedY);
+  const Vec2F closestPoint = rectCenter + core::Vec2F(clampedX, clampedY);
 
   // Distance squared between circle center and closest point
-  core::Vec2F delta = circleCenter - closestPoint;
-  float distanceSqr = delta.magnitude_sqr();
+  const Vec2F delta = circleCenter - closestPoint;
+  const float distanceSqr = delta.magnitude_sqr();
 
   // Overlap if distance ≤ radius
   return distanceSqr <= (radius * radius);
