@@ -253,25 +253,6 @@ TEST(Vec2, Lerp)
   EXPECT_FLOAT_EQ(result_.y, 2.2f * (1 - 0.5f) + 5.3f * 0.5f);
 }
 
-TEST(Vec2, Slerp)
-{
-  constexpr core::Vec2F vec_1(1.2f, 2.2f);
-  constexpr core::Vec2F vec_2(4.3f, 5.3f);
-  const core::Vec2F n1 = vec_1.Normalize();
-  const core::Vec2F n2 = vec_2.Normalize();
-  const auto result_ = core::Vec2F::Slerp(n1, n2, 0.5f);
-
-  const float dot = n1.Dot(n2);
-  const float theta = std::acos(dot);
-  const float sinTheta = std::sin(theta);
-
-  const float w0 = std::sin((1 - 0.5f) * theta) / sinTheta;
-  const float w1 = std::sin(0.5f * theta) / sinTheta;
-
-  EXPECT_FLOAT_EQ(result_.x, n1.x * w0 + n2.x * w1);
-  EXPECT_FLOAT_EQ(result_.y, n1.y * w0 + n2.y * w1);
-}
-
 TEST(Vec2, Projection)
 {
   constexpr core::Vec2I vec1(1, 2);

@@ -179,27 +179,6 @@ struct Vec2 {
     return Vec2{v0.x * (1 - t) + v1.x * t, v0.y * (1 - t) + v1.y * t};
   }
 
-  [[nodiscard]] static Vec2 Slerp(const Vec2 v0, const Vec2 v1, const float t)
-    requires std::is_floating_point_v<T>
-  {
-    T dot = v0.Dot(v1);
-
-    if (dot > 1.0f) dot = 1.0f;
-    if (dot < -1.0f) dot = -1.0f;
-
-    const float theta = std::acos(dot);
-    const float sinTheta = std::sin(theta);
-
-    if (sinTheta < 1e-6f) {
-      return Vec2{v0.x * (1 - t) + v1.x * t, v0.y * (1 - t) + v1.y * t};
-    }
-
-    float w0 = std::sin((1 - t) * theta) / sinTheta;
-    float w1 = std::sin(t * theta) / sinTheta;
-
-    return Vec2{v0.x * w0 + v1.x * w1, v0.y * w0 + v1.y * w1};
-  }
-
   [[nodiscard]] static constexpr Vec2 Projection(const Vec2 v,
                                                  const Vec2 onto) {
     T dotVV = onto.Dot(onto);
