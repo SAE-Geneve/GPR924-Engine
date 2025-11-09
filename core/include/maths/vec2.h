@@ -214,6 +214,10 @@ struct Vec2 {
     return Vec2{v.x - normal.x * factor, v.y - normal.y * factor};
   }
 
+  [[nodiscard]] constexpr bool Perpendicular(const Vec2 v){
+  return Dot(v) == 0;
+}
+
   [[nodiscard]] Vec2 constexpr PerpendicularClockWise() const {
     return Vec2(y, -x);
   }

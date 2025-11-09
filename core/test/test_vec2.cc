@@ -323,12 +323,17 @@ TEST(Vec2, Perpendicular)
   constexpr core::Vec2F test_vec(1.2f, 2.2f);
 
   auto result_float_1 = test_vec.PerpendicularClockWise();
-  core::Vec2F result_test_1(test_vec.y, -test_vec.x);;
+
+  EXPECT_TRUE(result_float_1.Perpendicular(test_vec));
+  EXPECT_FALSE(result_float_1.Perpendicular(result_float_1));
+
+  core::Vec2F result_test_1(test_vec.y, -test_vec.x);
   EXPECT_FLOAT_EQ(result_float_1.x, result_test_1.x);
   EXPECT_FLOAT_EQ(result_float_1.y, result_test_1.y);
 
+
   auto result_float_2 = test_vec.PerpendicularCounterClockWise();
-  core::Vec2F result_test_2(-test_vec.y, test_vec.x);;
+  core::Vec2F result_test_2(-test_vec.y, test_vec.x);
   EXPECT_FLOAT_EQ(result_float_2.x, result_test_2.x);
   EXPECT_FLOAT_EQ(result_float_2.y, result_test_2.y);
 }
