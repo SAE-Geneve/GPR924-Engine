@@ -133,14 +133,6 @@ struct Vec2 {
   [[nodiscard]] static constexpr T Dot(const Vec2& v1, const Vec2& v2) {
     return v1.x * v2.x + v1.y * v2.y;
   }
-  // Delete this
-  [[nodiscard]] constexpr Vec2 Cross(const Vec2& other) const {
-    return Vec2{y * other.x - x * other.y, x * other.y - y * other.x};
-  }
-  // Delete this
-  [[nodiscard]] static constexpr Vec2 Cross(const Vec2& v1, const Vec2& v2) {
-    return Vec2{v1.y * v2.x - v1.x * v2.y, v1.x * v2.y - v1.y * v2.x};
-  }
 
   [[nodiscard]] constexpr Vec2 operator/(const Vec2& other) const {
     return {x / other.x, y / other.y};
