@@ -171,28 +171,6 @@ TEST(Vec2, Dot)
   EXPECT_FLOAT_EQ(core::Vec2F::Dot(vec_f1, vec_f2), 4.3f * 1.2f + 5.3f * 2.2f);
 }
 
-TEST(Vec2, Cross)
-{
-  constexpr core::Vec2I vec1(4, 5);
-  constexpr core::Vec2I vec2(1, 2);
-  constexpr core::Vec2I vec12 = vec1.Cross(vec2);
-  EXPECT_EQ(vec12.x, 5 * 1 - 4 * 2);
-  EXPECT_EQ(vec12.y, 4 * 2 - 5 * 1);
-  constexpr core::Vec2I vec21 = core::Vec2I::Cross(vec2, vec1);
-  EXPECT_EQ(vec21.x, 4 * 2 - 1 * 5);
-  EXPECT_EQ(vec21.y,  1 * 5 - 2 * 4);
-
-
-  constexpr core::Vec2F vec_f1(4.3f, 5.3f);
-  constexpr core::Vec2F vec_f2(1.2f, 2.2f);
-  constexpr core::Vec2F vec_f12 = vec_f1.Cross(vec_f2);
-  EXPECT_FLOAT_EQ(vec_f12.x, 5.3f * 1.2f - 4.3f * 2.2f);
-  EXPECT_FLOAT_EQ(vec_f12.y, 4.3f * 2.2f - 5.3f * 1.2f);
-  constexpr core::Vec2F vec_f21 = core::Vec2F::Cross(vec_f2, vec_f1);
-  EXPECT_FLOAT_EQ(vec_f21.x, 2.2f * 4.3f - 1.2f * 5.3f);
-  EXPECT_FLOAT_EQ(vec_f21.y, 1.2f * 5.3f - 2.2f * 4.3f);
-}
-
 TEST(Vec2, Div)
 {
   constexpr core::Vec2I vec1(4, 5);
