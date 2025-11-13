@@ -66,13 +66,6 @@ struct Vec2 {
 
   // Constructor for the vec 2
   constexpr Vec2(T x, T y) : x(x), y(y) {}
-  constexpr Vec2(std::initializer_list<T> l) {
-    if (l.size() != 2) {
-      throw std::runtime_error("Invalid number of arguments for Vec2");
-    }
-    x = data(l)[0];
-    y = data(l)[1];
-  }
 
   template <typename VectorT>
     requires IsVector2<VectorT, T>
