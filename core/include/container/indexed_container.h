@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Contributors: Anthony Barman
-Contributors: Elias Farhan
+Contributors: Elias Farhan, Jemoel Ablay
 */
 
 #include <imgui.h>
@@ -46,6 +46,7 @@ class Index {
  public:
   using index_type = IndexType;
   using generation_index_type = GenerationIndexType;
+  Index() = default;
   explicit Index(int index, int generationIndex = 0)
       : index_(index), generationIndex_(generationIndex) {}
   bool operator==(const Index& index) const {
