@@ -46,7 +46,6 @@ class Index {
  public:
   using index_type = IndexType;
   using generation_index_type = GenerationIndexType;
-  Index() = default;
   explicit Index(int index, int generationIndex = 0)
       : index_(index), generationIndex_(generationIndex) {}
   bool operator==(const Index& index) const {
@@ -54,6 +53,10 @@ class Index {
   }
   IndexType index() const { return index_; }
   GenerationIndexType generationIndex() const { return generationIndex_; }
+
+  static constexpr Index GenerateInvalidIndex() noexcept {
+    return Index(-1);
+  }
 
  private:
   template <typename U>

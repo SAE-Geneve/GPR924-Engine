@@ -115,5 +115,9 @@ TEST(IndexBasedContainer, MoveValue) {
   const auto index = values.Add(std::move(m));
   values.Remove(index);
   [[maybe_unused]] const auto default_index = values.Add();
+}
 
+TEST(IndexBasedContainer, GenerateInvalidIndex) {
+  const auto invalid_value = core::Index<Value>::GenerateInvalidIndex();
+  EXPECT_EQ(invalid_value.index(), -1);
 }
