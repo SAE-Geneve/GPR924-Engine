@@ -47,6 +47,10 @@ TEST(Vec2, Constructor)
   vec_i2 = vec_f2;
   EXPECT_EQ(vec_i2.x, 1);
   EXPECT_EQ(vec_i2.y, 2);
+
+  core::Vec2I s = {1, 2};
+  EXPECT_EQ(s.x, 1);
+  EXPECT_EQ(s.y, 2);
 }
 
 TEST(Vec2, Add)
