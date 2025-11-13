@@ -47,7 +47,7 @@ constexpr bool AABBOverlap(const Vec2F pos1, const Vec2F size1,
   const float halfWidth1 = size1.x * 0.5f;
   const float halfHeight1 = size1.y * 0.5f;
   const float halfWidth2 = size2.x * 0.5f;
-  const float halfHeight2 = size2.x * 0.5f;
+  const float halfHeight2 = size2.y * 0.5f;
 
   // Difference between centers
   float dx = pos1.x - pos2.x;
