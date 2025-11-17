@@ -140,8 +140,9 @@ class IndexedContainer {
   }
 
   [[nodiscard]] size_t size() const noexcept {
-    return std::count_if(values_.begin(), values_.end(),
-                         [](const auto& v) { return !v.first.IsInvalid(); });
+    return static_cast<size_t>(
+      std::count_if(values_.begin(), values_.end(),
+                         [](const auto& v) { return !v.first.IsInvalid(); }));
   }
 
   class Iterator {
