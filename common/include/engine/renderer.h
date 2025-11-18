@@ -23,7 +23,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Contributors: Elias Farhan
-Contributors: Anthony Barman
+Contributors: Anthony Barman, Jemoel Ablay
 */
 
 #include "maths/vec2.h"
