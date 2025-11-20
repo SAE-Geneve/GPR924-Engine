@@ -1,5 +1,5 @@
-#ifndef GPR924_ENGINE_IMGUI_INCLUDE_H
-#define GPR924_ENGINE_IMGUI_INCLUDE_H
+#ifndef GPR924_ENGINE_GL_INCLUDE_H
+#define GPR924_ENGINE_GL_INCLUDE_H
 
 /*
 Copyright 2025 SAE Institute Switzerland SA
@@ -25,17 +25,6 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
-#if (defined(__clang__) && __clang_major__ >= 20)
-#pragma clang diagnostic push
-#pragma clang diagnostic ignored "-Wnontrivial-memcall"
-#endif
-#include <imgui.h>
-#include <imgui_impl_sdl3.h>
-#include <imgui_impl_sdlrenderer3.h>
-#define IMGUI_IMPL_OPENGL_ES3
-#include <imgui_impl_opengl3.h>
-#if (defined(__clang__) && __clang_major__ >= 20)
-#pragma clang diagnostic pop
-#endif
+#include "gl/glew.h"
 
-#endif  // GPR924_ENGINE_IMGUI_INCLUDE_H
+#endif // GPR924_ENGINE_GL_INCLUDE_H

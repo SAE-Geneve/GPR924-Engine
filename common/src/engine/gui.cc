@@ -51,12 +51,24 @@ void BeginGuiRenderer() {
       mainScale);  // Bake a fixed style scale. (until we have a solution for
                    // dynamic style scaling, changing this requires resetting
                    // Style + calling this again)
-
-  ImGui_ImplSDL3_InitForSDLRenderer(GetWindow(), renderer_);
-  ImGui_ImplSDLRenderer3_Init(renderer_);
+  const auto& windowConfig = GetWindowConfig();
+  if (windowConfig.renderer == WindowConfig::RendererType::SDL_RENDERER) {
+    ImGui_ImplSDL3_InitForSDLRenderer(GetWindow(), renderer_);
+    ImGui_ImplSDLRenderer3_Init(renderer_);
+  }
+  else {
+    ImGui_ImplSDL3_InitForOpenGL(GetWindow(), GetGlContext());
+    ImGui_ImplOpenGL3_Init("#version 300 es");
+  }
 }
 void UpdateGuiRenderer() {
-  ImGui_ImplSDLRenderer3_NewFrame();
+  auto& windowConfig = GetWindowConfig();
+  if (windowConfig.renderer == WindowConfig::RendererType::SDL_RENDERER) {
+    ImGui_ImplSDLRenderer3_NewFrame();
+  }
+  else {
+    ImGui_ImplOpenGL3_NewFrame();
+  }
   ImGui_ImplSDL3_NewFrame();
   ImGui::NewFrame();
 
@@ -66,7 +78,13 @@ void UpdateGuiRenderer() {
   }
 }
 void EndGuiRenderer() {
-  ImGui_ImplSDLRenderer3_Shutdown();
+  auto& windowConfig = GetWindowConfig();
+  if (windowConfig.renderer == WindowConfig::RendererType::SDL_RENDERER) {
+    ImGui_ImplSDLRenderer3_Shutdown();
+  }
+  else {
+    ImGui_ImplOpenGL3_Shutdown();
+  }
   ImGui_ImplSDL3_Shutdown();
   ImGui::DestroyContext();
 }
@@ -75,7 +93,13 @@ void DrawGuiRenderer() {
   ImGuiIO& io = ImGui::GetIO();
   SDL_SetRenderScale(renderer_, io.DisplayFramebufferScale.x,
                      io.DisplayFramebufferScale.y);
-  ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
+  auto& windowConfig = GetWindowConfig();
+  if (windowConfig.renderer == WindowConfig::RendererType::SDL_RENDERER) {
+    ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
+  }
+  else {
+    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+  }
 }
 void ManageGuiEvent(const SDL_Event& event) {
   ImGui_ImplSDL3_ProcessEvent(&event);

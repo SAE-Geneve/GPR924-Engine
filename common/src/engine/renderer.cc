@@ -31,45 +31,103 @@ Contributors: Anthony Barman, Jemoel Ablay
 #include "engine/gui.h"
 #include "engine/window.h"
 #include "maths/constant.h"
+#include "third_party/gl_include.h"
 
 namespace common {
 
 namespace {
 SDL_Renderer* renderer = nullptr;
-}
+SDL_GLContext gl_context;
+}  // namespace
 void BeginRenderer() {
   auto* window = GetWindow();
-  renderer = SDL_CreateRenderer(window, nullptr);
-  if (renderer == nullptr) {
-    throw std::runtime_error(
-        std::format("SDL renderer failed to initialise: {}", SDL_GetError()));
+
+  const auto& windowConfig = GetWindowConfig();
+
+  switch (windowConfig.renderer) {
+    case WindowConfig::RendererType::SDL_RENDERER: {
+      renderer = SDL_CreateRenderer(window, nullptr);
+      if (renderer == nullptr) {
+        throw std::runtime_error(std::format(
+            "SDL renderer failed to initialise: {}", SDL_GetError()));
+      }
+      break;
+    }
+    case WindowConfig::RendererType::OPENGL:
+    case WindowConfig::RendererType::OPENGLES: {
+      gl_context = SDL_GL_CreateContext(GetWindow());
+      if (!gl_context) {
+        throw std::runtime_error(std::format(
+            "Could not create OpenGL context, error: {}", SDL_GetError()));
+      }
+      SDL_GL_SetSwapInterval(1);
+
+#if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+      GLenum err = glewInit();
+      if (GLEW_OK != err) {
+        throw std::runtime_error("Glew Init failed");
+      }
+#endif
+      break;
+    }
   }
 
   BeginGuiRenderer();
 }
 void UpdateRenderer() { UpdateGuiRenderer(); }
 void DrawRenderer() {
-  SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
-  SDL_RenderClear(renderer);
+  const auto& windowConfig = GetWindowConfig();
+  switch (windowConfig.renderer) {
+    case WindowConfig::RendererType::SDL_RENDERER: {
+      SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+      SDL_RenderClear(renderer);
 
-  for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
-    drawInterface->PreDraw();
+      for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        drawInterface->PreDraw();
+      }
+
+      for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        drawInterface->Draw();
+      }
+
+      for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        drawInterface->PostDraw();
+      }
+      DrawGuiRenderer();
+
+      SDL_RenderPresent(renderer);
+      break;
+    }
+    case WindowConfig::RendererType::OPENGL:
+    case WindowConfig::RendererType::OPENGLES: {
+      glClear(GL_COLOR_BUFFER_BIT);
+      for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        drawInterface->PreDraw();
+      }
+
+      for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        drawInterface->Draw();
+      }
+
+      for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        drawInterface->PostDraw();
+      }
+      DrawGuiRenderer();
+      SDL_GL_SwapWindow(GetWindow());
+      break;
+    }
   }
-
-  for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
-    drawInterface->Draw();
-  }
-
-  for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
-    drawInterface->PostDraw();
-  }
-  DrawGuiRenderer();
-
-  SDL_RenderPresent(renderer);
 }
 void EndRenderer() {
   EndGuiRenderer();
-  SDL_DestroyRenderer(renderer);
+  auto& windowConfig = GetWindowConfig();
+  if (windowConfig.renderer == WindowConfig::RendererType::SDL_RENDERER) {
+    SDL_DestroyRenderer(renderer);
+  }
+  else {
+    SDL_GL_DestroyContext(gl_context);
+    gl_context = nullptr;
+  }
 }
 
 void DrawCircle(const float centerX, const float centerY, const float radius,
@@ -101,16 +159,19 @@ void DrawCircle(const float centerX, const float centerY, const float radius,
   }
 }
 
-void DrawAABB(const core::Vec2F pos, const core::Vec2F rectSize, const SDL_FColor color, const bool filled) {
-  const SDL_FRect rect(pos.x - rectSize.x / 2,
-                 pos.y - rectSize.y / 2, rectSize.x,
-                 rectSize.y);
+void DrawAABB(const core::Vec2F pos, const core::Vec2F rectSize,
+              const SDL_FColor color, const bool filled) {
+  const SDL_FRect rect(pos.x - rectSize.x / 2, pos.y - rectSize.y / 2,
+                       rectSize.x, rectSize.y);
 
-  SDL_SetRenderDrawColorFloat(GetRenderer(), color.r, color.g,
-                              color.b, color.a);
-  if(filled) SDL_RenderFillRect(GetRenderer(), &rect);
-  else SDL_RenderRect(GetRenderer(), &rect);
+  SDL_SetRenderDrawColorFloat(GetRenderer(), color.r, color.g, color.b,
+                              color.a);
+  if (filled)
+    SDL_RenderFillRect(GetRenderer(), &rect);
+  else
+    SDL_RenderRect(GetRenderer(), &rect);
 }
 
 SDL_Renderer* GetRenderer() { return renderer; }
+SDL_GLContext GetGlContext() { return gl_context; }
 }  // namespace common

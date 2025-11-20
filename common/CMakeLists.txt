@@ -1,10 +1,11 @@
 find_package(SDL3 CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
+find_package(GLEW REQUIRED)
 
 file(GLOB_RECURSE COMMON_SRC include/*.h src/*.cc)
 add_library(common STATIC ${COMMON_SRC})
 target_include_directories(common PUBLIC include/)
-target_link_libraries(common PUBLIC core SDL3::SDL3 imgui::imgui)
+target_link_libraries(common PUBLIC core SDL3::SDL3 imgui::imgui GLEW::GLEW)
 setup_warnings(common)
 
 if(ENABLE_TESTING)

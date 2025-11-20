@@ -52,6 +52,7 @@ void DrawAABB(core::Vec2F pos, core::Vec2F rectSize, SDL_FColor color, bool fill
 
 
 SDL_Renderer* GetRenderer();
+SDL_GLContext GetGlContext();
 }
 
 #endif  // GPR924_ENGINE_RENDERER_H

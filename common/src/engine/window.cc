@@ -44,6 +44,36 @@ void BeginWindow() {
   if (windowConfig.resizable) {
     flags |= SDL_WINDOW_RESIZABLE;
   }
+  if (windowConfig.renderer == WindowConfig::RendererType::OPENGL ||
+      windowConfig.renderer == WindowConfig::RendererType::OPENGLES) {
+    flags |= SDL_WINDOW_OPENGL;
+#if defined(__EMSCRIPTEN__)
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+#else
+    SDL_GL_SetAttribute(
+        SDL_GL_CONTEXT_PROFILE_MASK,
+        windowConfig.renderer == WindowConfig::RendererType::OPENGLES
+            ? SDL_GL_CONTEXT_PROFILE_ES
+            : SDL_GL_CONTEXT_PROFILE_CORE);
+    if (windowConfig.renderer == WindowConfig::RendererType::OPENGL) {
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                          SDL_GL_CONTEXT_PROFILE_CORE);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 5);
+    } else {
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                          SDL_GL_CONTEXT_PROFILE_ES);
+
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 3);
+      SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 0);
+    }
+#endif
+
+    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  }
   windowSize = {windowConfig.width, windowConfig.height};
   fixedDt = windowConfig.fixed_dt;
   window = SDL_CreateWindow(windowConfig.title.data(), windowConfig.width,
@@ -75,6 +105,7 @@ void EndWindow() { SDL_DestroyWindow(window); }
 core::Vec2I GetWindowSize() { return windowSize; }
 float GetFixedDT() { return fixedDt; }
 bool IsWindowOpen() { return isOpen; }
+const WindowConfig& GetWindowConfig() { return windowConfig; }
 void SetWindowConfig(const WindowConfig& config) { windowConfig = config; }
 void CloseWindow() { isOpen = false; }
 }  // namespace common

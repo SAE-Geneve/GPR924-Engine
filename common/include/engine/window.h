@@ -37,26 +37,35 @@ class OnEventInterface {
   virtual void OnEvent(const SDL_Event& event) = 0;
 };
 
+
+
 struct WindowConfig {
+  enum class RendererType: uint8_t {
+    SDL_RENDERER,
+    OPENGLES,
+    OPENGL
+  };
   std::string title = "GPR924-Engine";
   int width = 1280;
   int height = 720;
+  float fixed_dt = 0.016f;
   bool fullscreen = false;
   bool resizable = false;
-  float fixed_dt = 0.016f;
+  RendererType renderer = RendererType::SDL_RENDERER;
 };
 
 using OnEventObserverSubject = ObserverSubject<OnEventInterface>;
 
-SDL_Window* GetWindow();
+[[nodiscard]] SDL_Window* GetWindow();
 
 void BeginWindow();
 void UpdateWindow();
 void EndWindow();
-core::Vec2I GetWindowSize();
+[[nodiscard]] core::Vec2I GetWindowSize();
 float GetFixedDT();
 bool IsWindowOpen();
 void SetWindowConfig(const WindowConfig& config);
+[[nodiscard]] const WindowConfig& GetWindowConfig();
 void CloseWindow();
 }  // namespace common
 #endif  // GPR924_ENGINE_WINDOW_H
