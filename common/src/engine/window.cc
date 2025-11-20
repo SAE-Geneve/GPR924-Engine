@@ -101,7 +101,10 @@ void UpdateWindow() {
     }
   }
 }
-void EndWindow() { SDL_DestroyWindow(window); }
+void EndWindow() { 
+  SDL_DestroyWindow(window);
+  window = nullptr;
+}
 core::Vec2I GetWindowSize() { return windowSize; }
 float GetFixedDT() { return fixedDt; }
 bool IsWindowOpen() { return isOpen; }

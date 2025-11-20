@@ -123,6 +123,7 @@ void EndRenderer() {
   auto& windowConfig = GetWindowConfig();
   if (windowConfig.renderer == WindowConfig::RendererType::SDL_RENDERER) {
     SDL_DestroyRenderer(renderer);
+    renderer = nullptr;
   }
   else {
     SDL_GL_DestroyContext(gl_context);

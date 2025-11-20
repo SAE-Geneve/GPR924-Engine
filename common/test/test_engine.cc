@@ -98,7 +98,6 @@ TEST(Engine, Render) {
   DrawSomething draw_something;
   common::DrawObserverSubject::AddObserver(&draw_something);
   common::RunEngine();
-
   common::DrawObserverSubject::RemoveObserver(&draw_something);
 }
 
@@ -118,6 +117,7 @@ TEST(Render, Circle)
   Circle circle;
   common::DrawObserverSubject::AddObserver(&circle);
   common::RunEngine();
+  common::DrawObserverSubject::RemoveObserver(&circle);
 }
 
 
@@ -135,4 +135,5 @@ TEST(Render, AABB)
   AABB aabb;
   common::DrawObserverSubject::AddObserver(&aabb);
   common::RunEngine();
+  common::DrawObserverSubject::RemoveObserver(&aabb);
 }

@@ -25,6 +25,6 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
-#include "gl/glew.h"
+#include "GL/glew.h"
 
 #endif // GPR924_ENGINE_GL_INCLUDE_H
