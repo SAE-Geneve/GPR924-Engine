@@ -30,10 +30,20 @@ protected:
 };
 
 
-TEST(GL, RunEngine) {
+TEST(GL, OpenGLESWindow) {
   ClosingSystem closingSystem;
   auto windowConfig = common::GetWindowConfig();
   windowConfig.renderer = common::WindowConfig::RendererType::OPENGLES;
+  common::SetWindowConfig(windowConfig);
+  common::SystemObserverSubject::AddObserver(&closingSystem);
+  common::RunEngine();
+  common::SystemObserverSubject::RemoveObserver(&closingSystem);
+}
+
+TEST(GL, OpenGLWindow) {
+  ClosingSystem closingSystem;
+  auto windowConfig = common::GetWindowConfig();
+  windowConfig.renderer = common::WindowConfig::RendererType::OPENGL;
   common::SetWindowConfig(windowConfig);
   common::SystemObserverSubject::AddObserver(&closingSystem);
   common::RunEngine();
