@@ -45,7 +45,7 @@ class Matrix4 {
   // Constructors
   explicit Matrix4(const std::array<std::array<T, 4>, 4>& newMatrix) noexcept
       : m(newMatrix) {}
-  //4 vec4
+  // 4 vec4
   explicit Matrix4() noexcept {
     m = {{{{1, 0, 0, 0}}, {{0, 1, 0, 0}}, {{0, 0, 1, 0}}, {{0, 0, 0, 1}}}};
   }
@@ -169,9 +169,7 @@ class Matrix4 {
     }
     return result;
   }
-  //Delete this
-  [[nodiscard]] const std::array<std::array<T, 4>, 4>& GetMatrix()
-      const noexcept {
+  [[nodiscard]] std::array<std::array<T, 4>, 4>& GetMatrix() noexcept {
     return m;
   }
 
@@ -179,6 +177,6 @@ class Matrix4 {
   std::array<std::array<T, 4>, 4> m;
 };
 
-}  // namespace core::maths
+}  // namespace core
 
 #endif  // MATRIX4_H
