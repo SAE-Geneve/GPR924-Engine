@@ -22,7 +22,7 @@ void Shader::Load(std::string_view shader_path,
   auto& info = get();
   info.shader_stage = shader_stage;
   info.shader_name = glCreateShader(shader_stage);
-  glShaderSource(info.shader_name, static_cast<GLsizei>(data_size), &shader_content, nullptr);
+  glShaderSource(info.shader_name, 1, &shader_content, nullptr);
   glCompileShader(info.shader_name);
   GLint compile_status;
   glGetShaderiv(info.shader_name, GL_COMPILE_STATUS, &compile_status);
