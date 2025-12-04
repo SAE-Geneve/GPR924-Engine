@@ -1,6 +1,3 @@
-#ifndef CORE_MATHS_CONSTANT_H
-#define CORE_MATHS_CONSTANT_H
-
 /*
 Copyright 2025 SAE Institute Switzerland SA
 
@@ -25,12 +22,22 @@ SOFTWARE.
 Contributors: Anthony Barman
 */
 
-#include <numbers>
+#ifndef CORE_MATHS_FUNCTION_H
+#define CORE_MATHS_FUNCTION_H
+#include <concepts>
 
-namespace core
-{
-  static constexpr float Epsilon = 1e-6f;
-  static constexpr float PI = std::numbers::pi_v<float>;
+namespace core {
+
+template <std::totally_ordered T>
+const T& Greater(const T& first, const T& second) {
+  return (first >= second) ? first : second;
 }
 
-#endif //CORE_MATHS_CONSTANT_H
+template <std::totally_ordered T>
+const T& Lesser(const T& first, const T& second) {
+  return (first <= second) ? first : second;
+}
+
+}  // namespace core
+
+#endif  // CORE_MATHS_FUNCTION_H
