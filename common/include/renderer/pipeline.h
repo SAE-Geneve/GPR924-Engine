@@ -27,7 +27,6 @@ Contributors: Elias Farhan
 */
 
 #include <string_view>
-
 #include "resource/resource.h"
 #include "shader.h"
 #include "third_party/gl_include.h"
@@ -53,6 +52,10 @@ class Pipeline : public core::Resource<PipelineInfo, PipelineDestructor> {
 public:
   void Load(const Shader& vertex_shader, const Shader& fragment_shader);
   void Bind();
+
+  void SetInt(const char* name, int value);
+  void SetFloat(const char* name, float value);
+  void SetMat4(const char* name, const float* mat);
 };
 }
 #endif  // GPR924_ENGINE_PIPELINE_H

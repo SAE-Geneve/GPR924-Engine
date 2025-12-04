@@ -67,4 +67,22 @@ void Pipeline::Bind() {
     binded_pipeline_name = get().pipeline_name;
   }
 }
+
+void Pipeline::SetInt(const char* name, const int value)
+{
+  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  glUniform1i(loc, value);
+}
+
+void Pipeline::SetFloat(const char* name, const float value)
+{
+  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  glUniform1f(loc, value);
+}
+
+void Pipeline::SetMat4(const char* name, const float* mat)
+{
+  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
+}
 }  // namespace common
