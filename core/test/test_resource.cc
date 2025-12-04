@@ -79,6 +79,8 @@ TEST(Resource, MoveSemantics) {
       resource_parent = std::move(resource);
       ASSERT_EQ(resource.get() , nullptr); //resource was moved into the parent
     }
+    ASSERT_EQ(resource_parent->value(), 1);
+    ASSERT_EQ((*resource_parent)->value(), 1);
     ASSERT_EQ(simple_object.value(), 1);
     //destructor of parent is called, so value is -1 now
   }

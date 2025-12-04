@@ -56,6 +56,12 @@ public:
   [[nodiscard]] const T& get() const { return data_; }
   [[nodiscard]] T& get() { return data_;}
 
+
+  T& operator->() { return data_; }
+  const T& operator->() const { return data_; }
+  T& operator*() { return data_; }
+  const T& operator*() const { return data_; }
+
   void Clear()
   {
     Destructor destructor(data_);
