@@ -169,7 +169,7 @@ class Matrix4 {
     }
     return result;
   }
-  [[nodiscard]] std::array<std::array<T, 4>, 4>& GetMatrix() const noexcept {
+  [[nodiscard]] std::array<std::array<T, 4>, 4>& GetMatrix() noexcept {
     return m;
   }
 
