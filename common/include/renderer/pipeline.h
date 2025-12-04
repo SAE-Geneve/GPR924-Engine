@@ -55,6 +55,7 @@ public:
 
   void SetInt(const char* name, int value);
   void SetFloat(const char* name, float value);
+  void SetMat4(const char* name, const float* mat);
 };
 }
 #endif  // GPR924_ENGINE_PIPELINE_H
