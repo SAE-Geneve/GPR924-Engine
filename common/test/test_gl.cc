@@ -7,6 +7,7 @@
 #include "engine/window.h"
 #include "gtest/gtest.h"
 
+namespace test_gl {
 class ClosingSystem : public common::SystemInterface {
 public:
   void Begin() override {}
@@ -28,10 +29,10 @@ protected:
   static constexpr int kCloseCount = 100;
   int count_ = 0;
 };
-
+}
 
 TEST(GL, OpenGLESWindow) {
-  ClosingSystem closingSystem;
+  test_gl::ClosingSystem closingSystem;
   auto windowConfig = common::GetWindowConfig();
   windowConfig.renderer = common::WindowConfig::RendererType::OPENGLES;
   common::SetWindowConfig(windowConfig);
@@ -41,7 +42,7 @@ TEST(GL, OpenGLESWindow) {
 }
 
 TEST(GL, OpenGLWindow) {
-  ClosingSystem closingSystem;
+  test_gl::ClosingSystem closingSystem;
   auto windowConfig = common::GetWindowConfig();
   windowConfig.renderer = common::WindowConfig::RendererType::OPENGL;
   common::SetWindowConfig(windowConfig);

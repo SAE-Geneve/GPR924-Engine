@@ -19,10 +19,14 @@ void Shader::Load(std::string_view shader_path,
   if (shader_content == nullptr) {
     throw std::runtime_error(std::format("Failed to load shader {}", shader_path));
   }
+  LoadFromMemory(shader_content, shader_stage);
+}
+void Shader::LoadFromMemory(const GLchar* string,
+                            GLenum shader_stage) {
   auto& info = get();
   info.shader_stage = shader_stage;
   info.shader_name = glCreateShader(shader_stage);
-  glShaderSource(info.shader_name, static_cast<GLsizei>(data_size), &shader_content, nullptr);
+  glShaderSource(info.shader_name, 1, &string, nullptr);
   glCompileShader(info.shader_name);
   GLint compile_status;
   glGetShaderiv(info.shader_name, GL_COMPILE_STATUS, &compile_status);

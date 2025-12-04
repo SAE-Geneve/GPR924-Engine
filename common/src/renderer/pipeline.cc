@@ -38,6 +38,12 @@ void Pipeline::Load(const Shader& vertex_shader,
                     const Shader& fragment_shader) {
   auto& pipelineInfo = get();
   pipelineInfo.pipeline_name = glCreateProgram();
+  if (vertex_shader->shader_name == 0) {
+    throw std::runtime_error("Vertex shader was not loaded");
+  }
+  if (fragment_shader->shader_name == 0) {
+    throw std::runtime_error("Fragment shader was not loaded");
+  }
   glAttachShader(pipelineInfo.pipeline_name, vertex_shader->shader_name);
   glAttachShader(pipelineInfo.pipeline_name, fragment_shader->shader_name);
   glLinkProgram(pipelineInfo.pipeline_name);

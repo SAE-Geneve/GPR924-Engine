@@ -33,11 +33,11 @@ Contributors: Anthony Barman, Jemoel Ablay
 namespace common {
 class DrawInterface
 {
-public:
+ public:
   virtual ~DrawInterface() = default;
-  virtual void PreDraw(){}
+  virtual void PreDraw();
   virtual void Draw() = 0;
-  virtual void PostDraw(){}
+  virtual void PostDraw();
 };
 
 using DrawObserverSubject = ObserverSubject<DrawInterface>;

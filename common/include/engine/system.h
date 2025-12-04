@@ -29,7 +29,7 @@ Contributors: Anthony Barman
 namespace common {
 class SystemInterface
 {
-public:
+ public:
   virtual ~SystemInterface() = default;
   virtual void Begin() = 0;
   virtual void End() = 0;

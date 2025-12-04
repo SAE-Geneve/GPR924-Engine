@@ -39,6 +39,8 @@ namespace {
 SDL_Renderer* renderer = nullptr;
 SDL_GLContext gl_context;
 }  // namespace
+void DrawInterface::PreDraw() {}
+void DrawInterface::PostDraw() {}
 void BeginRenderer() {
   auto* window = GetWindow();
 
@@ -102,14 +104,23 @@ void DrawRenderer() {
     case WindowConfig::RendererType::OPENGLES: {
       glClear(GL_COLOR_BUFFER_BIT);
       for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        if (drawInterface == nullptr) {
+          continue;
+        }
         drawInterface->PreDraw();
       }
 
       for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        if (drawInterface == nullptr) {
+          continue;
+        }
         drawInterface->Draw();
       }
 
       for (auto& drawInterface : DrawObserverSubject::GetObservers()) {
+        if (drawInterface == nullptr) {
+          continue;
+        }
         drawInterface->PostDraw();
       }
       DrawGuiRenderer();
@@ -124,8 +135,7 @@ void EndRenderer() {
   if (windowConfig.renderer == WindowConfig::RendererType::SDL_RENDERER) {
     SDL_DestroyRenderer(renderer);
     renderer = nullptr;
-  }
-  else {
+  } else {
     SDL_GL_DestroyContext(gl_context);
     gl_context = nullptr;
   }

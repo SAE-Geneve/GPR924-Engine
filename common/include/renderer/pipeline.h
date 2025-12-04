@@ -49,7 +49,7 @@ private:
   PipelineInfo& pipeline_info_;
 };
 
-class Pipeline : core::Resource<PipelineInfo, PipelineDestructor> {
+class Pipeline : public core::Resource<PipelineInfo, PipelineDestructor> {
 public:
   void Load(const Shader& vertex_shader, const Shader& fragment_shader);
   void Bind();

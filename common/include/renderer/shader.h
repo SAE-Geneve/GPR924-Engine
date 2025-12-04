@@ -53,6 +53,7 @@ class ShaderDestructor {
 class Shader : public core::Resource<ShaderInfo, ShaderDestructor> {
  public:
   void Load(std::string_view shader_path, GLenum shader_stage);
+  void LoadFromMemory(const GLchar * string, GLenum shader_stage);
 };
 
 }  // namespace common

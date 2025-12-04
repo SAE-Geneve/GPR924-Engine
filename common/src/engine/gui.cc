@@ -98,7 +98,8 @@ void DrawGuiRenderer() {
     ImGui_ImplSDLRenderer3_RenderDrawData(ImGui::GetDrawData(), renderer_);
   }
   else {
-    ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+    auto* draw_data = ImGui::GetDrawData();
+    ImGui_ImplOpenGL3_RenderDrawData(draw_data);
   }
 }
 void ManageGuiEvent(const SDL_Event& event) {
