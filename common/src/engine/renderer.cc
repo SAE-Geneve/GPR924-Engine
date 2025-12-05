@@ -67,7 +67,7 @@ void BeginRenderer() {
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
       GLenum err = glewInit();
       if (GLEW_OK != err) {
-        throw std::runtime_error("Glew Init failed");
+        throw std::runtime_error(std::format("GLEW Init failed with error code: {}", err));
       }
 #endif
       break;

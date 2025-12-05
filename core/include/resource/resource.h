@@ -53,7 +53,7 @@ class Resource {
       return &data_;
     }
   }
-  const auto operator->() const {
+  auto operator->() const {
     if constexpr (std::is_pointer_v<T>) {
       return data_;
     } else {
