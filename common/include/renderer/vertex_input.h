@@ -56,7 +56,7 @@ public:
 
     Bind();
     const auto totalSize = std::ranges::size(range)*sizeof(std::ranges::range_value_t<Range>);
-    glBufferData(GL_VERTEX_ARRAY, totalSize, range.data(), usage);
+    glBufferData(GL_ARRAY_BUFFER, totalSize, range.data(), usage);
   }
   void Bind() const;
 };
