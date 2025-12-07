@@ -80,6 +80,12 @@ void Pipeline::SetFloat(const char* name, const float value)
   glUniform1f(loc, value);
 }
 
+void Pipeline::SetVec3(const char* name, const float x, const float y, const float z)
+{
+  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  glUniform3f(loc, x, y, z);
+}
+
 void Pipeline::SetMat4(const char* name, const float* mat)
 {
   const GLint loc = glGetUniformLocation(get().pipeline_name, name);

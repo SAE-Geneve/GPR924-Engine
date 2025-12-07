@@ -55,6 +55,7 @@ public:
 
   void SetInt(const char* name, int value);
   void SetFloat(const char* name, float value);
+  void SetVec3(const char* name, float x, float y, float z);
   void SetMat4(const char* name, const float* mat);
 };
 }
