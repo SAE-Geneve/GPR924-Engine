@@ -26,7 +26,11 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
+#include <string>
 #include <string_view>
+#include <unordered_map>
+
+#include "maths/vec3.h"
 #include "resource/resource.h"
 #include "shader.h"
 #include "third_party/gl_include.h"
@@ -56,7 +60,24 @@ public:
   void SetInt(const char* name, int value);
   void SetFloat(const char* name, float value);
   void SetVec3(const char* name, float x, float y, float z);
+
+  template<typename T>
+  requires core::IsVector3<T, float>
+  void SetVec3(std::string_view uniform_name, const T& v) {
+    const GLint loc = GetUniformLocation(uniform_name);
+    glUniform3f(loc, v.x, v.y, v.z);
+  }
+
+  template<typename T>
+  requires core::IsVector3<T, int>
+  void SetVec3(std::string_view uniform_name, const T& v) {
+    const GLint loc = GetUniformLocation(uniform_name);
+    glUniform3i(loc, v.x, v.y, v.z);
+  }
   void SetMat4(const char* name, const float* mat);
+private:
+  GLint GetUniformLocation(std::string_view name);
+  std::unordered_map<std::string, GLint> uniform_location_map_;
 };
 }
 #endif  // GPR924_ENGINE_PIPELINE_H

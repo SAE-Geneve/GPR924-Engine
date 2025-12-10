@@ -70,25 +70,35 @@ void Pipeline::Bind() {
 
 void Pipeline::SetInt(const char* name, const int value)
 {
-  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  const GLint loc = GetUniformLocation(name);
   glUniform1i(loc, value);
 }
 
 void Pipeline::SetFloat(const char* name, const float value)
 {
-  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  const GLint loc = GetUniformLocation(name);
   glUniform1f(loc, value);
 }
 
 void Pipeline::SetVec3(const char* name, const float x, const float y, const float z)
 {
-  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  const GLint loc = GetUniformLocation(name);
   glUniform3f(loc, x, y, z);
 }
 
 void Pipeline::SetMat4(const char* name, const float* mat)
 {
-  const GLint loc = glGetUniformLocation(get().pipeline_name, name);
+  const GLint loc = GetUniformLocation(name);
   glUniformMatrix4fv(loc, 1, GL_FALSE, mat);
+}
+GLint Pipeline::GetUniformLocation(std::string_view name) {
+
+  auto it = uniform_location_map_.find(name.data());
+  if (it == uniform_location_map_.end()) {
+    const GLint loc = glGetUniformLocation(get().pipeline_name, name.data());
+    uniform_location_map_.insert({name.data(), loc});
+    return loc;
+  }
+  return it->second;
 }
 }  // namespace common
