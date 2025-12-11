@@ -25,6 +25,8 @@ Contributors: Anthony Barman
 
 #include "engine/window.h"
 
+#include <GL/glew.h>
+
 #include <format>
 
 #include "engine/gui.h"
@@ -94,6 +96,9 @@ void UpdateWindow() {
       isOpen = false;
     } else if (e.type == SDL_EVENT_WINDOW_RESIZED) {
       windowSize = {e.window.data1, e.window.data2};
+      if (windowConfig.renderer == WindowConfig::RendererType::OPENGL || windowConfig.renderer == WindowConfig::RendererType::OPENGLES) {
+        glViewport(0, 0, windowSize.x, windowSize.y);
+      }
     }
     ManageGuiEvent(e);
     for (auto* eventInterface : OnEventObserverSubject::GetObservers()) {
