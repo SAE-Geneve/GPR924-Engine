@@ -52,25 +52,26 @@ private:
   PipelineInfo& pipeline_info_;
 };
 
-class Pipeline : public core::Resource<PipelineInfo, PipelineDestructor> {
+class Pipeline final : public core::Resource<PipelineInfo, PipelineDestructor> {
 public:
   void Load(const Shader& vertex_shader, const Shader& fragment_shader);
   void Bind();
 
+  void SetBool(std::string_view name, bool value);
   void SetInt(const char* name, int value);
   void SetFloat(const char* name, float value);
   void SetVec3(const char* name, float x, float y, float z);
 
   template<typename T>
   requires core::IsVector3<T, float>
-  void SetVec3(std::string_view uniform_name, const T& v) {
+  void SetVec3(const std::string_view uniform_name, const T& v) {
     const GLint loc = GetUniformLocation(uniform_name);
     glUniform3f(loc, v.x, v.y, v.z);
   }
 
   template<typename T>
   requires core::IsVector3<T, int>
-  void SetVec3(std::string_view uniform_name, const T& v) {
+  void SetVec3(const std::string_view uniform_name, const T& v) {
     const GLint loc = GetUniformLocation(uniform_name);
     glUniform3i(loc, v.x, v.y, v.z);
   }

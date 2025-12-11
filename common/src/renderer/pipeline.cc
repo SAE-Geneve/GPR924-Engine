@@ -68,6 +68,12 @@ void Pipeline::Bind() {
   }
 }
 
+void Pipeline::SetBool(const std::string_view name, const bool value)
+{
+  const GLint loc = GetUniformLocation(name);
+  glUniform1i(loc, static_cast<GLint>(value));
+}
+
 void Pipeline::SetInt(const char* name, const int value)
 {
   const GLint loc = GetUniformLocation(name);
