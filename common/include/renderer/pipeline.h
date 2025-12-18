@@ -33,6 +33,7 @@ Contributors: Elias Farhan
 #include "maths/vec3.h"
 #include "resource/resource.h"
 #include "shader.h"
+#include "texture.h"
 #include "third_party/gl_include.h"
 
 namespace common {
@@ -62,6 +63,8 @@ public:
   void SetFloat(const char* name, float value);
   void SetVec3(const char* name, float x, float y, float z);
 
+  void SetTexture(std::string_view name, const Texture& texture, int texture_unit = 0);
+
   template<typename T>
   requires core::IsVector3<T, float>
   void SetVec3(const std::string_view uniform_name, const T& v) {
@@ -77,8 +80,29 @@ public:
   }
   void SetMat4(const char* name, const float* mat);
 private:
+  struct StringHash {
+    using is_transparent = void;  // Enable heterogeneous lookup
+
+    [[nodiscard]] size_t operator()(const char* txt) const {
+      return std::hash<std::string_view>{}(txt);
+    }
+    [[nodiscard]] size_t operator()(std::string_view txt) const {
+      return std::hash<std::string_view>{}(txt);
+    }
+    [[nodiscard]] size_t operator()(const std::string& txt) const {
+      return std::hash<std::string>{}(txt);
+    }
+  };
+
+  struct StringEqual {
+    using is_transparent = void;  // Enable heterogeneous lookup
+
+    [[nodiscard]] bool operator()(std::string_view lhs, std::string_view rhs) const {
+      return lhs == rhs;
+    }
+  };
   GLint GetUniformLocation(std::string_view name);
-  std::unordered_map<std::string, GLint> uniform_location_map_;
+  std::unordered_map<std::string, GLint, StringHash, StringEqual> uniform_location_map_;
 };
 }
 #endif  // GPR924_ENGINE_PIPELINE_H

@@ -91,6 +91,12 @@ void Pipeline::SetVec3(const char* name, const float x, const float y, const flo
   const GLint loc = GetUniformLocation(name);
   glUniform3f(loc, x, y, z);
 }
+void Pipeline::SetTexture(std::string_view name, const Texture& texture,
+                          int texture_unit) {
+  SetInt(name.data(), texture_unit);
+  glActiveTexture(GL_TEXTURE0+texture_unit);
+  texture.Bind();
+}
 
 void Pipeline::SetMat4(const char* name, const float* mat)
 {
@@ -99,7 +105,7 @@ void Pipeline::SetMat4(const char* name, const float* mat)
 }
 GLint Pipeline::GetUniformLocation(std::string_view name) {
 
-  auto it = uniform_location_map_.find(name.data());
+  auto it = uniform_location_map_.find(name);
   if (it == uniform_location_map_.end()) {
     const GLint loc = glGetUniformLocation(get().pipeline_name, name.data());
     uniform_location_map_.insert({name.data(), loc});
