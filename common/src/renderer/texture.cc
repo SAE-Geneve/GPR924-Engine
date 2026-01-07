@@ -19,7 +19,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Contributors: Elias Farhan
+Contributors: Elias Farhan, Jemoel Ablay
 */
 
 #include "renderer/texture.h"
@@ -54,8 +54,8 @@ void Texture::Load(void* data, int width, int height, int channels,
       format = GL_RGB;
       break;
     case 4:
-      internal_format = GL_RGBA;
-      format = GL_RGBA8;
+      internal_format = GL_RGBA8;
+      format = GL_RGBA;
       break;
     default:
       throw std::runtime_error("Unsupported texture channels");
