@@ -42,14 +42,16 @@ void Texture::Load(std::string_view path, TextureLoadInfo texture_load_info) {
 }
 void Texture::Load(void* data, int width, int height, int channels,
                    TextureLoadInfo texture_load_info) {
+  get().texture_target = GL_TEXTURE_2D;
+
   glGenTextures(1, &get().texture_name);
   glBindTexture(GL_TEXTURE_2D, get().texture_name);
   GLint internal_format;
   GLenum format;
   switch (channels) {
     case 3:
-      internal_format = GL_RGB;
-      format = GL_RGB8;
+      internal_format = GL_RGB8;
+      format = GL_RGB;
       break;
     case 4:
       internal_format = GL_RGBA;
@@ -100,8 +102,38 @@ void Texture::Load(void* data, int width, int height, int channels,
     glGenerateMipmap(get().texture_target);
   }
   glBindTexture(GL_TEXTURE_2D, 0);
-  get().texture_target = GL_TEXTURE_2D;
 }
+
+void Texture::LoadCubeMap(const std::span<const std::string_view> faces)
+{
+  if (faces.size() != 6)
+    throw std::runtime_error("Cube map requires 6 faces");
+
+  glGenTextures(1, &get().texture_name);
+  glBindTexture(GL_TEXTURE_CUBE_MAP, get().texture_name);
+
+  for (size_t i = 0; i < faces.size(); i++) {
+    int width, height, channels;
+    unsigned char* data = stbi_load(std::string(faces[i]).c_str(), &width, &height, &channels, 0);
+    if (!data)
+      throw std::runtime_error("Failed to load cube map texture: " +
+                               std::string(faces[i]));
+
+    const GLenum format = (channels == 3) ? GL_RGB : GL_RGBA;
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i),
+                 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    stbi_image_free(data);
+  }
+
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+  get().texture_target = GL_TEXTURE_CUBE_MAP;
+}
+
 void Texture::Bind() const{
   glBindTexture(get().texture_target, get().texture_name);
 }

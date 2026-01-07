@@ -22,13 +22,13 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Contributors: Elias Farhan
+Contributors: Elias Farhan, Jemoel Ablay
 */
 
+#include <span>
+#include <string_view>
 #include "resource/resource.h"
 #include "third_party/gl_include.h"
-
-#include <string_view>
 
 namespace common {
 
@@ -69,6 +69,7 @@ class Texture : public core::Resource<TextureInfo, TextureDestructor> {
 public:
   void Load(std::string_view path, TextureLoadInfo texture_load_info = {});
   void Load(void* data, int width, int height, int channels, TextureLoadInfo texture_load_info = {});
+  void LoadCubeMap(std::span<const std::string_view> faces);
   void Bind() const;
 };
 
