@@ -31,6 +31,27 @@ Contributors: Elias Farhan
 
 namespace common {
 
+void Renderbuffer::Load(GLenum internal_format, core::Vec2I size) {
+  GLenum attachment = GL_NONE;
+  if (is_depth_format(internal_format)) {
+    attachment = GL_DEPTH_COMPONENT;
+  }
+  else if (is_depth_or_depth_stencil_format(internal_format)) {
+    attachment = GL_DEPTH_STENCIL;
+  }
+  glGenRenderbuffers(1, &name_);
+  glBindRenderbuffer(GL_RENDERBUFFER, name_);
+  glRenderbufferStorage(
+      GL_RENDERBUFFER, internal_format,
+      size.x, size.y);
+  glBindRenderbuffer(GL_RENDERBUFFER, 0);
+  glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment,
+                            GL_RENDERBUFFER, name_);
+}
+void Renderbuffer::Clear() {
+  glDeleteRenderbuffers(1, &name_);
+  name_ = 0;
+}
 void Framebuffer::Load(const FramebufferCreateInfo& info) {
   framebuffer_create_info_ = info;
   glGenFramebuffers(1, &get().framebuffer_name);
@@ -72,17 +93,8 @@ void Framebuffer::Load(const FramebufferCreateInfo& info) {
       throw std::invalid_argument("Depth attachment is supposed to be a depth or depth-stencil internal format type");
     }
     if (depth_attachment_info.is_rbo) {
-      GLuint rbo;
-      glGenRenderbuffers(1, &rbo);
-      glBindRenderbuffer(GL_RENDERBUFFER, rbo);
-      glRenderbufferStorage(
-          GL_RENDERBUFFER, depth_attachment_info.internal_format,
-          framebuffer_create_info_.size.x, framebuffer_create_info_.size.y);
-      glBindRenderbuffer(GL_RENDERBUFFER, 0);
-      glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT,
-                                GL_RENDERBUFFER, rbo);
-      RenderBuffer depth_stencil_rbo {};
-      depth_stencil_rbo->name = rbo;
+      Renderbuffer depth_stencil_rbo;
+      depth_stencil_rbo.Load(depth_attachment_info.internal_format, framebuffer_create_info_.size);
       get().depth_stencil_attachment = std::move(depth_stencil_rbo);
     } else {
       Texture depth_stencil_texture;

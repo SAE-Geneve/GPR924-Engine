@@ -32,34 +32,50 @@ Contributors: Elias Farhan
 
 namespace common {
 
-struct Buffer {
+struct BufferInfo {
   GLuint name;
 };
 
 class BufferDestructor {
  public:
-  explicit BufferDestructor(Buffer& buffer) : buffer_(buffer) {}
+  explicit BufferDestructor(BufferInfo& buffer) : buffer_(buffer) {}
   void operator()() const {
     glDeleteBuffers(1, &buffer_.name);
     buffer_.name = 0;
   }
 
  private:
-  Buffer& buffer_;
+  BufferInfo& buffer_;
 };
-
-class VertexBuffer : public core::Resource<Buffer, BufferDestructor> {
+template<GLenum target>
+class Buffer : public core::Resource<BufferInfo, BufferDestructor> {
 public:
-  void Load();
-  template <std::ranges::contiguous_range Range>
-  void UploadRange(const Range& range, GLenum usage = GL_STATIC_DRAW) {
-
-    Bind();
-    const auto totalSize = std::ranges::size(range)*sizeof(std::ranges::range_value_t<Range>);
-    glBufferData(GL_ARRAY_BUFFER, totalSize, range.data(), usage);
+  void Bind() const {
+    glBindBuffer(target, get().name);
   }
-  void Bind() const;
+  void Load() {
+    glGenBuffers(1, &get().name);
+  }
+  /**
+ * @brief Allocate and upload the data in the buffer
+ */
+  template<typename T>
+  void UploadRange(std::span<const T> range, GLenum usage = GL_STATIC_DRAW) {
+    Bind();
+    glBufferData(target, range.size_bytes(), range.data(), usage);
+  }
+  /**
+   * @brief Update the data in the buffer (to be used after using UploadRange
+   */
+  template <typename T>
+  void UpdateRange(std::span<const T> range, GLintptr offset = 0, GLenum usage = GL_STATIC_DRAW) {
+    glBufferSubData(target, offset, range.size_bytes(), range.data(), usage);
+  }
+
 };
+
+using VertexBuffer = Buffer<GL_ARRAY_BUFFER>;
+
 
 struct VertexBufferAttribute {
   GLuint location;
@@ -69,20 +85,7 @@ struct VertexBufferAttribute {
   size_t offset;
 };
 
-class IndexBuffer : public core::Resource<Buffer, BufferDestructor> {
-public:
-  void Load();
-  template <std::ranges::contiguous_range Range>
-  void UploadRange(const Range& range, GLenum usage = GL_STATIC_DRAW) {
-
-    Bind();
-    using value_type = std::ranges::range_value_t<Range>;
-    static_assert(std::is_same_v<value_type, int32_t> || std::is_same_v<value_type, int16_t>, "Element buffer needs either int32 or int16");
-    const auto totalSize = std::ranges::size(range)*sizeof(std::ranges::range_value_t<Range>);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, totalSize, range.data(), usage);
-  }
-  void Bind() const;
-};
+using IndexBuffer = Buffer<GL_ELEMENT_ARRAY_BUFFER>;
 
 struct VertexInputInfo {
   GLuint vao = 0;
@@ -100,6 +103,7 @@ class VertexInputDestructor {
  private:
   VertexInputInfo& vertex_input_info_;
 };
+
 class VertexInput
     : public core::Resource<VertexInputInfo, VertexInputDestructor> {
  public:

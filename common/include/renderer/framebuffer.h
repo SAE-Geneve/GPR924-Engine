@@ -54,13 +54,19 @@ struct FramebufferCreateInfo {
   core::Vec2I size{};
 };
 
-class RenderBuffer : public core::Resource<Buffer, BufferDestructor> {};
+class Renderbuffer {
+public:
+  void Load(GLenum internal_format, core::Vec2I size);
+  void Clear();
+private:
+  GLuint name_ = 0;
+};
 
 struct FramebufferInfo {
   GLuint framebuffer_name;
 
   std::array<Texture, 16> color_attachments;
-  std::variant<Texture, RenderBuffer> depth_stencil_attachment;
+  std::variant<Texture, Renderbuffer> depth_stencil_attachment;
 };
 
 struct FramebufferDestructor {
