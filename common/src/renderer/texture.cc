@@ -30,7 +30,6 @@ Contributors: Elias Farhan, Jemoel Ablay
 
 namespace common {
 
-
 void Texture::Load(std::string_view path, TextureLoadInfo texture_load_info) {
   int w, h, channels;
   auto* img_data = stbi_load(path.data(), &w, &h, &channels,
@@ -47,28 +46,18 @@ void Texture::Load(void* data, int width, int height, int channels,
   glGenTextures(1, &get().texture_name);
   glBindTexture(GL_TEXTURE_2D, get().texture_name);
   GLint internal_format;
-  GLenum format;
   switch (channels) {
     case 3:
       internal_format = GL_RGB8;
-      format = GL_RGB;
       break;
     case 4:
       internal_format = GL_RGBA8;
-      format = GL_RGBA;
       break;
     default:
       throw std::runtime_error("Unsupported texture channels");
   }
-  glTexImage2D(get().texture_target,
-    0,
-    internal_format,
-    width,
-    height,
-    0,
-    format,
-    GL_UNSIGNED_BYTE,
-    data);
+  Create(get().texture_target, width, height, internal_format, data);
+
   GLint wrapping_mode;
   switch (texture_load_info.wrapping_mode) {
     case WrappingMode::REPEAT:
@@ -80,8 +69,8 @@ void Texture::Load(void* data, int width, int height, int channels,
     default:
       throw std::runtime_error("Unsupported wrapping mode");
   }
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_S, wrapping_mode);
-  glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_WRAP_T, wrapping_mode);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapping_mode);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrapping_mode);
   GLint filtering_mode;
   switch (texture_load_info.filtering_mode) {
     case FilteringMode::LINEAR:
@@ -93,35 +82,35 @@ void Texture::Load(void* data, int width, int height, int channels,
     default:
       throw std::runtime_error("Unsupported filtering mode");
   }
-  glTexParameteri(get().texture_target,GL_TEXTURE_MAG_FILTER, filtering_mode);
-  glTexParameteri(get().texture_target,GL_TEXTURE_MIN_FILTER,
-    filtering_mode == GL_LINEAR && texture_load_info.generate_mipmaps ?
-    GL_LINEAR_MIPMAP_LINEAR :
-    filtering_mode);
+  glTexParameteri(get().texture_target, GL_TEXTURE_MAG_FILTER, filtering_mode);
+  glTexParameteri(
+      get().texture_target, GL_TEXTURE_MIN_FILTER,
+      filtering_mode == GL_LINEAR && texture_load_info.generate_mipmaps
+          ? GL_LINEAR_MIPMAP_LINEAR
+          : filtering_mode);
   if (texture_load_info.generate_mipmaps) {
     glGenerateMipmap(get().texture_target);
   }
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-void Texture::LoadCubeMap(const std::span<const std::string_view> faces)
-{
-  if (faces.size() != 6)
-    throw std::runtime_error("Cube map requires 6 faces");
+void Texture::LoadCubeMap(const std::span<const std::string_view> faces) {
+  if (faces.size() != 6) throw std::runtime_error("Cube map requires 6 faces");
 
   glGenTextures(1, &get().texture_name);
   glBindTexture(GL_TEXTURE_CUBE_MAP, get().texture_name);
 
   for (size_t i = 0; i < faces.size(); i++) {
     int width, height, channels;
-    unsigned char* data = stbi_load(std::string(faces[i]).c_str(), &width, &height, &channels, 0);
+    unsigned char* data =
+        stbi_load(std::string(faces[i]).c_str(), &width, &height, &channels, 0);
     if (!data)
       throw std::runtime_error("Failed to load cube map texture: " +
                                std::string(faces[i]));
 
     const GLenum format = (channels == 3) ? GL_RGB : GL_RGBA;
-    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i),
-                 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+    glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i), 0,
+                 format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
   }
 
@@ -134,7 +123,19 @@ void Texture::LoadCubeMap(const std::span<const std::string_view> faces)
   get().texture_target = GL_TEXTURE_CUBE_MAP;
 }
 
-void Texture::Bind() const{
+void Texture::Bind() const {
   glBindTexture(get().texture_target, get().texture_name);
 }
+
+void Texture::Create(GLenum target, GLsizei width, GLsizei height,
+                     GLint internal_format, void* data, GLint level) {
+  const GLint format = get_expected_base_format(internal_format);
+  const GLenum type = get_expected_type(internal_format);
+  glGenTextures(1, &get().texture_name);
+  get().texture_target = target;
+  glBindTexture(get().texture_target, get().texture_name);
+  glTexImage2D(get().texture_target, level, internal_format, width, height, 0,
+               format, type, data);
+}
+
 }  // namespace common
