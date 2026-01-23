@@ -30,18 +30,18 @@ namespace {
 GLuint current_binded_vao = 0;
 }
 
-void VertexBuffer::Load() {
-  glGenBuffers(1, &get().name);
-}
-void VertexBuffer::Bind() const {
-  glBindBuffer(GL_ARRAY_BUFFER, get().name);
-}
-void IndexBuffer::Load() {
-  glGenBuffers(1, &get().name);
-}
-void IndexBuffer::Bind() const {
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, get().name);
-}
+// void VertexBuffer::Load() {
+//   glGenBuffers(1, &get().name);
+// }
+// void VertexBuffer::Bind() const {
+//   glBindBuffer(GL_ARRAY_BUFFER, get().name);
+// }
+// void IndexBuffer::Load() {
+//   glGenBuffers(1, &get().name);
+// }
+// void IndexBuffer::Bind() const {
+//   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, get().name);
+// }
 void VertexInput::Load() {
   auto& info = get();
   glGenVertexArrays(1, &info.vao);
