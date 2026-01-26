@@ -30,6 +30,7 @@ Contributors: Elias Farhan, Jemoel Ablay
 #include <string_view>
 #include <unordered_map>
 
+#include "maths/vec2.h"
 #include "maths/vec3.h"
 #include "resource/resource.h"
 #include "shader.h"
@@ -59,11 +60,25 @@ public:
   void Bind();
 
   void SetBool(std::string_view name, bool value);
-  void SetInt(const char* name, int value);
-  void SetFloat(const char* name, float value);
+  void SetInt(std::string_view name, int value);
+  void SetFloat(std::string_view  name, float value);
   void SetVec3(const char* name, float x, float y, float z);
 
   void SetTexture(std::string_view name, const Texture& texture, int texture_unit = 0);
+
+  template<typename T>
+requires core::IsVector2<T, float>
+void SetVec2(const std::string_view uniform_name, const T& v) {
+    const GLint loc = GetUniformLocation(uniform_name);
+    glUniform2f(loc, v.x, v.y);
+  }
+
+  template<typename T>
+requires core::IsVector2<T, int>
+void SetVec2(const std::string_view uniform_name, const T& v) {
+    const GLint loc = GetUniformLocation(uniform_name);
+    glUniform2f(loc, v.x, v.y);
+  }
 
   template<typename T>
   requires core::IsVector3<T, float>

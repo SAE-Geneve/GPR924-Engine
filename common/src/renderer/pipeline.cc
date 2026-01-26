@@ -74,13 +74,13 @@ void Pipeline::SetBool(const std::string_view name, const bool value)
   glUniform1i(loc, static_cast<GLint>(value));
 }
 
-void Pipeline::SetInt(const char* name, const int value)
+void Pipeline::SetInt(const std::string_view  name, const int value)
 {
   const GLint loc = GetUniformLocation(name);
   glUniform1i(loc, value);
 }
 
-void Pipeline::SetFloat(const char* name, const float value)
+void Pipeline::SetFloat(const std::string_view  name, const float value)
 {
   const GLint loc = GetUniformLocation(name);
   glUniform1f(loc, value);
