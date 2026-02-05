@@ -34,6 +34,24 @@ Contributors: Anthony Barman
 #include "engine/window.h"
 #include "third_party/sdl3_include.h"
 
+#ifdef _WIN32
+    #include <windows.h>
+
+    #ifdef __cplusplus
+    extern "C" {
+#endif
+
+      // Force l'utilisation du GPU dédié NVIDIA
+      __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+
+      // Force l'utilisation du GPU dédié AMD
+      __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+
+#ifdef __cplusplus
+    }
+#endif
+#endif
+
 namespace common {
 namespace {
 float dt = 0.0f;
