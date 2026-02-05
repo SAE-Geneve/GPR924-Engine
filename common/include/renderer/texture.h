@@ -69,6 +69,7 @@ class Texture : public core::Resource<TextureInfo, TextureDestructor> {
 public:
   void Load(std::string_view path, TextureLoadInfo texture_load_info = {});
   void Load(void* data, int width, int height, int channels, TextureLoadInfo texture_load_info = {});
+  void LoadHDR(std::string_view path);
   void LoadCubeMap(std::span<const std::string_view> faces);
   void Bind() const;
   void Create(GLenum target, GLsizei  width, GLsizei height, GLint internal_format, void* data = nullptr, GLint level = 0);

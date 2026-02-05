@@ -94,6 +94,47 @@ void Texture::Load(void* data, int width, int height, int channels,
   glBindTexture(GL_TEXTURE_2D, 0);
 }
 
+void Texture::LoadHDR(const std::string_view path) {
+  int w, h, channels;
+  float* data = stbi_loadf(path.data(), &w, &h, &channels, 0);
+
+  if (data == nullptr)
+    throw std::runtime_error("Failed to load HDR image: " + std::string(path));
+
+  if (get().texture_name != 0) {
+    glDeleteTextures(1, &get().texture_name);
+  }
+
+  get().texture_target = GL_TEXTURE_2D;
+  glGenTextures(1, &get().texture_name);
+  glBindTexture(GL_TEXTURE_2D, get().texture_name);
+
+  GLenum internalFormat = GL_RGB16F;
+  GLenum format = GL_RGB;
+
+  if (channels == 1) {
+    internalFormat = GL_R16F;
+    format = GL_RED;
+  } else if (channels == 3) {
+    internalFormat = GL_RGB16F;
+    format = GL_RGB;
+  } else if (channels == 4) {
+    internalFormat = GL_RGBA16F;
+    format = GL_RGBA;
+  }
+
+  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_FLOAT, data);
+
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+  glGenerateMipmap(GL_TEXTURE_2D);
+
+  stbi_image_free(data);
+}
+
 void Texture::LoadCubeMap(const std::span<const std::string_view> faces) {
   if (faces.size() != 6) throw std::runtime_error("Cube map requires 6 faces");
 
@@ -136,6 +177,8 @@ void Texture::Create(GLenum target, GLsizei width, GLsizei height,
   glBindTexture(get().texture_target, get().texture_name);
   glTexImage2D(get().texture_target, level, internal_format, width, height, 0,
                format, type, data);
+  glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+  glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
 
 }  // namespace common
