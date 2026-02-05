@@ -34,10 +34,10 @@ namespace common {
 void Renderbuffer::Load(GLenum internal_format, core::Vec2I size) {
   GLenum attachment = GL_NONE;
   if (is_depth_format(internal_format)) {
-    attachment = GL_DEPTH_COMPONENT;
+    attachment = GL_DEPTH_ATTACHMENT;
   }
   else if (is_depth_or_depth_stencil_format(internal_format)) {
-    attachment = GL_DEPTH_STENCIL;
+    attachment = GL_DEPTH_STENCIL_ATTACHMENT;
   }
   glGenRenderbuffers(1, &name_);
   glBindRenderbuffer(GL_RENDERBUFFER, name_);
