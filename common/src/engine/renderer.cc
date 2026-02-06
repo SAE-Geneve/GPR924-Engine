@@ -65,6 +65,7 @@ void BeginRenderer() {
       SDL_GL_SetSwapInterval(1);
 
 #if !defined(__EMSCRIPTEN__) && !defined(__ANDROID__)
+      glewExperimental = GL_TRUE;
       GLenum err = glewInit();
       if (GLEW_OK != err) {
         throw std::runtime_error(std::format("GLEW Init failed with error code: {}", err));
