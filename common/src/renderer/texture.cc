@@ -123,7 +123,7 @@ void Texture::LoadHDR(const std::string_view path) {
     format = GL_RGBA;
   }
 
-  glTexImage2D(GL_TEXTURE_2D, 0, internalFormat, w, h, 0, format, GL_FLOAT, data);
+  glTexImage2D(GL_TEXTURE_2D, 0, static_cast<GLint>(internalFormat), w, h, 0, format, GL_FLOAT, data);
 
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
@@ -151,7 +151,7 @@ void Texture::LoadCubeMap(const std::span<const std::string_view> faces) {
 
     const GLenum format = (channels == 3) ? GL_RGB : GL_RGBA;
     glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + static_cast<GLenum>(i), 0,
-                 format, width, height, 0, format, GL_UNSIGNED_BYTE, data);
+                 static_cast<GLint>(format), width, height, 0, format, GL_UNSIGNED_BYTE, data);
     stbi_image_free(data);
   }
 
@@ -170,13 +170,13 @@ void Texture::Bind() const {
 
 void Texture::Create(GLenum target, GLsizei width, GLsizei height,
                      GLint internal_format, void* data, GLint level) {
-  const GLint format = get_expected_base_format(internal_format);
-  const GLenum type = get_expected_type(internal_format);
+  const GLint format = static_cast<GLint>(get_expected_base_format(static_cast<GLenum>(internal_format)));
+  const GLenum type = get_expected_type(static_cast<GLenum>(internal_format));
   glGenTextures(1, &get().texture_name);
   get().texture_target = target;
   glBindTexture(get().texture_target, get().texture_name);
   glTexImage2D(get().texture_target, level, internal_format, width, height, 0,
-               format, type, data);
+               static_cast<GLenum>(format), type, data);
   glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 }
