@@ -16,3 +16,8 @@ if(ENABLE_TESTING)
     setup_warnings(common_test)
     gtest_discover_tests(common_test)
 endif()
+
+if(ENABLE_NETWORK)
+    target_link_libraries(common PUBLIC PhotonLib)
+    target_compile_definitions(common PUBLIC ENABLE_NETWORK)
+endif()

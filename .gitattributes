@@ -1,0 +1,4 @@
+externals/**/*.a filter=lfs diff=lfs merge=lfs -text
+externals/**/*.lib filter=lfs diff=lfs merge=lfs -text
+externals/**/*.pdb filter=lfs diff=lfs merge=lfs -text
+externals/**/*.dll filter=lfs diff=lfs merge=lfs -text

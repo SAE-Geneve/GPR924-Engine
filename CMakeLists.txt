@@ -15,6 +15,8 @@ set (CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include(cmake/warnings.cmake)
 
+option(ENABLE_NETWORK "Use Photon Realtime" OFF)
+
 if(ENABLE_TESTING)
 
     enable_testing()
@@ -23,4 +25,5 @@ if(ENABLE_TESTING)
 endif ()
 
 add_subdirectory(core)
+add_subdirectory(externals)
 add_subdirectory(common)
