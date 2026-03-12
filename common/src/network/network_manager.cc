@@ -9,19 +9,17 @@ namespace common {
 
 void NetworkManager::Begin() {
   ExitGames::LoadBalancing::ConnectOptions connectOptions_{};
-  if (!loadBalancingClient_.connect(connectOptions_)) {
+  if (!load_balancing_client_.connect(connectOptions_)) {
     throw std::runtime_error("Failed to connect to the load balancing client");
   }
 }
-void NetworkManager::End() {loadBalancingClient_.disconnect();}
-void NetworkManager::Update([[maybe_unused]]float dt) {
+void NetworkManager::End() { load_balancing_client_.disconnect(); }
+void NetworkManager::Update([[maybe_unused]] float dt) {
   throw std::runtime_error("Please call Fixed Update");
 }
-void NetworkManager::FixedUpdate() {
-  loadBalancingClient_.service();
-}
+void NetworkManager::FixedUpdate() { load_balancing_client_.service(); }
 NetworkManager::NetworkManager(
     ClientInterface* client,
     const ExitGames::LoadBalancing::ClientConstructOptions& options)
-    : loadBalancingClient_(*client, appID, appVersion, options) {}
+    : load_balancing_client_(*client, appID, appVersion, options) {}
 }  // namespace common
