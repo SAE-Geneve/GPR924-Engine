@@ -3,11 +3,17 @@ add_library(PhotonLib STATIC ${PHOTON_SRC})
 target_include_directories(PhotonLib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 if(MSVC)
+    if(CMAKE_GENERATOR_PLATFORM STREQUAL "ARM64" OR CMAKE_SYSTEM_PROCESSOR STREQUAL "ARM64")
+        set(PHOTON_WIN_ARCH "ARM64")
+    else()
+        set(PHOTON_WIN_ARCH "x64")
+    endif()
+
     target_link_libraries(PhotonLib PUBLIC
-            optimized "${CMAKE_CURRENT_SOURCE_DIR}/Common-cpp/lib/windows/Common-cpp_vc17_release_windows_md_x64.lib"
-            debug "${CMAKE_CURRENT_SOURCE_DIR}/Common-cpp/lib/windows/Common-cpp_vc17_debug_windows_md_x64.lib"
-            optimized "${CMAKE_CURRENT_SOURCE_DIR}/Photon-cpp/lib/windows/Photon-cpp_vc17_release_windows_md_x64.lib"
-            debug "${CMAKE_CURRENT_SOURCE_DIR}/Photon-cpp/lib/windows/Photon-cpp_vc17_debug_windows_md_x64.lib"
+            optimized "${CMAKE_CURRENT_SOURCE_DIR}/Common-cpp/lib/windows/Common-cpp_vc17_release_windows_md_${PHOTON_WIN_ARCH}.lib"
+            debug "${CMAKE_CURRENT_SOURCE_DIR}/Common-cpp/lib/windows/Common-cpp_vc17_debug_windows_md_${PHOTON_WIN_ARCH}.lib"
+            optimized "${CMAKE_CURRENT_SOURCE_DIR}/Photon-cpp/lib/windows/Photon-cpp_vc17_release_windows_md_${PHOTON_WIN_ARCH}.lib"
+            debug "${CMAKE_CURRENT_SOURCE_DIR}/Photon-cpp/lib/windows/Photon-cpp_vc17_debug_windows_md_${PHOTON_WIN_ARCH}.lib"
     )
 elseif(APPLE)
     target_compile_definitions(PhotonLib PUBLIC _EG_IMAC_PLATFORM=1)

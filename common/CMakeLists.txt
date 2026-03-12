@@ -12,7 +12,7 @@ if(ENABLE_TESTING)
 
     file(GLOB_RECURSE COMMON_TEST_SRC test/*.cc)
     add_executable(common_test ${COMMON_TEST_SRC})
-    target_link_libraries(common_test PRIVATE common GTest::gtest GTest::gtest_main)
+    target_link_libraries(common_test PRIVATE common GTest::gmock_main)
     setup_warnings(common_test)
     gtest_discover_tests(common_test)
 endif()

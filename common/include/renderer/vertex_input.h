@@ -26,6 +26,7 @@ Contributors: Elias Farhan
 #define GPR924_ENGINE_VERTEX_INPUT_H
 
 #include <ranges>
+#include <span>
 
 #include "resource/resource.h"
 #include "third_party/gl_include.h"
@@ -59,17 +60,19 @@ public:
   /**
  * @brief Allocate and upload the data in the buffer
  */
-  template<typename T>
-  void UploadRange(std::span<const T> range, GLenum usage = GL_STATIC_DRAW) {
+  template<typename R>
+  void UploadRange(R&& range, GLenum usage = GL_STATIC_DRAW) {
+    std::span s{std::forward<R>(range)};
     Bind();
-    glBufferData(target, range.size_bytes(), range.data(), usage);
+    glBufferData(target, s.size_bytes(), s.data(), usage);
   }
   /**
    * @brief Update the data in the buffer (to be used after using UploadRange
    */
-  template <typename T>
-  void UpdateRange(std::span<const T> range, GLintptr offset = 0, GLenum usage = GL_STATIC_DRAW) {
-    glBufferSubData(target, offset, range.size_bytes(), range.data(), usage);
+  template <typename R>
+  void UpdateRange(R&& range, GLintptr offset = 0, GLenum usage = GL_STATIC_DRAW) {
+    std::span s{std::forward<R>(range)};
+    glBufferSubData(target, offset, s.size_bytes(), s.data(), usage);
   }
 
 };

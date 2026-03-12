@@ -22,6 +22,8 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
+#include <array>
+
 #include "engine/engine.h"
 #include "engine/renderer.h"
 #include "engine/system.h"
@@ -33,54 +35,62 @@ Contributors: Elias Farhan
 namespace test_renderer {
 namespace {
 constexpr std::string_view vertexShaderContent =
-"#version 300 es\n"
-"precision mediump float;"
-"layout (location = 0) in vec2 aPos;"
-"layout (location = 1) in vec2 aTexCoords;"
-"out vec2 TexCoords;"
-"void main()"
-"{"
-"  gl_Position = vec4(aPos.x, aPos.y, 0, 1.0);"
-"  TexCoords = aTexCoords;"
-"}";
+    "#version 300 es\n"
+    "precision mediump float;"
+    "layout (location = 0) in vec2 aPos;"
+    "layout (location = 1) in vec2 aTexCoords;"
+    "out vec2 TexCoords;"
+    "void main()"
+    "{"
+    "  gl_Position = vec4(aPos.x, aPos.y, 0, 1.0);"
+    "  TexCoords = aTexCoords;"
+    "}";
 
 constexpr std::string_view fragmentShaderContent =
-"#version 300 es\n"
-"precision mediump float;"
-"out vec4 FragColor;"
-"in vec2 TexCoords;"
-"void main()"
-"{"
-  "FragColor = vec4(TexCoords.x,TexCoords.y,1.0f, 1.0f);"
-"}";
+    "#version 300 es\n"
+    "precision mediump float;"
+    "out vec4 FragColor;"
+    "in vec2 TexCoords;"
+    "void main()"
+    "{"
+    "FragColor = vec4(TexCoords.x,TexCoords.y,1.0f, 1.0f);"
+    "}";
 
 constexpr std::array vertices = {
-  // pos + tex coords
-  0.5f,  0.5f, 1.0f, 1.0f,
-  0.5f, -0.5f, 1.0f, 0.0f,
- -0.5f, -0.5f, 0.0f, 0.0f,
- -0.5f,  0.5f, 0.0f, 1.0f,
-   };
+    // pos + tex coords
+    0.5f,  0.5f,  1.0f, 1.0f, 0.5f,  -0.5f, 1.0f, 0.0f,
+    -0.5f, -0.5f, 0.0f, 0.0f, -0.5f, 0.5f,  0.0f, 1.0f,
+};
 constexpr std::array indices = {
-  // note that we start from 0!
-  0, 1, 3,   // first triangle
-  1, 2, 3    // second triangle
+    // note that we start from 0!
+    0, 1, 3,  // first triangle
+    1, 2, 3   // second triangle
 };
 
 constexpr std::array attributes = {
-  common::VertexBufferAttribute{.location = 0, .size = 2, .type = GL_FLOAT, .stride = sizeof(float)*4, .offset = 0},
-  common::VertexBufferAttribute{.location = 1, .size = 2, .type = GL_FLOAT, .stride = sizeof(float)*4, .offset = sizeof(float)*2},
+    common::VertexBufferAttribute{.location = 0,
+                                  .size = 2,
+                                  .type = GL_FLOAT,
+                                  .stride = sizeof(float) * 4,
+                                  .offset = 0},
+    common::VertexBufferAttribute{.location = 1,
+                                  .size = 2,
+                                  .type = GL_FLOAT,
+                                  .stride = sizeof(float) * 4,
+                                  .offset = sizeof(float) * 2},
 };
-}
+}  // namespace
 
-class ClosingSystem :  public common::DrawInterface , public common::SystemInterface{
-public:
+class ClosingSystem : public common::DrawInterface,
+                      public common::SystemInterface {
+ public:
   void Begin() override {
     common::Shader vertexShader;
     vertexShader.LoadFromMemory(vertexShaderContent.data(), GL_VERTEX_SHADER);
 
     common::Shader fragmentShader;
-    fragmentShader.LoadFromMemory(fragmentShaderContent.data(), GL_FRAGMENT_SHADER);
+    fragmentShader.LoadFromMemory(fragmentShaderContent.data(),
+                                  GL_FRAGMENT_SHADER);
 
     pipeline_.Load(vertexShader, fragmentShader);
 
@@ -91,7 +101,6 @@ public:
     ebo_.UploadRange(indices);
     vao_.BindIndexBuffer(ebo_);
     vao_.BindVertexBuffer(vbo_, attributes);
-
   }
   void End() override {
     pipeline_.Clear();
@@ -118,7 +127,7 @@ public:
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
   }
 
-protected:
+ protected:
   static constexpr int kCloseCount = 100;
   common::Pipeline pipeline_;
   common::VertexInput vao_;
@@ -127,7 +136,7 @@ protected:
 
   int count_ = 0;
 };
-}
+}  // namespace test_renderer
 TEST(GL, Renderer) {
   test_renderer::ClosingSystem closingSystem{};
 
