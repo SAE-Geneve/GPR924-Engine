@@ -8,8 +8,14 @@
 namespace common {
 
 class NetworkManager : public SystemInterface {
-public:
-
+ public:
+  void Begin() override;
+  void End() override;
+  void Update(float dt) override;
+  void FixedUpdate() override;
+  NetworkManager(ClientInterface* client, const ExitGames::LoadBalancing::ClientConstructOptions& options = {});
+private:
+  ExitGames::LoadBalancing::Client loadBalancingClient_;
 };
 
 }

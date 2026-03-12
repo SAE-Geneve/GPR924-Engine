@@ -32,3 +32,28 @@ elseif(UNIX)
             debug "${CMAKE_CURRENT_SOURCE_DIR}/Common-cpp/lib/linux/libCommonDebug64.a"
     )
 endif()
+
+
+# --- Read Photon AppId from photon.cfg ---
+set(PHOTON_CFG_FILE "${CMAKE_CURRENT_SOURCE_DIR}/photon.cfg")
+if(NOT EXISTS "${PHOTON_CFG_FILE}")
+    message(FATAL_ERROR
+            "Missing ${PHOTON_CFG_FILE}\n"
+            "Copy photon.cfg.example to photon.cfg and set your Photon AppId.")
+endif()
+set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${PHOTON_CFG_FILE}")
+
+file(STRINGS "${PHOTON_CFG_FILE}" PHOTON_CFG_LINES)
+foreach(LINE IN LISTS PHOTON_CFG_LINES)
+    if(LINE MATCHES "^AppId=(.+)$")
+        set(PHOTON_APP_ID "${CMAKE_MATCH_1}")
+    endif()
+endforeach()
+string(STRIP "${PHOTON_APP_ID}" PHOTON_APP_ID)
+
+if(NOT DEFINED PHOTON_APP_ID OR PHOTON_APP_ID STREQUAL "")
+    message(FATAL_ERROR "AppId not found in ${PHOTON_CFG_FILE}")
+endif()
+message(STATUS "Photon AppId: ${PHOTON_APP_ID}")
+
+target_compile_definitions(PhotonLib PUBLIC PHOTON_APP_ID="${PHOTON_APP_ID}")
