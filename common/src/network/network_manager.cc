@@ -1,5 +1,7 @@
 #include "network/network_manager.h"
 
+#ifdef ENABLE_NETWORK
+
 #define NEKO_WIDE2(x) L##x
 #define NEKO_WIDE(x) NEKO_WIDE2(x)
 static const ExitGames::Common::JString appID = NEKO_WIDE(PHOTON_APP_ID);
@@ -23,3 +25,5 @@ NetworkManager::NetworkManager(
     const ExitGames::LoadBalancing::ClientConstructOptions& options)
     : load_balancing_client_(*client, appID, appVersion, options) {}
 }  // namespace common
+
+#endif
