@@ -34,20 +34,20 @@ Contributors: Anthony Barman
 
 namespace common {
 namespace {
-WindowConfig windowConfig;
+WindowConfig window_config;
 SDL_Window* window = nullptr;
-core::Vec2I windowSize;
-float fixedDt;
-bool isOpen = false;
+core::Vec2I window_size;
+float fixed_dt;
+bool is_open = false;
 }  // namespace
 SDL_Window* GetWindow() { return window; }
 void BeginWindow() {
   SDL_WindowFlags flags = 0;
-  if (windowConfig.resizable) {
+  if (window_config.resizable) {
     flags |= SDL_WINDOW_RESIZABLE;
   }
-  if (windowConfig.renderer == WindowConfig::RendererType::OPENGL ||
-      windowConfig.renderer == WindowConfig::RendererType::OPENGLES) {
+  if (window_config.renderer == WindowConfig::RendererType::OPENGL ||
+      window_config.renderer == WindowConfig::RendererType::OPENGLES) {
     flags |= SDL_WINDOW_OPENGL;
 #if defined(__EMSCRIPTEN__)
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_ES);
@@ -56,10 +56,10 @@ void BeginWindow() {
 #else
     SDL_GL_SetAttribute(
         SDL_GL_CONTEXT_PROFILE_MASK,
-        windowConfig.renderer == WindowConfig::RendererType::OPENGLES
+        window_config.renderer == WindowConfig::RendererType::OPENGLES
             ? SDL_GL_CONTEXT_PROFILE_ES
             : SDL_GL_CONTEXT_PROFILE_CORE);
-    if (windowConfig.renderer == WindowConfig::RendererType::OPENGL) {
+    if (window_config.renderer == WindowConfig::RendererType::OPENGL) {
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                           SDL_GL_CONTEXT_PROFILE_CORE);
       SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
@@ -76,15 +76,15 @@ void BeginWindow() {
     SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
     SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
   }
-  windowSize = {windowConfig.width, windowConfig.height};
-  fixedDt = windowConfig.fixed_dt;
-  window = SDL_CreateWindow(windowConfig.title.data(), windowConfig.width,
-                            windowConfig.height, flags);
+  window_size = {window_config.width, window_config.height};
+  fixed_dt = window_config.fixed_dt;
+  window = SDL_CreateWindow(window_config.title.data(), window_config.width,
+                            window_config.height, flags);
   if (window == nullptr) {
     throw std::runtime_error(
         std::format("Failed to create window, error: {}", SDL_GetError()));
   }
-  isOpen = true;
+  is_open = true;
 }
 void UpdateWindow() {
   SDL_Event e;
@@ -93,11 +93,11 @@ void UpdateWindow() {
     // User requests quit
     if (e.type == SDL_EVENT_QUIT ||
         e.type == SDL_EVENT_WINDOW_CLOSE_REQUESTED) {
-      isOpen = false;
+      is_open = false;
     } else if (e.type == SDL_EVENT_WINDOW_RESIZED) {
-      windowSize = {e.window.data1, e.window.data2};
-      if (windowConfig.renderer == WindowConfig::RendererType::OPENGL || windowConfig.renderer == WindowConfig::RendererType::OPENGLES) {
-        glViewport(0, 0, windowSize.x, windowSize.y);
+      window_size = {e.window.data1, e.window.data2};
+      if (window_config.renderer == WindowConfig::RendererType::OPENGL || window_config.renderer == WindowConfig::RendererType::OPENGLES) {
+        glViewport(0, 0, window_size.x, window_size.y);
       }
     }
     ManageGuiEvent(e);
@@ -110,10 +110,10 @@ void EndWindow() {
   SDL_DestroyWindow(window);
   window = nullptr;
 }
-core::Vec2I GetWindowSize() { return windowSize; }
-float GetFixedDT() { return fixedDt; }
-bool IsWindowOpen() { return isOpen; }
-const WindowConfig& GetWindowConfig() { return windowConfig; }
-void SetWindowConfig(const WindowConfig& config) { windowConfig = config; }
-void CloseWindow() { isOpen = false; }
+core::Vec2I GetWindowSize() { return window_size; }
+float GetFixedDT() { return fixed_dt; }
+bool IsWindowOpen() { return is_open; }
+const WindowConfig& GetWindowConfig() { return window_config; }
+void SetWindowConfig(const WindowConfig& config) { window_config = config; }
+void CloseWindow() { is_open = false; }
 }  // namespace common
