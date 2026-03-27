@@ -26,8 +26,6 @@ Contributors: Anthony Barman
 Contributors: Elias Farhan, Jemoel Ablay
 */
 
-#include <imgui.h>
-
 #include <algorithm>
 #include <span>
 #include <stdexcept>

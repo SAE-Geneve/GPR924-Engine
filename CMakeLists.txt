@@ -27,3 +27,7 @@ endif ()
 add_subdirectory(core)
 add_subdirectory(externals)
 add_subdirectory(common)
+add_subdirectory(physics)
+
+add_executable(SampleBrowser physics/samples/main.cc)
+target_link_libraries(SampleBrowser PRIVATE samples)
