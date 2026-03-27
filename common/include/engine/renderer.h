@@ -49,7 +49,7 @@ void EndRenderer();
 void DrawCircle(float centerX, float centerY, float radius,
                 SDL_FColor color, int nbSegments = 20);
 void DrawAABB(core::Vec2F pos, core::Vec2F rectSize, SDL_FColor color, bool filled = true);
-
+void DrawLine(const float x1, const float y1, const float x2, const float y2, const SDL_FColor color);
 
 SDL_Renderer* GetRenderer();
 SDL_GLContext GetGlContext();

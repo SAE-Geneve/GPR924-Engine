@@ -184,6 +184,13 @@ void DrawAABB(const core::Vec2F pos, const core::Vec2F rectSize,
     SDL_RenderRect(GetRenderer(), &rect);
 }
 
+void DrawLine(const float x1, const float y1, const float x2, const float y2,
+              const SDL_FColor color) {
+  SDL_SetRenderDrawColorFloat(GetRenderer(), color.r, color.g, color.b,
+                              color.a);
+  SDL_RenderLine(GetRenderer(), x1, y1, x2, y2);
+}
+
 SDL_Renderer* GetRenderer() { return renderer; }
 SDL_GLContext GetGlContext() { return gl_context; }
 }  // namespace common
