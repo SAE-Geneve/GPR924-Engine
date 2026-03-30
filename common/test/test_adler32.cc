@@ -16,3 +16,11 @@ TEST(Adler32, Order) {
 
   EXPECT_NE(v1.value(), v2.value());
 }
+
+TEST(Adler32, IsNotChecksum) {
+  common::Adler32 v1;
+  v1.Add(2);
+  v1.Add(1);
+
+  EXPECT_NE(v1.value(), 3);
+}
