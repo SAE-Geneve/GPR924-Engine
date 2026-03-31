@@ -1,6 +1,7 @@
 
 #ifndef GPR924_ENGINE_ROLLBACK_MANAGER_H
 #define GPR924_ENGINE_ROLLBACK_MANAGER_H
+#include "checksum.h"
 
 /*
 Copyright 2026 SAE Institute Switzerland SA
@@ -27,10 +28,37 @@ Contributors: Elias Farhan
 */
 
 namespace common {
-class RollbackManager {
-
+template <typename GameModelT>
+concept game_model = requires(const GameModelT& confirm_game_model,
+                              GameModelT& speculative_game_model) {
+  { speculative_game_model.RollbackFrom(confirm_game_model) };
+};
+template <typename GameModelT, int kChecksumSystemCount>
+concept confirmable_game_model = requires(const GameModelT& game_model) {
+  {
+    game_model.checksums()
+  } -> std::convertible_to<Checksum<kChecksumSystemCount>>;
 };
 
-}
+template <game_model GameModelT, int kChecksumSystemCount>
+class RollbackManager {
+ public:
+  Checksum<kChecksumSystemCount> ConfirmLastFrame() {
+    confirm_game_model_.Tick();
+    return confirm_game_model_.checksums();
+  }
 
-#endif //GPR924_ENGINE_ROLLBACK_MANAGER_H
+  void RollbackToConfirmFrame(GameModelT& current_game_model) {
+    current_game_model.RollbackFrom(confirm_game_model_);
+  }
+
+ private:
+  static_assert(confirmable_game_model<GameModelT, kChecksumSystemCount>,
+                "GameModel should have a checksums() method that calculates "
+                "the current checksums");
+  GameModelT confirm_game_model_;
+};
+
+}  // namespace common
+
+#endif  // GPR924_ENGINE_ROLLBACK_MANAGER_H
