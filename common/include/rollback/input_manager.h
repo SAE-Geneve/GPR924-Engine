@@ -85,7 +85,7 @@ class InputManager {
   [[nodiscard]] Frame last_confirm_frame() const { return last_confirm_frame_; }
   [[nodiscard]] Frame last_received_frame() const {
     auto smaller_frame = Frame(-1);
-    for (int player_index = 0; player_index < kMaxPlayerCount; ++player_index) {
+    for (size_t player_index = 0; player_index < static_cast<size_t>(kMaxPlayerCount); ++player_index) {
       if (input_metadata_[player_index].is_valid &&
           smaller_frame.index() >
               input_metadata_[player_index].last_received_frame.index()) {
@@ -108,6 +108,9 @@ class InputManager {
 
   [[nodiscard]] bool is_valid(PlayerNumber player_number) const {
     return input_metadata_[player_number.index()].is_valid;
+  }
+  void set_valid(PlayerNumber player_number, bool valid) {
+    input_metadata_[player_number.index()].is_valid = valid;
   }
   [[nodiscard]] bool is_dirty() const { return is_dirty_; }
 
