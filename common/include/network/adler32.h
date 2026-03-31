@@ -144,7 +144,8 @@ class Adler32 {
   uint32_t Add(std::span<char> raw_data) {
     // Process each byte of the data in order
     for (auto & data : raw_data) {
-      a = (a + data) % kModAdler;
+      const auto v = static_cast<uint32_t>(data);
+      a = (a + v) % kModAdler;
       b = (b + a) % kModAdler;
     }
 

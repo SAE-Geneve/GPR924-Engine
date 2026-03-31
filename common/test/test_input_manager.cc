@@ -22,26 +22,23 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
+#include "rollback/input_manager.h"
 
-#include "network/adler32.h"
+#include "gmock/gmock.h"
 #include "gtest/gtest.h"
 
-TEST(Adler32, Order) {
-  common::Adler32 v1;
-  v1.Add(2);
-  v1.Add(1);
+using PlayerInput = int;
+static constexpr auto kMaxInputHistory = 5;
+static constexpr auto kMaxPlayerCount = 2;
 
-  common::Adler32 v2;
-  v2.Add(1);
-  v2.Add(2);
+using TestInputManager = common::InputManager<PlayerInput, kMaxInputHistory, kMaxPlayerCount>;
 
-  EXPECT_NE(v1.value(), v2.value());
-}
+TEST(InputManager, SetSingleInput) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{1};
+  static constexpr auto kFrame = common::Frame{1};
+  static constexpr auto kInput = -52;
+  manager.set_input(kPlayerNumber, kInput, kFrame);
 
-TEST(Adler32, IsNotChecksum) {
-  common::Adler32 v1;
-  v1.Add(2);
-  v1.Add(1);
-
-  EXPECT_NE(v1.value(), 3);
+  EXPECT_EQ(manager.input(kPlayerNumber, kFrame), kInput);
 }

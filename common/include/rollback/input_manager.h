@@ -30,14 +30,16 @@ Contributors: Elias Farhan
 #include <span>
 #include <stdexcept>
 #include <vector>
+#include <cstdint>
 
 namespace common {
 
 class PlayerNumber {
  public:
-  explicit PlayerNumber(int index);
+  explicit constexpr PlayerNumber(int index):index_(index){}
 
-  [[nodiscard]] int index() const { return index_; }
+  [[nodiscard]] constexpr size_t index() const { return static_cast<size_t>(index_); }
+  [[nodiscard]] constexpr int signed_index() const { return index_; }
 
  private:
   int index_;
@@ -45,9 +47,10 @@ class PlayerNumber {
 
 class Frame {
  public:
-  explicit Frame(int index);
+  explicit constexpr  Frame(int index):index_(index){}
 
-  [[nodiscard]] int index() const { return index_; }
+  [[nodiscard]] constexpr size_t index() const { return static_cast<size_t>(index_); }
+  [[nodiscard]] constexpr int signed_index() const { return index_; }
 
  private:
   int index_;
@@ -56,16 +59,17 @@ class Frame {
 template <typename InputT, int kMaxInputHistory, int kMaxPlayerCount>
 class InputManager {
  public:
+  InputManager() {
+    inputs_.resize(kMaxInputHistory);
+  }
   [[nodiscard]] InputT input(PlayerNumber player_number,
                              Frame current_frame) const {
     return inputs_[current_frame.index()][player_number.index()];
   }
 
   void set_input(PlayerNumber player_number, InputT input, Frame current_frame) {
-    (void)player_number;
-    (void)input;
-    (void)current_frame;
-    throw std::runtime_error("set_input() not implemented");
+    inputs_[current_frame.index()][player_number.index()] = input;
+    //TODO repeat input up to the end of the array (speculative inputs)
   }
 
   [[nodiscard]] std::pair<std::array<InputT, kMaxInputHistory>, uint8_t> inputs(
@@ -114,7 +118,7 @@ class InputManager {
   };
   std::vector<std::array<InputT, kMaxPlayerCount>> inputs_;
   std::array<InputMetadata, kMaxPlayerCount> input_metadata_{};
-  Frame last_confirm_frame_;
+  Frame last_confirm_frame_{-1};
   bool is_dirty_ = false;
 };
 
