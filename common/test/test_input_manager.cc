@@ -80,6 +80,18 @@ TEST(InputManager, BoundaryCondition_PlayerIndex0) {
   EXPECT_EQ(manager.input(kPlayerNumber, kFrame), kInput);
 }
 
+
+TEST(InputManager, GetMoreRecentInput) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  static constexpr auto kFrame = common::Frame{2};
+  static constexpr auto kNextFrame = common::Frame{3};
+  static constexpr auto kInput = 7;
+  manager.set_input(kPlayerNumber, kInput, kFrame);
+
+  EXPECT_EQ(manager.input(kPlayerNumber, kNextFrame), kInput);
+}
+
 // ---------------------------------------------------------------------------
 // inputs(Frame) — all players at a given frame
 // ---------------------------------------------------------------------------
@@ -201,6 +213,51 @@ TEST(InputManager, IsDirty_NotSetOnFirstInput) {
 }
 
 
+// ---------------------------------------------------------------------------
+// CleanDirty — resets the dirty flag
+// ---------------------------------------------------------------------------
+
+TEST(InputManager, CleanDirty_ResetsToFalse) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 99, common::Frame{0});
+
+  std::vector<PlayerInput> network_inputs = {10};
+  manager.set_inputs_from_network(
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
+  ASSERT_TRUE(manager.is_dirty());
+
+  manager.CleanDirty();
+  EXPECT_FALSE(manager.is_dirty());
+}
+
+TEST(InputManager, CleanDirty_NoOpWhenAlreadyClean) {
+  TestInputManager manager;
+  ASSERT_FALSE(manager.is_dirty());
+
+  manager.CleanDirty();
+  EXPECT_FALSE(manager.is_dirty());
+}
+
+TEST(InputManager, CleanDirty_DirtyCanBeSetAgainAfterCleaning) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 99, common::Frame{0});
+
+  std::vector<PlayerInput> network_inputs = {10};
+  manager.set_inputs_from_network(
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
+  manager.CleanDirty();
+  ASSERT_FALSE(manager.is_dirty());
+
+  // Trigger dirty again with a different mismatch at frame 1.
+  manager.set_input(kPlayerNumber, 50, common::Frame{1});
+  std::vector<PlayerInput> network_inputs2 = {77};
+  manager.set_inputs_from_network(
+      kPlayerNumber, std::span<PlayerInput>(network_inputs2),
+      common::Frame{1});
+  EXPECT_TRUE(manager.is_dirty());
+}
 
 // ---------------------------------------------------------------------------
 // Speculative inputs — input is copied forward to subsequent frames
@@ -267,9 +324,9 @@ TEST(InputManager, InputsHistory_CountLimitedByMaxHistory) {
 }
 
 // ---------------------------------------------------------------------------
-// set_inputs_from_network (TDD: not yet implemented)
-// Assumed semantics: `frame` is the first frame in the span; inputs cover
-// [frame, frame + span.size() - 1].
+// set_inputs_from_network
+// Semantics: `current_frame` is the LAST frame in the span; inputs cover
+// [current_frame - span.size() + 1, current_frame].
 // ---------------------------------------------------------------------------
 
 TEST(InputManager, SetInputsFromNetwork_SetsMultipleFrames) {
@@ -277,7 +334,7 @@ TEST(InputManager, SetInputsFromNetwork_SetsMultipleFrames) {
   static constexpr auto kPlayerNumber = common::PlayerNumber{0};
   std::vector<PlayerInput> network_inputs = {10, 20, 30};
   manager.set_inputs_from_network(
-      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{2});
 
   EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{0}), 10);
   EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{1}), 20);
@@ -289,9 +346,9 @@ TEST(InputManager, SetInputsFromNetwork_UpdatesLastReceivedFrame) {
   static constexpr auto kPlayerNumber = common::PlayerNumber{0};
   std::vector<PlayerInput> network_inputs = {10, 20, 30};
   manager.set_inputs_from_network(
-      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{2});
 
-  // last received frame = frame + span.size() - 1 = 2
+  // current_frame is the last frame in the span, so last_received = 2
   EXPECT_EQ(manager.last_received_frame(kPlayerNumber).signed_index(), 2);
 }
 
@@ -319,4 +376,201 @@ TEST(InputManager, SetInputsFromNetwork_NotDirtyWhenInputsMatch) {
       kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
 
   EXPECT_FALSE(manager.is_dirty());
+}
+
+// ---------------------------------------------------------------------------
+// ConfirmFrame — advances the sliding window
+// ---------------------------------------------------------------------------
+
+TEST(InputManager, ConfirmFrame_IncrementsLastConfirmFrame) {
+  TestInputManager manager;
+  EXPECT_EQ(manager.last_confirm_frame().signed_index(), -1);
+
+  manager.ConfirmFrame();
+  EXPECT_EQ(manager.last_confirm_frame().signed_index(), 0);
+
+  manager.ConfirmFrame();
+  EXPECT_EQ(manager.last_confirm_frame().signed_index(), 1);
+}
+
+TEST(InputManager, ConfirmFrame_SlidesWindow) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 10, common::Frame{0});
+  manager.set_input(kPlayerNumber, 20, common::Frame{1});
+  manager.set_input(kPlayerNumber, 30, common::Frame{2});
+
+  manager.ConfirmFrame();
+
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{1}), 20);
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{2}), 30);
+}
+
+TEST(InputManager, ConfirmFrame_InputAccessAfterMultipleConfirms) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  for (int f = 0; f < kMaxInputHistory; ++f) {
+    manager.set_input(kPlayerNumber, (f + 1) * 10, common::Frame{f});
+  }
+
+  manager.ConfirmFrame();
+  manager.ConfirmFrame();
+  EXPECT_EQ(manager.last_confirm_frame().signed_index(), 1);
+
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{2}), 30);
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{3}), 40);
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{4}), 50);
+}
+
+TEST(InputManager, ConfirmFrame_SetInputAfterConfirm) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 10, common::Frame{0});
+
+  manager.ConfirmFrame();
+
+  manager.set_input(kPlayerNumber, 77, common::Frame{1});
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{1}), 77);
+}
+
+TEST(InputManager, ConfirmFrame_InputsHistoryAfterConfirm) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 10, common::Frame{0});
+  manager.set_input(kPlayerNumber, 20, common::Frame{1});
+  manager.set_input(kPlayerNumber, 30, common::Frame{2});
+
+  manager.ConfirmFrame();
+
+  const auto history = manager.inputs(kPlayerNumber, common::Frame{2});
+  EXPECT_EQ(history.size(), 2u);
+  EXPECT_EQ(history[0], 20);
+  EXPECT_EQ(history[1], 30);
+}
+
+// ---------------------------------------------------------------------------
+// Dirty + Network integration
+// ---------------------------------------------------------------------------
+
+TEST(InputManager, DirtyNetworkFlow_SetFromNetworkThenClean) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 99, common::Frame{0});
+
+  std::array network_inputs = {10};
+  manager.set_inputs_from_network(
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
+  ASSERT_TRUE(manager.is_dirty());
+
+  manager.CleanDirty();
+  ASSERT_FALSE(manager.is_dirty());
+
+  // Receiving the same input again should not re-trigger dirty.
+  manager.set_inputs_from_network(
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
+  EXPECT_FALSE(manager.is_dirty());
+}
+
+TEST(InputManager, DirtyNetworkFlow_MultiplePlayers) {
+  TestInputManager manager;
+  static constexpr auto kPlayer0 = common::PlayerNumber{0};
+  static constexpr auto kPlayer1 = common::PlayerNumber{1};
+  manager.set_input(kPlayer0, 99, common::Frame{0});
+  manager.set_input(kPlayer1, 88, common::Frame{0});
+
+  // Mismatch on player 0.
+  std::array net0 = {10};
+  manager.set_inputs_from_network(kPlayer0,
+                                  std::span<PlayerInput>(net0),
+                                  common::Frame{0});
+  ASSERT_TRUE(manager.is_dirty());
+  manager.CleanDirty();
+
+  // Mismatch on player 1.
+  std::array net1 = {20};
+  manager.set_inputs_from_network(kPlayer1,
+                                  std::span<PlayerInput>(net1),
+                                  common::Frame{0});
+  EXPECT_TRUE(manager.is_dirty());
+}
+
+TEST(InputManager, DirtyNetworkFlow_ConfirmThenNetworkInput) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 10, common::Frame{0});
+  manager.set_input(kPlayerNumber, 50, common::Frame{1});
+
+  manager.ConfirmFrame();
+
+  // Receive a different input at frame 1 from the network.
+  std::array network_inputs = {77};
+  manager.set_inputs_from_network(
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{1});
+
+  EXPECT_TRUE(manager.is_dirty());
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{1}), 77);
+}
+
+// ---------------------------------------------------------------------------
+// Edge cases
+// ---------------------------------------------------------------------------
+
+TEST(InputManager, SetInput_ThrowsOnOverCapacity) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  EXPECT_THROW(
+      manager.set_input(kPlayerNumber, 42, common::Frame{kMaxInputHistory}),
+      std::runtime_error);
+}
+
+TEST(InputManager, ConfirmFrame_ThenSetInput_Interleaved) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 10, common::Frame{0});
+  manager.set_input(kPlayerNumber, 20, common::Frame{1});
+  manager.set_input(kPlayerNumber, 30, common::Frame{2});
+
+  manager.ConfirmFrame();  // confirms frame 0
+  manager.set_input(kPlayerNumber, 40, common::Frame{3});
+
+  manager.ConfirmFrame();  // confirms frame 1
+  manager.set_input(kPlayerNumber, 50, common::Frame{4});
+
+  EXPECT_EQ(manager.last_confirm_frame().signed_index(), 1);
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{2}), 30);
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{3}), 40);
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{4}), 50);
+}
+
+TEST(InputManager, SetInputsFromNetwork_MultipleFramesAfterConfirm) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 10, common::Frame{0});
+  manager.set_input(kPlayerNumber, 20, common::Frame{1});
+  manager.set_input(kPlayerNumber, 30, common::Frame{2});
+
+  manager.ConfirmFrame();  // confirms frame 0
+
+  std::array network_inputs = {55, 66};
+  manager.set_inputs_from_network(
+      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{2});
+
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{1}), 55);
+  EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{2}), 66);
+}
+
+TEST(InputManager, SpeculativeInput_AfterConfirmFrame) {
+  TestInputManager manager;
+  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
+  manager.set_input(kPlayerNumber, 10, common::Frame{0});
+
+  manager.ConfirmFrame();  // confirms frame 0
+
+  manager.set_input(kPlayerNumber, 42, common::Frame{1});
+
+  // Speculative input should fill forward from frame 1.
+  for (int f = 2; f < kMaxInputHistory; ++f) {
+    EXPECT_EQ(manager.input(kPlayerNumber, common::Frame{f}), 42)
+        << "speculative input missing at frame " << f;
+  }
 }

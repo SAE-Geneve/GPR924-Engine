@@ -26,13 +26,13 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
-#include <sys/stat.h>
 
 #include <cstdint>
 #include <expected>
 #include <span>
 #include <stdexcept>
 #include <vector>
+#include <array>
 
 #include "container/small_vector.h"
 
@@ -71,7 +71,11 @@ class InputManager {
   InputManager() { inputs_.resize(kMaxInputHistory); }
   [[nodiscard]] InputT input(PlayerNumber player_number,
                              Frame current_frame) const {
-    return inputs_[current_frame.index()][player_number.index()];
+    const auto frame_index = index(current_frame);
+    if (frame_index >= inputs_.size()) {
+      return inputs_.back()[player_number.index()];
+    }
+    return inputs_[frame_index][player_number.index()];
   }
 
   void set_input(PlayerNumber player_number, InputT input,
@@ -169,7 +173,7 @@ class InputManager {
     input_metadata_[player_number.index()].is_valid = valid;
   }
   [[nodiscard]] bool is_dirty() const { return is_dirty_; }
-  void CleanDirty() { is_dirty_ = false; }
+void CleanDirty() { is_dirty_ = false; }
 
   void ConfirmFrame() {
     inputs_.erase(inputs_.begin());
