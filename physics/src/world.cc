@@ -20,10 +20,11 @@ struct std::hash<core::Index<physics::Collider>> {
 namespace physics {
 
 static PhysicsWorld g_world;
+static PhysicsWorld* active_world_ = &g_world;
 
 PhysicsWorld& world() { return g_world; }
 
-Body& Collider::body() const { return g_world.body_at(body_idx); }
+Body& Collider::body() const { return active_world_->body_at(body_idx); }
 
 void PhysicsWorld::set_bounds(const AABB& b) {
   bounds_ = b;
@@ -236,12 +237,15 @@ void PhysicsWorld::RollBackFrom(const PhysicsWorld& ref) {
 }
 
 void PhysicsWorld::Tick(float dt) {
+  auto* prev = active_world_;
+  active_world_ = this;
   for (auto& body : bodies_) {
     if (body.IsInvalid()) continue;
     body.Tick(dt);
   }
   CheckForOverlap();
   ResolveCollisions();
+  active_world_ = prev;
 }
 
 void set_world_bounds(const AABB& b) { g_world.set_bounds(b); }
@@ -264,7 +268,7 @@ core::Index<Collider> AddColliderToBody(core::Index<Body> body_idx,
                              is_trigger);
 }
 Collider& collider_at(core::Index<Collider> idx) {
-  return g_world.collider_at(idx);
+  return active_world_->collider_at(idx);
 }
 void RemoveCollider(core::Index<Collider> idx) { g_world.RemoveCollider(idx); }
 
