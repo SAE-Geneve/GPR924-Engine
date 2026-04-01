@@ -22,14 +22,13 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
-#include "rollback/rollback_manager.h"
-
 #include <array>
 #include <span>
 #include <vector>
 
 #include "gmock/gmock.h"
 #include "gtest/gtest.h"
+#include "rollback/rollback_manager.h"
 
 using PlayerInput = int;
 static constexpr auto kMaxInputHistory = 10;
@@ -50,8 +49,8 @@ struct SimpleGameModel {
     }
   }
 
-  void set_inputs(std::array<PlayerInput, kMaxPlayerCount> inputs) {
-    current_inputs = inputs;
+  void set_inputs(std::span<const PlayerInput, kMaxPlayerCount> inputs) {
+    std::ranges::copy(inputs, current_inputs.begin());
   }
 
   void RollbackFrom(const SimpleGameModel& other) { index = other.index; }
@@ -67,8 +66,7 @@ using TestRollbackManager =
 
 // Helper: tick the speculative model with inputs from the manager at a frame.
 static void SpeculativeTick(SimpleGameModel& model,
-                            TestRollbackManager& manager,
-                            common::Frame frame) {
+                            TestRollbackManager& manager, common::Frame frame) {
   model.set_inputs(manager.input_manager().inputs(frame));
   model.Tick();
 }
@@ -310,7 +308,7 @@ TEST(RollbackManager, ChecksumDiffersAfterDifferentInputs) {
   auto confirm_checksum = manager.ConfirmLastFrame();
 
   // Speculative model uses different inputs: {1, 1}
-  speculative.set_inputs({1, 1});
+  speculative.set_inputs(std::span<const PlayerInput, 2>({1, 1}));
   speculative.Tick();
   auto speculative_checksum = speculative.checksums();
 
