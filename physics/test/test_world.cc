@@ -35,7 +35,7 @@ TEST_F(WorldTest, DynamicBodyMovesAfterTick) {
 }
 
 TEST_F(WorldTest, StaticBodyDoesNotMoveAfterTick) {
-  auto idx = physics::AddStaticBody();
+  auto idx = physics::world().AddStaticBody();
   physics::body_at(idx).position = {50.f, 50.f};
 
   physics::Tick(1.f);
@@ -126,7 +126,7 @@ TEST_F(WorldTest, TriggerDoesNotResolveCollision) {
       idx_ball, {0.f, 0.f}, 1.f, physics::Circle(20.f),
       physics::ShapeType::Circle, true);  // trigger
 
-  auto idx_wall = physics::AddStaticBody();
+  auto idx_wall = physics::world().AddStaticBody();
   physics::body_at(idx_wall).position = {120.f, 100.f};
   [[maybe_unused]] auto col_wall = physics::AddColliderToBody(
       idx_wall, {0.f, 0.f}, 1.f, physics::Circle(20.f),

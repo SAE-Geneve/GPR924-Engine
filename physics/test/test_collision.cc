@@ -142,7 +142,7 @@ TEST_F(CollisionTest, ResolveDynamicVsDynamicEqualMassElastic) {
 
 TEST_F(CollisionTest, ResolveStaticVsDynamicStaticUnaffected) {
   // Dynamic ball moving toward a static wall: wall stays still, ball bounces.
-  auto idx_wall = physics::AddStaticBody();
+  auto idx_wall = physics::world().AddStaticBody();
   physics::body_at(idx_wall).position = {0.f, 0.f};
   auto col_wall = physics::AddColliderToBody(idx_wall, {0.f, 0.f}, 1.f,
                                              physics::Circle(10.f),
@@ -166,13 +166,13 @@ TEST_F(CollisionTest, ResolveStaticVsDynamicStaticUnaffected) {
 }
 
 TEST_F(CollisionTest, ResolveBothStaticNothingMoves) {
-  auto idx_a = physics::AddStaticBody();
+  auto idx_a = physics::world().AddStaticBody();
   physics::body_at(idx_a).position = {0.f, 0.f};
   auto col_a = physics::AddColliderToBody(idx_a, {0.f, 0.f}, 1.f,
                                           physics::Circle(10.f),
                                           physics::ShapeType::Circle, false);
 
-  auto idx_b = physics::AddStaticBody();
+  auto idx_b = physics::world().AddStaticBody();
   physics::body_at(idx_b).position = {15.f, 0.f};
   auto col_b = physics::AddColliderToBody(idx_b, {0.f, 0.f}, 1.f,
                                           physics::Circle(10.f),

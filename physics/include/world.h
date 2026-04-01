@@ -98,6 +98,7 @@ class PhysicsWorld {
   void set_contact_listener(listeners::ContactListener* listener);
 
   [[nodiscard]] core::Index<Body> AddBody(float mass);
+  [[nodiscard]] core::Index<Body> AddStaticBody();
   [[nodiscard]] Body& body_at(core::Index<Body> idx);
   void RemoveBody(core::Index<Body> idx);
 
@@ -133,7 +134,6 @@ QuadTree* quad_tree();
 void set_contact_listener(listeners::ContactListener* listener);
 
 [[nodiscard]] core::Index<Body> AddBody(float mass);
-[[nodiscard]] core::Index<Body> AddStaticBody();
 [[nodiscard]] Body& body_at(core::Index<Body> idx);
 void RemoveBody(core::Index<Body> idx);
 
