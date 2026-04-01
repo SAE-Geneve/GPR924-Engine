@@ -26,19 +26,25 @@ SOFTWARE.
 Contributors: Elias Farhan
 */
 
+#include <sys/stat.h>
+
+#include <cstdint>
 #include <expected>
 #include <span>
 #include <stdexcept>
 #include <vector>
-#include <cstdint>
+
+#include "container/small_vector.h"
 
 namespace common {
 
 class PlayerNumber {
  public:
-  explicit constexpr PlayerNumber(int index):index_(index){}
+  explicit constexpr PlayerNumber(int index) : index_(index) {}
 
-  [[nodiscard]] constexpr size_t index() const { return static_cast<size_t>(index_); }
+  [[nodiscard]] constexpr size_t index() const {
+    return static_cast<size_t>(index_);
+  }
   [[nodiscard]] constexpr int signed_index() const { return index_; }
 
  private:
@@ -47,9 +53,12 @@ class PlayerNumber {
 
 class Frame {
  public:
-  explicit constexpr  Frame(int index):index_(index){}
+  explicit constexpr Frame(int index) : index_(index) {}
+  explicit constexpr Frame(size_t index) : index_(static_cast<int>(index)) {}
 
-  [[nodiscard]] constexpr size_t index() const { return static_cast<size_t>(index_); }
+  [[nodiscard]] constexpr size_t index() const {
+    return static_cast<size_t>(index_);
+  }
   [[nodiscard]] constexpr int signed_index() const { return index_; }
 
  private:
@@ -59,33 +68,63 @@ class Frame {
 template <typename InputT, int kMaxInputHistory, int kMaxPlayerCount>
 class InputManager {
  public:
-  InputManager() {
-    inputs_.resize(kMaxInputHistory);
-  }
+  InputManager() { inputs_.resize(kMaxInputHistory); }
   [[nodiscard]] InputT input(PlayerNumber player_number,
                              Frame current_frame) const {
     return inputs_[current_frame.index()][player_number.index()];
   }
 
-  void set_input(PlayerNumber player_number, InputT input, Frame current_frame) {
-    inputs_[current_frame.index()][player_number.index()] = input;
-    //TODO repeat input up to the end of the array (speculative inputs)
+  void set_input(PlayerNumber player_number, InputT input,
+                 Frame current_frame) {
+    auto& input_metadata = input_metadata_[player_number.index()];
+    bool is_latest_input_receive = false;
+    if (input_metadata.last_received_frame.signed_index() <
+        current_frame.signed_index()) {
+      input_metadata.last_received_frame = current_frame;
+      is_latest_input_receive = true;
+    }
+
+    auto frame_index = index(current_frame);
+    if (frame_index >= kMaxInputHistory) {
+      throw std::runtime_error("Over-capacity of the input history");
+    }
+    if (frame_index > inputs_.size()) {
+      inputs_.resize(
+          kMaxInputHistory,
+          inputs_.back());  // no allocation as we pre-allocated max history
+    }
+    inputs_[frame_index][player_number.index()] = input;
+    if (is_latest_input_receive) {
+      // speculative inputs, we just copy the input further
+      for (; frame_index < inputs_.size(); ++frame_index) {
+        inputs_[frame_index][player_number.index()] = input;
+      }
+    }
   }
 
-  [[nodiscard]] std::pair<std::array<InputT, kMaxInputHistory>, uint8_t> inputs(
+  [[nodiscard]] core::SmallVector<InputT, kMaxInputHistory> inputs(
       PlayerNumber player_number, Frame current_frame) const {
-    (void)player_number;
-    (void)current_frame;
-    throw std::runtime_error("inputs() not implemented");
+    core::SmallVector<InputT, kMaxInputHistory> result;
+    const auto window_size = index(current_frame) + 1;
+    if (window_size > kMaxInputHistory) {
+      throw std::runtime_error("We cannot get more inputs that we store");
+    }
+    for (size_t i = 0; i < window_size; ++i) {
+      result.push_back(inputs_[i][player_number.index()]);
+    }
+    return result;
   }
 
   [[nodiscard]] std::array<InputT, kMaxPlayerCount> inputs(
-      Frame current_frame) const{ return inputs_[current_frame.index()]; }
+      Frame current_frame) const {
+    return inputs_[current_frame.index()];
+  }
 
   [[nodiscard]] Frame last_confirm_frame() const { return last_confirm_frame_; }
   [[nodiscard]] Frame last_received_frame() const {
     auto smaller_frame = Frame(-1);
-    for (size_t player_index = 0; player_index < static_cast<size_t>(kMaxPlayerCount); ++player_index) {
+    for (size_t player_index = 0;
+         player_index < static_cast<size_t>(kMaxPlayerCount); ++player_index) {
       if (input_metadata_[player_index].is_valid &&
           smaller_frame.index() >
               input_metadata_[player_index].last_received_frame.index()) {
@@ -99,11 +138,28 @@ class InputManager {
   }
 
   void set_inputs_from_network(PlayerNumber player_number,
-                               std::span<InputT> inputs, Frame frame) {
-    (void)player_number;
-    (void)inputs;
-    (void)frame;
-    throw std::runtime_error("set_inputs_from_network() not implemented");
+                               std::span<InputT> inputs, Frame current_frame) {
+    const auto window_size = inputs.size();
+    const auto first_frame = current_frame.index() - window_size + 1;
+
+
+
+    for (size_t offset = 0; offset < window_size; ++offset) {
+      const auto frame = Frame{first_frame + offset};
+      const auto last_input_value = input(player_number, frame);
+      if (last_input_value != inputs[offset]) {
+        is_dirty_ = true;
+      }
+      set_input(player_number, inputs[offset], frame);
+    }
+    // Actual speculative input
+    if (current_frame.signed_index() > input_metadata_[player_number.index()]
+                                   .last_received_frame.signed_index()) {
+      const auto frame_index = index(current_frame);
+      for (auto i = frame_index; i < inputs_.size(); ++i) {
+        inputs_[i][player_number.index()] = inputs.back();
+      }
+    }
   }
 
   [[nodiscard]] bool is_valid(PlayerNumber player_number) const {
@@ -113,12 +169,24 @@ class InputManager {
     input_metadata_[player_number.index()].is_valid = valid;
   }
   [[nodiscard]] bool is_dirty() const { return is_dirty_; }
+  void CleanDirty() { is_dirty_ = false; }
+
+  void ConfirmFrame() {
+    inputs_.erase(inputs_.begin());
+    last_confirm_frame_ = Frame{last_confirm_frame_.signed_index() + 1};
+  }
 
  private:
   struct InputMetadata {
     Frame last_received_frame = Frame(-1);
     bool is_valid = false;
   };
+
+  [[nodiscard]] size_t index(Frame current_frame) const {
+    const auto last_confirm_frame_offset =
+        static_cast<size_t>(last_confirm_frame_.signed_index() + 1);
+    return current_frame.index() - last_confirm_frame_offset;
+  }
   std::vector<std::array<InputT, kMaxPlayerCount>> inputs_;
   std::array<InputMetadata, kMaxPlayerCount> input_metadata_{};
   Frame last_confirm_frame_{-1};

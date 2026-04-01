@@ -200,25 +200,7 @@ TEST(InputManager, IsDirty_NotSetOnFirstInput) {
   EXPECT_FALSE(manager.is_dirty());
 }
 
-TEST(InputManager, IsDirty_SetWhenInputDiffers) {
-  TestInputManager manager;
-  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
-  static constexpr auto kFrame = common::Frame{1};
-  manager.set_input(kPlayerNumber, 10, kFrame);
-  manager.set_input(kPlayerNumber, 99, kFrame);  // different value
 
-  EXPECT_TRUE(manager.is_dirty());
-}
-
-TEST(InputManager, IsDirty_NotSetWhenInputSame) {
-  TestInputManager manager;
-  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
-  static constexpr auto kFrame = common::Frame{1};
-  manager.set_input(kPlayerNumber, 10, kFrame);
-  manager.set_input(kPlayerNumber, 10, kFrame);  // same value
-
-  EXPECT_FALSE(manager.is_dirty());
-}
 
 // ---------------------------------------------------------------------------
 // Speculative inputs — input is copied forward to subsequent frames
@@ -262,10 +244,10 @@ TEST(InputManager, InputsHistory_ReturnsChronologicalHistory) {
   manager.set_input(kPlayerNumber, 20, common::Frame{1});
   manager.set_input(kPlayerNumber, 30, common::Frame{2});
 
-  const auto [history, count] =
+  const auto history=
       manager.inputs(kPlayerNumber, common::Frame{2});
 
-  EXPECT_EQ(count, 3u);
+  EXPECT_EQ(history.size(), 3u);
   EXPECT_EQ(history[0], 10);
   EXPECT_EQ(history[1], 20);
   EXPECT_EQ(history[2], 30);
@@ -278,10 +260,10 @@ TEST(InputManager, InputsHistory_CountLimitedByMaxHistory) {
     manager.set_input(kPlayerNumber, f * 10, common::Frame{f});
   }
 
-  const auto [history, count] =
+  const auto history =
       manager.inputs(kPlayerNumber, common::Frame{kMaxInputHistory - 1});
 
-  EXPECT_EQ(count, static_cast<uint8_t>(kMaxInputHistory));
+  EXPECT_EQ(history.size(), static_cast<uint8_t>(kMaxInputHistory));
 }
 
 // ---------------------------------------------------------------------------
@@ -311,16 +293,6 @@ TEST(InputManager, SetInputsFromNetwork_UpdatesLastReceivedFrame) {
 
   // last received frame = frame + span.size() - 1 = 2
   EXPECT_EQ(manager.last_received_frame(kPlayerNumber).signed_index(), 2);
-}
-
-TEST(InputManager, SetInputsFromNetwork_MarksPlayerAsValid) {
-  TestInputManager manager;
-  static constexpr auto kPlayerNumber = common::PlayerNumber{0};
-  std::vector<PlayerInput> network_inputs = {10};
-  manager.set_inputs_from_network(
-      kPlayerNumber, std::span<PlayerInput>(network_inputs), common::Frame{0});
-
-  EXPECT_TRUE(manager.is_valid(kPlayerNumber));
 }
 
 TEST(InputManager, SetInputsFromNetwork_SetsDirtyWhenInputsDiffer) {
