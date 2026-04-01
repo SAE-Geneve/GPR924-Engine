@@ -2,6 +2,7 @@
 
 #include "world.h"
 
+#include <algorithm>
 #include <unordered_set>
 #include <vector>
 
@@ -64,7 +65,10 @@ Collider& PhysicsWorld::collider_at(core::Index<Collider> idx) {
 
 void PhysicsWorld::RemoveCollider(core::Index<Collider> idx) {
   if (listener_) {
-    for (auto& pair : overlapped_colliders_) {
+    std::vector<CollidersPair> sorted_overlaps(overlapped_colliders_.begin(),
+                                               overlapped_colliders_.end());
+    std::sort(sorted_overlaps.begin(), sorted_overlaps.end());
+    for (auto& pair : sorted_overlaps) {
       if (pair.collider_idx1 == idx || pair.collider_idx2 == idx) {
         Collider& c1 = colliders_.At(pair.collider_idx1);
         Collider& c2 = colliders_.At(pair.collider_idx2);
@@ -185,7 +189,10 @@ void PhysicsWorld::CheckForOverlap() {
     }
   }
 
-  for (auto& p : previously_overlapped_colliders_) {
+  std::vector<CollidersPair> sorted_prev(previously_overlapped_colliders_.begin(),
+                                         previously_overlapped_colliders_.end());
+  std::sort(sorted_prev.begin(), sorted_prev.end());
+  for (auto& p : sorted_prev) {
     if (!overlapped_colliders_.contains(p)) {
       Collider& c1 = colliders_.At(p.collider_idx1);
       Collider& c2 = colliders_.At(p.collider_idx2);
@@ -198,7 +205,10 @@ void PhysicsWorld::CheckForOverlap() {
 }
 
 void PhysicsWorld::ResolveCollisions() {
-  for (auto& pair : overlapped_colliders_) {
+  std::vector<CollidersPair> sorted_overlaps(overlapped_colliders_.begin(),
+                                             overlapped_colliders_.end());
+  std::sort(sorted_overlaps.begin(), sorted_overlaps.end());
+  for (auto& pair : sorted_overlaps) {
     Collider& c1 = colliders_.At(pair.collider_idx1);
     Collider& c2 = colliders_.At(pair.collider_idx2);
     if (!c1.is_trigger && !c2.is_trigger) {

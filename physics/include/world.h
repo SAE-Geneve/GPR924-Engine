@@ -62,6 +62,15 @@ struct CollidersPair {
     if (a2 > b2) std::swap(a2, b2);
     return a1 == a2 && b1 == b2;
   }
+
+  bool operator<(const CollidersPair& other) const {
+    auto a1 = collider_idx1.index(), b1 = collider_idx2.index();
+    if (a1 > b1) std::swap(a1, b1);
+    auto a2 = other.collider_idx1.index(), b2 = other.collider_idx2.index();
+    if (a2 > b2) std::swap(a2, b2);
+    if (a1 != a2) return a1 < a2;
+    return b1 < b2;
+  }
 };
 
 struct ColliderPairHash {
