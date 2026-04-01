@@ -38,6 +38,7 @@ Contributors: Elias Farhan
 
 namespace common {
 
+// Strongly-typed wrapper for a player index.
 class PlayerNumber {
  public:
   explicit constexpr PlayerNumber(int index) : index_(index) {}
@@ -51,6 +52,7 @@ class PlayerNumber {
   int index_;
 };
 
+// Strongly-typed wrapper for a frame number in the simulation timeline.
 class Frame {
  public:
   explicit constexpr Frame(int index) : index_(index) {}
@@ -65,10 +67,14 @@ class Frame {
   int index_;
 };
 
+// Manages per-player input history for rollback netcode, supporting speculative
+// inputs and network synchronization.
 template <typename InputT, int kMaxInputHistory, int kMaxPlayerCount>
 class InputManager {
  public:
   InputManager() { inputs_.resize(kMaxInputHistory); }
+  // Returns the input for the given player at the given frame. Falls back to
+  // the latest stored input if the frame is beyond history.
   [[nodiscard]] InputT input(PlayerNumber player_number,
                              Frame current_frame) const {
     const auto frame_index = index(current_frame);
@@ -78,6 +84,9 @@ class InputManager {
     return inputs_[frame_index][player_number.index()];
   }
 
+  // Sets the input for a player at a specific frame. If this is the latest
+  // received frame for that player, propagates the input forward as speculative
+  // input for all subsequent stored frames.
   void set_input(PlayerNumber player_number, InputT input,
                  Frame current_frame) {
     auto& input_metadata = input_metadata_[player_number.index()];
@@ -106,6 +115,8 @@ class InputManager {
     }
   }
 
+  // Returns a vector of all inputs for a player from the first stored frame up
+  // to and including the given frame.
   [[nodiscard]] core::SmallVector<InputT, kMaxInputHistory> inputs(
       PlayerNumber player_number, Frame current_frame) const {
     core::SmallVector<InputT, kMaxInputHistory> result;
@@ -119,6 +130,7 @@ class InputManager {
     return result;
   }
 
+  // Returns a span of all player inputs for a single frame.
   [[nodiscard]] std::span<const InputT, kMaxPlayerCount> inputs(
       Frame current_frame) const {
     return std::span<const InputT, kMaxPlayerCount>(inputs_[index(current_frame)]);
@@ -141,6 +153,9 @@ class InputManager {
     return input_metadata_[player_number.index()].last_received_frame;
   }
 
+  // Applies a batch of inputs received from the network for a player. Marks
+  // the manager as dirty if any input differs from the previously stored value,
+  // and updates speculative inputs for frames beyond the received window.
   void set_inputs_from_network(PlayerNumber player_number,
                                std::span<InputT> inputs, Frame current_frame) {
     const auto window_size = inputs.size();
@@ -173,8 +188,10 @@ class InputManager {
     input_metadata_[player_number.index()].is_valid = valid;
   }
   [[nodiscard]] bool is_dirty() const { return is_dirty_; }
+// Resets the dirty flag after a rollback-and-resimulate has been performed.
 void CleanDirty() { is_dirty_ = false; }
 
+  // Advances the confirmed frame by one, discarding the oldest stored frame.
   void ConfirmFrame() {
     inputs_.erase(inputs_.begin());
     last_confirm_frame_ = Frame{last_confirm_frame_.signed_index() + 1};

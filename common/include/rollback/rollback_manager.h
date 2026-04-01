@@ -29,6 +29,8 @@ Contributors: Elias Farhan
 */
 
 namespace common {
+// Requires a game model to support rollback from a confirmed state, input
+// injection, and tick-based simulation.
 template <typename ModelT, typename PlayerInputT, int kMaxPlayerCount>
 concept RollbackableModel =
     requires(const ModelT& confirm_model, ModelT& speculative_model,
@@ -37,6 +39,7 @@ concept RollbackableModel =
       { speculative_model.Tick() };
       { speculative_model.set_inputs(player_input) };
     };
+// Requires a game model to produce checksums for desync detection.
 template <typename GameModelT, int kChecksumSystemCount>
 concept ConfirmableGameModel = requires(const GameModelT& game_model) {
   {
@@ -44,10 +47,14 @@ concept ConfirmableGameModel = requires(const GameModelT& game_model) {
   } -> std::convertible_to<Checksum<kChecksumSystemCount>>;
 };
 
+// Orchestrates rollback netcode by managing a confirmed game model, an input
+// manager, and providing rollback-and-resimulate logic.
 template <typename GameModelT, typename PlayerInputT, int kMaxInputHistory,
           int kMaxPlayerCount, int kChecksumSystemCount>
 class RollbackManager {
  public:
+  // Advances the confirmed game model by one frame using confirmed inputs and
+  // returns the resulting checksums for desync detection.
   Checksum<kChecksumSystemCount> ConfirmLastFrame() {
     confirm_game_model_.set_inputs(input_manager_.inputs(
         Frame{input_manager_.last_confirm_frame().signed_index() + 1}));
@@ -56,6 +63,9 @@ class RollbackManager {
     return confirm_game_model_.checksums();
   }
 
+  // Resets the given game model to the confirmed state and re-simulates all
+  // frames from the last confirmed frame up to the current frame using stored
+  // inputs.
   void RollbackAndResimulate(GameModelT& current_game_model,
                              Frame current_frame) {
     current_game_model.RollbackFrom(confirm_game_model_);

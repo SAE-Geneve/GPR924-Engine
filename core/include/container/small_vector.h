@@ -56,27 +56,26 @@ class SmallVector {
   }
 
   constexpr void clear() {
-    if constexpr (std::is_destructible_v<T>) {
-      for (std::size_t i = 0; i < size_; i++) {
-        underlying_container_[i].~T();
-      }
+    for (std::size_t i = 0; i < size_; i++) {
+      underlying_container_[i] = T{};
     }
     size_ = 0;
   }
 
   constexpr void resize(std::size_t newSize) {
+    if (newSize > kCapacity) {
+      throw std::runtime_error("Over-capacity");
+    }
     if (size_ == newSize) {
       return;
     }
     if (size_ < newSize) {
       for (auto i = size_; i < newSize; i++) {
-        underlying_container_[i] = {};
+        underlying_container_[i] = T{};
       }
     } else {
-      if constexpr (std::is_destructible_v<T>) {
-        for (auto i = newSize; i < size_; i++) {
-          underlying_container_[i].~T();
-        }
+      for (auto i = newSize; i < size_; i++) {
+        underlying_container_[i] = T{};
       }
     }
     size_ = newSize;
@@ -96,8 +95,9 @@ class SmallVector {
       // Over-capacity leads to a crash
       throw std::runtime_error("Over-capacity");
     }
-    const auto index = std::distance(cbegin(), pos);
-    for (auto i = static_cast<std::ptrdiff_t>(size_); i > index; i--) {
+    const auto index =
+        static_cast<std::size_t>(std::distance(cbegin(), pos));
+    for (auto i = size_; i > index; i--) {
       underlying_container_[i] = std::move(underlying_container_[i - 1]);
     }
     underlying_container_[index] = value;
@@ -111,8 +111,9 @@ class SmallVector {
       // Over-capacity leads to a crash
       throw std::runtime_error("Over-capacity");
     }
-    const auto index = std::distance(cbegin(), pos);
-    for (auto i = static_cast<std::ptrdiff_t>(size_); i > index; i--) {
+    const auto index =
+        static_cast<std::size_t>(std::distance(cbegin(), pos));
+    for (auto i = size_; i > index; i--) {
       underlying_container_[i] = std::move(underlying_container_[i - 1]);
     }
     underlying_container_[index] = std::move(value);
@@ -141,15 +142,28 @@ class SmallVector {
 
   constexpr T& front() { return underlying_container_.front(); }
   constexpr const T& front() const { return underlying_container_.front(); }
+  constexpr T& back() { return underlying_container_[size_ - 1]; }
+  constexpr const T& back() const { return underlying_container_[size_ - 1]; }
+
+  constexpr void pop_back() {
+    if (size_ == 0) {
+      throw std::runtime_error("pop_back on empty SmallVector");
+    }
+    underlying_container_[size_ - 1] = T{};
+    --size_;
+  }
+
   constexpr auto data() noexcept { return underlying_container_.data(); }
   [[nodiscard]] constexpr bool is_full() const { return size_ == kCapacity; }
   [[nodiscard]] constexpr bool is_empty() const { return size_ == 0; }
 
-  bool operator==(const SmallVector& other) const {
+  constexpr bool operator==(const SmallVector& other) const {
     return size_ == other.size_ &&
-           underlying_container_ == other.underlying_container_;
+           std::equal(begin(), end(), other.begin());
   }
-  bool operator!=(const SmallVector& other) const { return !operator==(other); }
+  constexpr bool operator!=(const SmallVector& other) const {
+    return !operator==(other);
+  }
 
  private:
   std::array<T, kCapacity> underlying_container_{};
