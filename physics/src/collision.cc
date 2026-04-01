@@ -11,8 +11,8 @@ namespace physics {
 
 static std::optional<Contact> CircleCircleContact(core::Index<Collider> a,
                                                   core::Index<Collider> b) {
-  auto& cA = GetColliderAt(a);
-  auto& cB = GetColliderAt(b);
+  auto& cA = collider_at(a);
+  auto& cB = collider_at(b);
   core::Vec2F posA = cA.body().position + cA.offset;
   core::Vec2F posB = cB.body().position + cB.offset;
   float rA = std::get<Circle>(cA.shape).radius;
@@ -34,8 +34,8 @@ static std::optional<Contact> CircleCircleContact(core::Index<Collider> a,
   contact.penetration = penetration;
   contact.contact_point = posA + normal * (rA - penetration * 0.5f);
   // Ensure normal always goes from A → B
-  core::Vec2F AB = (GetColliderAt(contact.collider_idxB).body().position + GetColliderAt(contact.collider_idxB).offset)
-                 - (GetColliderAt(contact.collider_idxA).body().position + GetColliderAt(contact.collider_idxA).offset);
+  core::Vec2F AB = (collider_at(contact.collider_idxB).body().position + collider_at(contact.collider_idxB).offset)
+                 - (collider_at(contact.collider_idxA).body().position + collider_at(contact.collider_idxA).offset);
   if (contact.normal.Dot(AB) < 0.0f)
     contact.normal = -contact.normal;
   return contact;
@@ -43,8 +43,8 @@ static std::optional<Contact> CircleCircleContact(core::Index<Collider> a,
 
 static std::optional<Contact> AABB_AABB_Contact(core::Index<Collider> a,
                                                 core::Index<Collider> b) {
-  auto& cA = GetColliderAt(a);
-  auto& cB = GetColliderAt(b);
+  auto& cA = collider_at(a);
+  auto& cB = collider_at(b);
   core::Vec2F posA = cA.body().position + cA.offset;
   core::Vec2F posB = cB.body().position + cB.offset;
   core::Vec2F aSize{std::get<AABB>(cA.shape).width(), std::get<AABB>(cA.shape).height()};
@@ -75,8 +75,8 @@ static std::optional<Contact> AABB_AABB_Contact(core::Index<Collider> a,
     contact.contact_point = core::Vec2F{cx, cy};
   }
   // Ensure normal always goes from A → B
-  core::Vec2F AB = (GetColliderAt(contact.collider_idxB).body().position + GetColliderAt(contact.collider_idxB).offset)
-                 - (GetColliderAt(contact.collider_idxA).body().position + GetColliderAt(contact.collider_idxA).offset);
+  core::Vec2F AB = (collider_at(contact.collider_idxB).body().position + collider_at(contact.collider_idxB).offset)
+                 - (collider_at(contact.collider_idxA).body().position + collider_at(contact.collider_idxA).offset);
   if (contact.normal.Dot(AB) < 0.0f)
     contact.normal = -contact.normal;
   return contact;
@@ -85,8 +85,8 @@ static std::optional<Contact> AABB_AABB_Contact(core::Index<Collider> a,
 static std::optional<Contact> CircleAABBContact(core::Index<Collider> circIdx,
                                                 core::Index<Collider> aabbIdx,
                                                 bool circleIsA) {
-  auto& cC = GetColliderAt(circIdx);
-  auto& cR = GetColliderAt(aabbIdx);
+  auto& cC = collider_at(circIdx);
+  auto& cR = collider_at(aabbIdx);
 
   core::Vec2F circlePos = cC.body().position + cC.offset;
   core::Vec2F aabbPos = cR.body().position + cR.offset;
@@ -122,8 +122,8 @@ static std::optional<Contact> CircleAABBContact(core::Index<Collider> circIdx,
   contact.penetration = r - dist;
   contact.contact_point = aabbPos + closest;
   // Ensure normal always goes from A → B
-  core::Vec2F AB = (GetColliderAt(contact.collider_idxB).body().position + GetColliderAt(contact.collider_idxB).offset)
-                 - (GetColliderAt(contact.collider_idxA).body().position + GetColliderAt(contact.collider_idxA).offset);
+  core::Vec2F AB = (collider_at(contact.collider_idxB).body().position + collider_at(contact.collider_idxB).offset)
+                 - (collider_at(contact.collider_idxA).body().position + collider_at(contact.collider_idxA).offset);
   if (contact.normal.Dot(AB) < 0.0f)
     contact.normal = -contact.normal;
   return contact;
@@ -131,8 +131,8 @@ static std::optional<Contact> CircleAABBContact(core::Index<Collider> circIdx,
 
 std::optional<Contact> GenerateContact(core::Index<Collider> idxA,
                                        core::Index<Collider> idxB) {
-  auto& cA = GetColliderAt(idxA);
-  auto& cB = GetColliderAt(idxB);
+  auto& cA = collider_at(idxA);
+  auto& cB = collider_at(idxB);
 
   if (cA.shape_type == ShapeType::Circle && cB.shape_type == ShapeType::Circle)
     return CircleCircleContact(idxA, idxB);
@@ -150,8 +150,8 @@ std::optional<Contact> GenerateContact(core::Index<Collider> idxA,
 }
 
 void ResolveCollision(Contact& contact, float restitution) {
-  auto& colA = GetColliderAt(contact.collider_idxA);
-  auto& colB = GetColliderAt(contact.collider_idxB);
+  auto& colA = collider_at(contact.collider_idxA);
+  auto& colB = collider_at(contact.collider_idxB);
   Body& A = colA.body();
   Body& B = colB.body();
 

@@ -97,7 +97,7 @@ void SolarSample::End() {
     physics::RemoveBody(p.bodyIndex());
   }
   planets_.clear();
-  physics::SetContactListener(nullptr);
+  physics::set_contact_listener(nullptr);
   common::DrawObserverSubject::RemoveObserver(this);
 }
 

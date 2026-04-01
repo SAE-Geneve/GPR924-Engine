@@ -83,19 +83,19 @@ struct Contact {
 // State is isolated in member variables so it can be snapshotted for rollback.
 class PhysicsWorld {
  public:
-  void SetBounds(const AABB& bounds);
-  const AABB& GetBounds() const;
-  QuadTree* GetQuadTree() const;
-  void SetContactListener(listeners::ContactListener* listener);
+  void set_bounds(const AABB& bounds);
+  const AABB& bounds() const;
+  QuadTree* quad_tree() const;
+  void set_contact_listener(listeners::ContactListener* listener);
 
   [[nodiscard]] core::Index<Body> AddBody(float mass);
-  [[nodiscard]] Body& GetBodyAt(core::Index<Body> idx);
+  [[nodiscard]] Body& body_at(core::Index<Body> idx);
   void RemoveBody(core::Index<Body> idx);
 
   [[nodiscard]] core::Index<Collider> AddCollider(
       core::Index<Body> body_idx, core::Vec2F offset, float restitution,
       Shape shape, ShapeType shape_type, bool is_trigger);
-  [[nodiscard]] Collider& GetColliderAt(core::Index<Collider> idx);
+  [[nodiscard]] Collider& collider_at(core::Index<Collider> idx);
   void RemoveCollider(core::Index<Collider> idx);
 
   void Tick(float dt);
@@ -116,21 +116,21 @@ class PhysicsWorld {
   std::unordered_set<CollidersPair, ColliderPairHash> previously_overlapped_colliders_;
 };
 
-PhysicsWorld& GetWorld();
+PhysicsWorld& world();
 
-void SetWorldBounds(const AABB& bounds);
-const AABB& GetWorldBounds();
-QuadTree* GetQuadTree();
-void SetContactListener(listeners::ContactListener* listener);
+void set_world_bounds(const AABB& bounds);
+const AABB& world_bounds();
+QuadTree* quad_tree();
+void set_contact_listener(listeners::ContactListener* listener);
 
 [[nodiscard]] core::Index<Body> AddBody(float mass);
-[[nodiscard]] Body& GetBodyAt(core::Index<Body> idx);
+[[nodiscard]] Body& body_at(core::Index<Body> idx);
 void RemoveBody(core::Index<Body> idx);
 
 [[nodiscard]] core::Index<Collider> AddColliderToBody(
     core::Index<Body> body_idx, core::Vec2F offset, float restitution,
     Shape shape, ShapeType shape_type, bool is_trigger);
-[[nodiscard]] Collider& GetColliderAt(core::Index<Collider> idx);
+[[nodiscard]] Collider& collider_at(core::Index<Collider> idx);
 void RemoveCollider(core::Index<Collider> idx);
 
 void Tick(float dt);

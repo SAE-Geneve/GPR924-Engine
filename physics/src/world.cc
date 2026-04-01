@@ -20,20 +20,20 @@ namespace physics {
 
 static PhysicsWorld g_world;
 
-PhysicsWorld& GetWorld() { return g_world; }
+PhysicsWorld& world() { return g_world; }
 
-Body& Collider::body() const { return g_world.GetBodyAt(body_idx); }
+Body& Collider::body() const { return g_world.body_at(body_idx); }
 
-void PhysicsWorld::SetBounds(const AABB& b) {
+void PhysicsWorld::set_bounds(const AABB& b) {
   bounds_ = b;
   quadtree_ = std::make_unique<QuadTree>(0, bounds_);
 }
 
-const AABB& PhysicsWorld::GetBounds() const { return bounds_; }
+const AABB& PhysicsWorld::bounds() const { return bounds_; }
 
-QuadTree* PhysicsWorld::GetQuadTree() const { return quadtree_.get(); }
+QuadTree* PhysicsWorld::quad_tree() const { return quadtree_.get(); }
 
-void PhysicsWorld::SetContactListener(listeners::ContactListener* l) {
+void PhysicsWorld::set_contact_listener(listeners::ContactListener* l) {
   listener_ = l;
 }
 
@@ -41,7 +41,7 @@ core::Index<Body> PhysicsWorld::AddBody(float mass) {
   return bodies_.Add(Body(mass));
 }
 
-Body& PhysicsWorld::GetBodyAt(core::Index<Body> idx) {
+Body& PhysicsWorld::body_at(core::Index<Body> idx) {
   return bodies_.At(idx);
 }
 
@@ -58,7 +58,7 @@ core::Index<Collider> PhysicsWorld::AddCollider(
   return idx;
 }
 
-Collider& PhysicsWorld::GetColliderAt(core::Index<Collider> idx) {
+Collider& PhysicsWorld::collider_at(core::Index<Collider> idx) {
   return colliders_.At(idx);
 }
 
@@ -228,15 +228,15 @@ void PhysicsWorld::Tick(float dt) {
   ResolveCollisions();
 }
 
-void SetWorldBounds(const AABB& b) { g_world.SetBounds(b); }
-const AABB& GetWorldBounds() { return g_world.GetBounds(); }
-QuadTree* GetQuadTree() { return g_world.GetQuadTree(); }
-void SetContactListener(listeners::ContactListener* l) {
-  g_world.SetContactListener(l);
+void set_world_bounds(const AABB& b) { g_world.set_bounds(b); }
+const AABB& world_bounds() { return g_world.bounds(); }
+QuadTree* quad_tree() { return g_world.quad_tree(); }
+void set_contact_listener(listeners::ContactListener* l) {
+  g_world.set_contact_listener(l);
 }
 
 core::Index<Body> AddBody(float mass) { return g_world.AddBody(mass); }
-Body& GetBodyAt(core::Index<Body> idx) { return g_world.GetBodyAt(idx); }
+Body& body_at(core::Index<Body> idx) { return g_world.body_at(idx); }
 void RemoveBody(core::Index<Body> idx) { g_world.RemoveBody(idx); }
 
 core::Index<Collider> AddColliderToBody(core::Index<Body> body_idx,
@@ -246,8 +246,8 @@ core::Index<Collider> AddColliderToBody(core::Index<Body> body_idx,
   return g_world.AddCollider(body_idx, offset, restitution, shape, shape_type,
                              is_trigger);
 }
-Collider& GetColliderAt(core::Index<Collider> idx) {
-  return g_world.GetColliderAt(idx);
+Collider& collider_at(core::Index<Collider> idx) {
+  return g_world.collider_at(idx);
 }
 void RemoveCollider(core::Index<Collider> idx) { g_world.RemoveCollider(idx); }
 
