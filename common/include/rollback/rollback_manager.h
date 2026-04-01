@@ -33,8 +33,10 @@ namespace common {
 // injection, and tick-based simulation.
 template <typename ModelT, typename PlayerInputT, int kMaxPlayerCount>
 concept RollbackableModel =
-    requires(const ModelT& confirm_model, ModelT& speculative_model) {
+    requires(const ModelT& confirm_model, ModelT& speculative_model, std::span<const PlayerInputT, kMaxPlayerCount> player_input) {
       { speculative_model.RollbackFrom(confirm_model) };
+      { speculative_model.Tick() };
+      { speculative_model.set_inputs(player_input) };
     };
 // Requires a game model to produce checksums for desync detection.
 template <typename GameModelT, int kChecksumSystemCount>
@@ -78,6 +80,9 @@ class RollbackManager {
   const auto& input_manager() const { return input_manager_; }
 
  private:
+  static_assert(
+      RollbackableModel<GameModelT, PlayerInputT, kMaxPlayerCount>,
+      "GameModel needs to implement RollbackFrom(), set_inputs(), and Tick()");
   static_assert(ConfirmableGameModel<GameModelT, kChecksumSystemCount>,
                 "GameModel should have a checksums() method that calculates "
                 "the current checksums");
