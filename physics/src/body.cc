@@ -16,6 +16,8 @@ void Body::AddForce(core::Vec2F force) {
 }
 
 void Body::Tick(float dt) {
+  if (is_static) return;
+
   core::Vec2F acceleration = accumulated_force / mass_;
 
   velocity_ += acceleration * dt;
