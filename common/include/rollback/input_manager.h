@@ -133,7 +133,7 @@ class InputManager {
   // Returns a span of all player inputs for a single frame.
   [[nodiscard]] std::span<const InputT, kMaxPlayerCount> inputs(
       Frame current_frame) const {
-    return std::span<const InputT, kMaxPlayerCount>(inputs_[index(current_frame)]);
+    return inputs_[index(current_frame)];
   }
 
   [[nodiscard]] Frame last_confirm_frame() const { return last_confirm_frame_; }

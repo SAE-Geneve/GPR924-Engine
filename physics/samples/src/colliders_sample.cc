@@ -282,7 +282,7 @@ namespace colliders {
         };
 
         for (auto& w : walls) {
-            core::Index<physics::Body> body_idx = physics::AddStaticBody();
+            core::Index<physics::Body> body_idx = physics::world().AddStaticBody();
             physics::body_at(body_idx).position = w.pos;
             physics::AABB aabb(w.size);
             core::Index<physics::Collider> collider_idx = physics::AddColliderToBody(

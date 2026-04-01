@@ -42,6 +42,12 @@ core::Index<Body> PhysicsWorld::AddBody(float mass) {
   return bodies_.Add(Body(mass));
 }
 
+core::Index<Body> PhysicsWorld::AddStaticBody() {
+  core::Index<Body> idx = AddBody(0.f);
+  bodies_.At(idx).is_static = true;
+  return idx;
+}
+
 Body& PhysicsWorld::body_at(core::Index<Body> idx) {
   return bodies_.At(idx);
 }
@@ -246,12 +252,6 @@ void set_contact_listener(listeners::ContactListener* l) {
 }
 
 core::Index<Body> AddBody(float mass) { return g_world.AddBody(mass); }
-
-core::Index<Body> AddStaticBody() {
-  core::Index<Body> idx = g_world.AddBody(0.f);
-  g_world.body_at(idx).is_static = true;
-  return idx;
-}
 
 Body& body_at(core::Index<Body> idx) { return g_world.body_at(idx); }
 void RemoveBody(core::Index<Body> idx) { g_world.RemoveBody(idx); }
