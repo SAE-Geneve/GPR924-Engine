@@ -20,7 +20,7 @@ namespace utils {
             : collider_idx(collider_idx_), color(color_) {}
 
         [[nodiscard]] physics::Collider& collider() const {
-            return get_collider_at(collider_idx);
+            return collider_at(collider_idx);
         }
         [[nodiscard]] physics::Body& body() const { return collider().body(); }
         [[nodiscard]] physics::Circle& circle() const {

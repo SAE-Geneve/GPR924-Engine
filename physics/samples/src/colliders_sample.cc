@@ -79,8 +79,8 @@ namespace colliders {
 
         utils::RenderedObject r{collider_idx, color};
 
-        physics::get_body_at(body_idx).position = pos;
-        physics::get_body_at(body_idx).Velocity(vel);
+        physics::body_at(body_idx).position = pos;
+        physics::body_at(body_idx).Velocity(vel);
 
         rendered_objects_.emplace_back(r);
     }
@@ -96,8 +96,8 @@ namespace colliders {
 
         utils::RenderedObject r{collider_idx, color};
 
-        physics::get_body_at(body_idx).position = pos;
-        physics::get_body_at(body_idx).Velocity(vel);
+        physics::body_at(body_idx).position = pos;
+        physics::body_at(body_idx).Velocity(vel);
 
         rendered_objects_.emplace_back(r);
     }
@@ -305,8 +305,8 @@ namespace colliders {
 
     void CollidersSample::OnTriggerEnter(physics::CollidersPair cols) {
         for (auto &r: rendered_objects_) {
-            if (r.body_idx() == physics::get_collider_at(cols.collider_idx1).body_idx ||
-                r.body_idx() == physics::get_collider_at(cols.collider_idx2).body_idx) {
+            if (r.body_idx() == physics::collider_at(cols.collider_idx1).body_idx ||
+                r.body_idx() == physics::collider_at(cols.collider_idx2).body_idx) {
                 r.trigger_count++;
             }
         }
@@ -314,8 +314,8 @@ namespace colliders {
 
     void CollidersSample::OnTriggerExit(physics::CollidersPair cols) {
         for (auto &r: rendered_objects_) {
-            if (r.body_idx() == physics::get_collider_at(cols.collider_idx1).body_idx ||
-                r.body_idx() == physics::get_collider_at(cols.collider_idx2).body_idx) {
+            if (r.body_idx() == physics::collider_at(cols.collider_idx1).body_idx ||
+                r.body_idx() == physics::collider_at(cols.collider_idx2).body_idx) {
                 if (r.trigger_count > 0) {
                     r.trigger_count--;
                 }
@@ -325,8 +325,8 @@ namespace colliders {
 
     void CollidersSample::OnColliderEnter(physics::CollidersPair cols) {
         for (auto &r: rendered_objects_) {
-            if (r.body_idx() == physics::get_collider_at(cols.collider_idx1).body_idx ||
-                r.body_idx() == physics::get_collider_at(cols.collider_idx2).body_idx) {
+            if (r.body_idx() == physics::collider_at(cols.collider_idx1).body_idx ||
+                r.body_idx() == physics::collider_at(cols.collider_idx2).body_idx) {
                 r.collision_count++;
             }
         }
@@ -334,8 +334,8 @@ namespace colliders {
 
     void CollidersSample::OnColliderExit(physics::CollidersPair cols) {
         for (auto &r: rendered_objects_) {
-            if (r.body_idx() == physics::get_collider_at(cols.collider_idx1).body_idx ||
-                r.body_idx() == physics::get_collider_at(cols.collider_idx2).body_idx) {
+            if (r.body_idx() == physics::collider_at(cols.collider_idx1).body_idx ||
+                r.body_idx() == physics::collider_at(cols.collider_idx2).body_idx) {
                 if (r.collision_count > 0) {
                     r.collision_count--;
                 }
@@ -346,7 +346,7 @@ namespace colliders {
     void CollidersSample::Draw() {
         if (const auto *renderer = common::GetRenderer(); !renderer) return;
         if (show_quadtree) {
-            if (auto *qt = physics::GetQuadTree()) {
+            if (auto *qt = physics::quad_tree()) {
                 debug::DrawQuadTree(*qt);
             }
         }

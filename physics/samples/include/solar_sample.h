@@ -53,7 +53,7 @@ public:
   [[nodiscard]] float orbitAngle() const { return orbit_angle_; }
   [[nodiscard]] float orbitRadius() const { return orbit_radius_; }
   [[nodiscard]] core::Index<physics::Body> bodyIndex() const { return body_index_; }
-  [[nodiscard]] physics::Body& body() const { return physics::get_body_at(body_index_); }
+  [[nodiscard]] physics::Body& body() const { return physics::body_at(body_index_); }
   [[nodiscard]] std::string name() const { return name_; }
 };
 

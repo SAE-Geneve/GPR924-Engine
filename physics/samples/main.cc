@@ -17,7 +17,7 @@ int main() {
   windowConfig.height = WindowHeight;
   common::SetWindowConfig(windowConfig);
 
-  physics::SetWorldBounds(physics::AABB({0,0}, {WindowWidth, WindowHeight}));
+  physics::set_world_bounds(physics::AABB({0,0}, {WindowWidth, WindowHeight}));
 
   browser::SamplesBrowser Browser{{WindowWidth, WindowHeight}};
   common::SystemObserverSubject::AddObserver(&Browser);
