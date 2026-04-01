@@ -28,19 +28,19 @@ Contributors: Elias Farhan
 */
 
 namespace common {
-template <typename GameModelT>
-concept game_model = requires(const GameModelT& confirm_game_model,
-                              GameModelT& speculative_game_model) {
-  { speculative_game_model.RollbackFrom(confirm_game_model) };
+template <typename ModelT>
+concept RollbackableModel = requires(const ModelT& confirm_model,
+                              ModelT& speculative_model) {
+  { speculative_model.RollbackFrom(confirm_model) };
 };
 template <typename GameModelT, int kChecksumSystemCount>
-concept confirmable_game_model = requires(const GameModelT& game_model) {
+concept ConfirmableGameModel = requires(const GameModelT& game_model) {
   {
     game_model.checksums()
   } -> std::convertible_to<Checksum<kChecksumSystemCount>>;
 };
 
-template <game_model GameModelT, int kChecksumSystemCount>
+template <RollbackableModel GameModelT, int kChecksumSystemCount>
 class RollbackManager {
  public:
   Checksum<kChecksumSystemCount> ConfirmLastFrame() {
@@ -53,7 +53,7 @@ class RollbackManager {
   }
 
  private:
-  static_assert(confirmable_game_model<GameModelT, kChecksumSystemCount>,
+  static_assert(ConfirmableGameModel<GameModelT, kChecksumSystemCount>,
                 "GameModel should have a checksums() method that calculates "
                 "the current checksums");
   GameModelT confirm_game_model_;
