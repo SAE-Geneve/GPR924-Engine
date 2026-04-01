@@ -1,6 +1,6 @@
-﻿//
 // Created by hugze on 20.10.2025.
-//
+
+#include "world.h"
 
 #include <unordered_set>
 #include <vector>
@@ -9,245 +9,248 @@
 #include "contact_listener.h"
 #include "maths/geometry.h"
 
-template<typename T>
-struct std::hash<core::Index<T>> {
-    std::size_t operator()(const core::Index<T> &id) const {
-        return std::hash<size_t>()(id.index());
-    }
+template <>
+struct std::hash<core::Index<physics::Collider>> {
+  std::size_t operator()(const core::Index<physics::Collider>& id) const {
+    return std::hash<size_t>()(id.index());
+  }
 };
 
 namespace physics {
-    namespace {
-        core::IndexedContainer<Body> bodies;
-        core::IndexedContainer<Collider> colliders;
 
-        listeners::ContactListener *listener = nullptr;
-        std::unordered_set<CollidersPair, ColliderPairHash> overlapped_colliders_;
-        std::unordered_set<CollidersPair, ColliderPairHash> previously_overlapped_colliders_;
+static PhysicsWorld g_world;
 
-        AABB world_bounds{{0, 0}, {1000, 1000}}; // default
-        std::unique_ptr<QuadTree> collision_tree = nullptr;
-    } // namespace
+PhysicsWorld& GetWorld() { return g_world; }
 
+Body& Collider::body() const { return g_world.GetBodyAt(body_idx); }
 
-    void SetWorldBounds(const AABB &b) {
-        world_bounds = b;
-        collision_tree = std::make_unique<QuadTree>(0, world_bounds);
+void PhysicsWorld::SetBounds(const AABB& b) {
+  bounds_ = b;
+  quadtree_ = std::make_unique<QuadTree>(0, bounds_);
+}
+
+const AABB& PhysicsWorld::GetBounds() const { return bounds_; }
+
+QuadTree* PhysicsWorld::GetQuadTree() const { return quadtree_.get(); }
+
+void PhysicsWorld::SetContactListener(listeners::ContactListener* l) {
+  listener_ = l;
+}
+
+core::Index<Body> PhysicsWorld::AddBody(float mass) {
+  return bodies_.Add(Body(mass));
+}
+
+Body& PhysicsWorld::GetBodyAt(core::Index<Body> idx) {
+  return bodies_.At(idx);
+}
+
+void PhysicsWorld::RemoveBody(core::Index<Body> idx) { bodies_.Remove(idx); }
+
+core::Index<Collider> PhysicsWorld::AddCollider(
+    core::Index<Body> body_idx, core::Vec2F offset, float restitution,
+    Shape shape, ShapeType shape_type, bool is_trigger) {
+  Collider collider(body_idx, offset, shape, shape_type);
+  core::Index<Collider> idx = colliders_.Add(collider);
+  colliders_.At(idx).collider_idx = idx;
+  colliders_.At(idx).is_trigger = is_trigger;
+  colliders_.At(idx).restitution = restitution;
+  return idx;
+}
+
+Collider& PhysicsWorld::GetColliderAt(core::Index<Collider> idx) {
+  return colliders_.At(idx);
+}
+
+void PhysicsWorld::RemoveCollider(core::Index<Collider> idx) {
+  if (listener_) {
+    for (auto& pair : overlapped_colliders_) {
+      if (pair.collider_idx1 == idx || pair.collider_idx2 == idx) {
+        Collider& c1 = colliders_.At(pair.collider_idx1);
+        Collider& c2 = colliders_.At(pair.collider_idx2);
+        if (c1.is_trigger || c2.is_trigger)
+          listener_->OnTriggerExit(pair);
+        else
+          listener_->OnColliderExit(pair);
+      }
     }
+  }
 
-    const AABB& GetWorldBounds() {
-        return world_bounds;
+  auto remove_from = [&idx](auto& set) {
+    for (auto it = set.begin(); it != set.end();) {
+      if (it->collider_idx1 == idx || it->collider_idx2 == idx)
+        it = set.erase(it);
+      else
+        ++it;
     }
+  };
+  remove_from(overlapped_colliders_);
+  remove_from(previously_overlapped_colliders_);
 
-    QuadTree* GetQuadTree() {
-        return collision_tree.get();
+  colliders_.Remove(idx);
+}
+
+AABB PhysicsWorld::ColliderToAABB(const Collider& c) const {
+  switch (c.shape_type) {
+    case ShapeType::AABB: {
+      const auto& box = std::get<AABB>(c.shape);
+      core::Vec2F center = bodies_.At(c.body_idx).position + c.offset;
+      return AABB{center + box.lower_bound, center + box.upper_bound};
     }
-
-    void set_contact_listener(listeners::ContactListener *listener_) {
-        listener = listener_;
+    case ShapeType::Circle: {
+      float r = std::get<Circle>(c.shape).radius;
+      core::Vec2F center = bodies_.At(c.body_idx).position + c.offset;
+      return AABB{{center.x - r, center.y - r}, {center.x + r, center.y + r}};
     }
+    default:
+      return AABB{{0, 0}, {0, 0}};
+  }
+}
 
-    [[nodiscard]] core::Index<Collider> AddColliderToBody(
-        core::Index<Body> body_idx, core::Vec2F offset, float restitution, Shape shape, ShapeType shape_type,
-        bool isTrigger) {
-        Collider collider(body_idx, offset, shape, shape_type);
-        core::Index<Collider> const idx = colliders.Add(collider);
-        colliders.At(idx).collider_idx = idx;
-        colliders.At(idx).is_trigger = isTrigger;
-        colliders.At(idx).restitution = restitution;
-        return idx;
-    }
+void PhysicsWorld::CheckForOverlap() {
+  if (!listener_) return;
+  if (!quadtree_) return;
 
-    [[nodiscard]] Collider &get_collider_at(core::Index<Collider> idx) {
-        return colliders.At(idx);
-    }
+  previously_overlapped_colliders_ = overlapped_colliders_;
+  overlapped_colliders_.clear();
+  quadtree_->clear();
 
-    void RemoveCollider(core::Index<Collider> idx) {
-        // Fire exit events for any active overlaps involving this collider
-        if (listener) {
-            for (auto &pair : overlapped_colliders_) {
-                if (pair.collider_idx1 == idx || pair.collider_idx2 == idx) {
-                    Collider &c1 = get_collider_at(pair.collider_idx1);
-                    Collider &c2 = get_collider_at(pair.collider_idx2);
-                    if (c1.is_trigger || c2.is_trigger)
-                        listener->OnTriggerExit(pair);
-                    else
-                        listener->OnColliderExit(pair);
-                }
-            }
+  for (auto& c : colliders_) {
+    if (c.IsInvalid()) continue;
+    quadtree_->insert({c.collider_idx, ColliderToAABB(c)});
+  }
+
+  std::vector<CollidersPair> candidates;
+  quadtree_->query(candidates);
+
+  for (auto& pair : candidates) {
+    auto& c1 = colliders_.At(pair.collider_idx1);
+    auto& c2 = colliders_.At(pair.collider_idx2);
+
+    const core::Vec2F pos1 = bodies_.At(c1.body_idx).position + c1.offset;
+    const core::Vec2F pos2 = bodies_.At(c2.body_idx).position + c2.offset;
+
+    bool overlap = false;
+    switch (c1.shape_type) {
+      case ShapeType::Circle:
+        switch (c2.shape_type) {
+          case ShapeType::Circle:
+            overlap = core::CircleOverlap(pos1,
+                                          std::get<Circle>(c1.shape).radius,
+                                          pos2,
+                                          std::get<Circle>(c2.shape).radius);
+            break;
+          case ShapeType::AABB:
+            overlap = core::AABBCircleOverlap(
+                pos2,
+                {std::get<AABB>(c2.shape).width(),
+                 std::get<AABB>(c2.shape).height()},
+                pos1, std::get<Circle>(c1.shape).radius);
+            break;
+          default:;
         }
-
-        auto remove_from = [&idx](auto &set) {
-            for (auto it = set.begin(); it != set.end();) {
-                if (it->collider_idx1 == idx || it->collider_idx2 == idx)
-                    it = set.erase(it);
-                else
-                    ++it;
-            }
-        };
-        remove_from(overlapped_colliders_);
-        remove_from(previously_overlapped_colliders_);
-
-        colliders.Remove(idx);
-    }
-
-    [[nodiscard]] core::Index<Body> AddBody(const float mass) {
-        return bodies.Add(Body(mass));
-    }
-
-    [[nodiscard]] Body &get_body_at(core::Index<Body> idx) {
-        return bodies.At(idx);
-    }
-
-    void RemoveBody(core::Index<Body> idx) { bodies.Remove(idx); }
-
-    [[nodiscard]] AABB ShapeToAABB(const Collider &c) {
-        switch (c.shape_type) {
-            case ShapeType::AABB: {
-                const auto &box = std::get<AABB>(c.shape);
-                core::Vec2F center = c.body().position + c.offset;
-                return AABB{
-                    center + box.lower_bound,
-                    center + box.upper_bound
-                };
-            }
-
-            case ShapeType::Circle: {
-                const auto &circle = std::get<Circle>(c.shape);
-                float r = circle.radius;
-                core::Vec2F center = c.body().position + c.offset;
-                return AABB{
-                    {center.x - r, center.y - r},
-                    {center.x + r, center.y + r}
-                };
-            }
-
-            default:
-                return AABB{{0, 0}, {0, 0}};
+        break;
+      case ShapeType::AABB:
+        switch (c2.shape_type) {
+          case ShapeType::Circle:
+            overlap = core::AABBCircleOverlap(
+                pos1,
+                {std::get<AABB>(c1.shape).width(),
+                 std::get<AABB>(c1.shape).height()},
+                pos2, std::get<Circle>(c2.shape).radius);
+            break;
+          case ShapeType::AABB:
+            overlap = core::AABBOverlap(
+                pos1,
+                {std::get<AABB>(c1.shape).width(),
+                 std::get<AABB>(c1.shape).height()},
+                pos2,
+                {std::get<AABB>(c2.shape).width(),
+                 std::get<AABB>(c2.shape).height()});
+            break;
+          default:;
         }
+        break;
+      default:;
     }
 
-    void CheckForOverlapWithQuadTree() {
-        if (!listener) return;
-        if (!collision_tree) return;
-
-        previously_overlapped_colliders_ = overlapped_colliders_;
-        overlapped_colliders_.clear();
-
-        collision_tree->clear();
-
-        // Insert all colliders into quadtree
-        for (auto &c: colliders) {
-            if (c.IsInvalid()) continue;
-            collision_tree->insert({c.collider_idx, ShapeToAABB(c)});
-        }
-
-        std::vector<CollidersPair> candidates;
-        collision_tree->query(candidates);
-
-        for (auto &pair: candidates) {
-            auto &c1 = get_collider_at(pair.collider_idx1);
-            auto &c2 = get_collider_at(pair.collider_idx2);
-            const core::Vec2F pos1 = c1.body().position + c1.offset;
-            const core::Vec2F pos2 = c2.body().position + c2.offset;
-
-            bool overlap = false;
-            switch (c1.shape_type) {
-                case ShapeType::Circle:
-                    switch (c2.shape_type) {
-                        case ShapeType::Circle:
-                            overlap = core::CircleOverlap(
-                                pos1, std::get<Circle>(c1.shape).radius,
-                                pos2, std::get<Circle>(c2.shape).radius
-                            );
-                            break;
-                        case ShapeType::AABB:
-                            overlap = core::AABBCircleOverlap(
-                                pos2,
-                                {std::get<AABB>(c2.shape).width(), std::get<AABB>(c2.shape).height()},
-                                pos1, std::get<Circle>(c1.shape).radius
-                            );
-                            break;
-                        default: ;
-                    }
-                    break;
-                case ShapeType::AABB:
-                    switch (c2.shape_type) {
-                        case ShapeType::Circle:
-                            overlap = core::AABBCircleOverlap(
-                                pos1,
-                                {std::get<AABB>(c1.shape).width(), std::get<AABB>(c1.shape).height()},
-                                pos2, std::get<Circle>(c2.shape).radius
-                            );
-                            break;
-                        case ShapeType::AABB:
-                            overlap = core::AABBOverlap(
-                                pos1,
-                                {std::get<AABB>(c1.shape).width(), std::get<AABB>(c1.shape).height()},
-                                pos2,
-                                {std::get<AABB>(c2.shape).width(), std::get<AABB>(c2.shape).height()}
-                            );
-                            break;
-                        default: ;
-                    }
-                    break;
-                default: ;
-            }
-
-            // Enter event
-            if (overlap) {
-                const bool is_new = overlapped_colliders_.emplace(pair).second;
-
-                if (is_new && !previously_overlapped_colliders_.contains(pair)) {
-                    if (c1.is_trigger || c2.is_trigger)
-                        listener->OnTriggerEnter(pair);
-                    else
-                        listener->OnColliderEnter(pair);
-                }
-            }
-        }
-
-        // Exit event
-        for (auto &p : previously_overlapped_colliders_) {
-            if (!overlapped_colliders_.contains(p)) {
-                Collider &c1 = get_collider_at(p.collider_idx1);
-                Collider &c2 = get_collider_at(p.collider_idx2);
-
-                if (c1.is_trigger || c2.is_trigger)
-                    listener->OnTriggerExit(p);
-                else
-                    listener->OnColliderExit(p);
-            }
-        }
+    if (overlap) {
+      const bool is_new = overlapped_colliders_.emplace(pair).second;
+      if (is_new && !previously_overlapped_colliders_.contains(pair)) {
+        if (c1.is_trigger || c2.is_trigger)
+          listener_->OnTriggerEnter(pair);
+        else
+          listener_->OnColliderEnter(pair);
+      }
     }
+  }
 
-    void ResolveCollisions() {
-        for (auto &overlapped_collider: overlapped_colliders_) {
-            core::Index<Collider> idx1 = overlapped_collider.collider_idx1;
-            core::Index<Collider> idx2 = overlapped_collider.collider_idx2;
-
-            Collider &c1 = get_collider_at(idx1);
-            Collider &c2 = get_collider_at(idx2);
-
-            if (!c1.is_trigger && !c2.is_trigger) {
-                if (auto maybeContact = GenerateContact(idx1, idx2)) {
-                    ResolveCollision(*maybeContact, (c1.restitution + c2.restitution) / 2);
-                }
-            }
-        }
+  for (auto& p : previously_overlapped_colliders_) {
+    if (!overlapped_colliders_.contains(p)) {
+      Collider& c1 = colliders_.At(p.collider_idx1);
+      Collider& c2 = colliders_.At(p.collider_idx2);
+      if (c1.is_trigger || c2.is_trigger)
+        listener_->OnTriggerExit(p);
+      else
+        listener_->OnColliderExit(p);
     }
+  }
+}
 
-    void Tick(const float dt) {
-        // Advance bodies
-        for (auto &body: bodies) {
-            if (body.IsInvalid()) continue;
-            body.Tick(dt);
-        }
-
-        // BroadPhase
-        CheckForOverlapWithQuadTree();
-
-        // NarrowPhase
-        ResolveCollisions();
+void PhysicsWorld::ResolveCollisions() {
+  for (auto& pair : overlapped_colliders_) {
+    Collider& c1 = colliders_.At(pair.collider_idx1);
+    Collider& c2 = colliders_.At(pair.collider_idx2);
+    if (!c1.is_trigger && !c2.is_trigger) {
+      if (auto contact =
+              GenerateContact(pair.collider_idx1, pair.collider_idx2)) {
+        ResolveCollision(*contact, (c1.restitution + c2.restitution) / 2.f);
+      }
     }
-} // namespace physics
+  }
+}
+
+void PhysicsWorld::RollBackFrom(const PhysicsWorld& ref) {
+  bodies_ = ref.bodies_;
+  colliders_ = ref.colliders_;
+  overlapped_colliders_ = ref.overlapped_colliders_;
+  previously_overlapped_colliders_ = ref.previously_overlapped_colliders_;
+  bounds_ = ref.bounds_;
+  quadtree_ = ref.quadtree_ ? std::make_unique<QuadTree>(0, bounds_) : nullptr;
+}
+
+void PhysicsWorld::Tick(float dt) {
+  for (auto& body : bodies_) {
+    if (body.IsInvalid()) continue;
+    body.Tick(dt);
+  }
+  CheckForOverlap();
+  ResolveCollisions();
+}
+
+void SetWorldBounds(const AABB& b) { g_world.SetBounds(b); }
+const AABB& GetWorldBounds() { return g_world.GetBounds(); }
+QuadTree* GetQuadTree() { return g_world.GetQuadTree(); }
+void SetContactListener(listeners::ContactListener* l) {
+  g_world.SetContactListener(l);
+}
+
+core::Index<Body> AddBody(float mass) { return g_world.AddBody(mass); }
+Body& GetBodyAt(core::Index<Body> idx) { return g_world.GetBodyAt(idx); }
+void RemoveBody(core::Index<Body> idx) { g_world.RemoveBody(idx); }
+
+core::Index<Collider> AddColliderToBody(core::Index<Body> body_idx,
+                                        core::Vec2F offset, float restitution,
+                                        Shape shape, ShapeType shape_type,
+                                        bool is_trigger) {
+  return g_world.AddCollider(body_idx, offset, restitution, shape, shape_type,
+                             is_trigger);
+}
+Collider& GetColliderAt(core::Index<Collider> idx) {
+  return g_world.GetColliderAt(idx);
+}
+void RemoveCollider(core::Index<Collider> idx) { g_world.RemoveCollider(idx); }
+
+void Tick(float dt) { g_world.Tick(dt); }
+
+}  // namespace physics

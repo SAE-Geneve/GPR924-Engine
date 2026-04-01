@@ -17,8 +17,8 @@ namespace colliders {
         core::Index<physics::Collider> ground_collider_idx = physics::AddColliderToBody(
             ground_body_idx, {0.f, 0.f}, 1, ground_aabb, physics::ShapeType::AABB, false);
 
-        physics::get_body_at(ground_body_idx).position = core::Vec2F{screen_size.x / 2, screen_size.y * 1.4f};
-        physics::get_body_at(ground_body_idx).Velocity({0, 0});
+        physics::GetBodyAt(ground_body_idx).position = core::Vec2F{screen_size.x / 2, screen_size.y * 1.4f};
+        physics::GetBodyAt(ground_body_idx).Velocity({0, 0});
 
         utils::RenderedObject r_ground{ground_collider_idx, kWhite};
         rendered_objects_.emplace_back(r_ground);
@@ -29,8 +29,8 @@ namespace colliders {
         core::Index<physics::Collider> aabb_collider_idx = physics::AddColliderToBody(
             aabb_body_idx, {0.f, 0.f}, 1, aabb, physics::ShapeType::AABB, false);
 
-        physics::get_body_at(aabb_body_idx).position = core::Vec2F{screen_size.x / 2 - 100, screen_size.y / 2};
-        physics::get_body_at(aabb_body_idx).Velocity({0, 0});
+        physics::GetBodyAt(aabb_body_idx).position = core::Vec2F{screen_size.x / 2 - 100, screen_size.y / 2};
+        physics::GetBodyAt(aabb_body_idx).Velocity({0, 0});
 
         utils::RenderedObject r_aabb{aabb_collider_idx, kGreen};
         rendered_objects_.emplace_back(r_aabb);
@@ -41,18 +41,18 @@ namespace colliders {
         core::Index<physics::Collider> circle_collider_idx = physics::AddColliderToBody(
             circle_body_idx, {0.f, 0.f}, 0, circle, physics::ShapeType::Circle, false);
 
-        physics::get_body_at(circle_body_idx).position = core::Vec2F{screen_size.x / 2 + 100, screen_size.y / 2};
-        physics::get_body_at(circle_body_idx).Velocity({0, 0});
+        physics::GetBodyAt(circle_body_idx).position = core::Vec2F{screen_size.x / 2 + 100, screen_size.y / 2};
+        physics::GetBodyAt(circle_body_idx).Velocity({0, 0});
 
         utils::RenderedObject r_circle{circle_collider_idx, kRed};
         rendered_objects_.emplace_back(r_circle);
 
-        physics::set_contact_listener(this);
+        physics::SetContactListener(this);
         common::DrawObserverSubject::AddObserver(this);
     }
 
     void BounceSample::End(){
-        physics::set_contact_listener(nullptr);
+        physics::SetContactListener(nullptr);
         for (auto &r: rendered_objects_) {
             if (r.collider().IsInvalid()) continue;
             physics::RemoveBody(r.body_idx());
