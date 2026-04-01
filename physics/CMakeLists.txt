@@ -3,5 +3,13 @@ add_library(physics STATIC ${PHYSICS_SRC})
 target_include_directories(physics PUBLIC include/)
 target_link_libraries(physics PUBLIC core)
 
+if(ENABLE_TESTING)
+    file(GLOB_RECURSE PHYSICS_TEST_SRC test/*.cc)
+    add_executable(physics_test ${PHYSICS_TEST_SRC})
+    target_link_libraries(physics_test PRIVATE physics GTest::gmock_main)
+    setup_warnings(physics_test)
+    gtest_discover_tests(physics_test)
+endif()
+
 add_subdirectory(utils)
 add_subdirectory(samples)

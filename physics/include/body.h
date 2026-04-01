@@ -13,6 +13,7 @@ class Body {
  public:
   explicit Body(float mass);
   core::Vec2F position = {0, 0};
+  bool is_static = false;
   void Velocity(core::Vec2F vel);
   void AddForce(core::Vec2F force);
   void Tick(float dt);

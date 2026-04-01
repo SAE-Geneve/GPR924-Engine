@@ -246,6 +246,13 @@ void set_contact_listener(listeners::ContactListener* l) {
 }
 
 core::Index<Body> AddBody(float mass) { return g_world.AddBody(mass); }
+
+core::Index<Body> AddStaticBody() {
+  core::Index<Body> idx = g_world.AddBody(1.f);
+  g_world.body_at(idx).is_static = true;
+  return idx;
+}
+
 Body& body_at(core::Index<Body> idx) { return g_world.body_at(idx); }
 void RemoveBody(core::Index<Body> idx) { g_world.RemoveBody(idx); }
 
@@ -262,5 +269,6 @@ Collider& collider_at(core::Index<Collider> idx) {
 void RemoveCollider(core::Index<Collider> idx) { g_world.RemoveCollider(idx); }
 
 void Tick(float dt) { g_world.Tick(dt); }
+void ResetWorld() { g_world = PhysicsWorld{}; }
 
 }  // namespace physics

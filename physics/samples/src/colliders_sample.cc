@@ -52,6 +52,8 @@ namespace colliders {
             current_objects_count_++;
         }
 
+        AddWalls();
+
         physics::set_contact_listener(this);
         common::DrawObserverSubject::AddObserver(this);
     }
@@ -63,8 +65,14 @@ namespace colliders {
             physics::RemoveBody(r.body_idx());
             physics::RemoveCollider(r.collider_idx);
         }
+        for (auto &r: wall_objects_) {
+            if (r.collider().IsInvalid()) continue;
+            physics::RemoveBody(r.body_idx());
+            physics::RemoveCollider(r.collider_idx);
+        }
         current_objects_count_ = 0;
         rendered_objects_.clear();
+        wall_objects_.clear();
         common::DrawObserverSubject::RemoveObserver(this);
     }
 
@@ -117,8 +125,6 @@ namespace colliders {
 
     void CollidersSample::FixedUpdate() {
         SetColor();
-        WallBounce();
-
         physics::Tick(common::GetFixedDT());
     }
 
@@ -262,32 +268,26 @@ namespace colliders {
         }
     }
 
-    void CollidersSample::WallBounce() const {
-        for (auto &r: rendered_objects_) {
-            const core::Vec2F collider_pos = r.body().position + r.collider().offset;
-            switch (r.collider().shape_type) {
-                case physics::ShapeType::Circle:
-                    if (collider_pos.x + r.circle().radius > screen_size.x ||
-                        collider_pos.x - r.circle().radius < 0.0f) {
-                        r.body().Velocity({-r.body().velocity().x, r.body().velocity().y});
-                    }
-                    if (collider_pos.y + r.circle().radius > screen_size.y ||
-                        collider_pos.y - r.circle().radius < 0.0f) {
-                        r.body().Velocity({r.body().velocity().x, -r.body().velocity().y});
-                    }
-                    break;
-                case physics::ShapeType::AABB:
-                    if (collider_pos.x + r.aabb().width() / 2 > screen_size.x ||
-                        collider_pos.x - r.aabb().width() / 2 < 0.0f) {
-                        r.body().Velocity({-r.body().velocity().x, r.body().velocity().y});
-                    }
-                    if (collider_pos.y + r.aabb().height() / 2 > screen_size.y ||
-                        collider_pos.y - r.aabb().height() / 2 < 0.0f) {
-                        r.body().Velocity({r.body().velocity().x, -r.body().velocity().y});
-                    }
-                    break;
-                default: ;
-            }
+    void CollidersSample::AddWalls() {
+        static constexpr float kThickness = 20.f;
+        static constexpr SDL_FColor kWallColor = kGray;
+
+        // left, right, top, bottom
+        struct WallDef { core::Vec2F pos; core::Vec2F size; };
+        const WallDef walls[] = {
+            {{ -kThickness * 0.5f,          screen_size.y * 0.5f }, { kThickness, screen_size.y + kThickness * 2 }},
+            {{ screen_size.x + kThickness * 0.5f, screen_size.y * 0.5f }, { kThickness, screen_size.y + kThickness * 2 }},
+            {{ screen_size.x * 0.5f,         -kThickness * 0.5f  }, { screen_size.x + kThickness * 2, kThickness }},
+            {{ screen_size.x * 0.5f,  screen_size.y + kThickness * 0.5f }, { screen_size.x + kThickness * 2, kThickness }},
+        };
+
+        for (auto& w : walls) {
+            core::Index<physics::Body> body_idx = physics::AddStaticBody();
+            physics::body_at(body_idx).position = w.pos;
+            physics::AABB aabb(w.size);
+            core::Index<physics::Collider> collider_idx = physics::AddColliderToBody(
+                body_idx, {0.f, 0.f}, 1.f, aabb, physics::ShapeType::AABB, false);
+            wall_objects_.emplace_back(collider_idx, kWallColor);
         }
     }
 
@@ -349,6 +349,9 @@ namespace colliders {
             if (auto *qt = physics::quad_tree()) {
                 debug::DrawQuadTree(*qt);
             }
+        }
+        for (auto &r: wall_objects_) {
+            r.Draw();
         }
         for (auto &r: rendered_objects_) {
             r.Draw();

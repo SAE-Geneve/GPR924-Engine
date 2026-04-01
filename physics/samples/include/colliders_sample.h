@@ -40,7 +40,7 @@ namespace colliders {
 
         void RemoveObject(utils::RenderedObject &r);
 
-        void WallBounce() const;
+        void AddWalls();
 
         void SetColor();
 
@@ -57,6 +57,7 @@ namespace colliders {
     private:
         core::Vec2F screen_size;
         std::vector<utils::RenderedObject> rendered_objects_;
+        std::vector<utils::RenderedObject> wall_objects_;
         physics::ShapeType shape_to_add = physics::ShapeType::Circle;
         bool trigger_mode = false;
         bool show_quadtree = false;
