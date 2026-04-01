@@ -2,6 +2,7 @@
 #ifndef GPR924_ENGINE_ROLLBACK_MANAGER_H
 #define GPR924_ENGINE_ROLLBACK_MANAGER_H
 #include "checksum.h"
+#include "input_manager.h"
 
 /*
 Copyright 2026 SAE Institute Switzerland SA
@@ -29,10 +30,10 @@ Contributors: Elias Farhan
 
 namespace common {
 template <typename ModelT>
-concept RollbackableModel = requires(const ModelT& confirm_model,
-                              ModelT& speculative_model) {
-  { speculative_model.RollbackFrom(confirm_model) };
-};
+concept RollbackableModel =
+    requires(const ModelT& confirm_model, ModelT& speculative_model) {
+      { speculative_model.RollbackFrom(confirm_model) };
+    };
 template <typename GameModelT, int kChecksumSystemCount>
 concept ConfirmableGameModel = requires(const GameModelT& game_model) {
   {
@@ -40,23 +41,38 @@ concept ConfirmableGameModel = requires(const GameModelT& game_model) {
   } -> std::convertible_to<Checksum<kChecksumSystemCount>>;
 };
 
-template <RollbackableModel GameModelT, int kChecksumSystemCount>
+template <RollbackableModel GameModelT, typename PlayerInputT,
+          int kMaxInputHistory, int kMaxPlayerCount, int kChecksumSystemCount>
 class RollbackManager {
  public:
   Checksum<kChecksumSystemCount> ConfirmLastFrame() {
+    confirm_game_model_.set_inputs(input_manager_.inputs(
+        Frame{input_manager_.last_confirm_frame().signed_index() + 1}));
     confirm_game_model_.Tick();
+    input_manager_.ConfirmFrame();
     return confirm_game_model_.checksums();
   }
 
-  void RollbackToConfirmFrame(GameModelT& current_game_model) {
+  void RollbackAndResimulate(GameModelT& current_game_model,
+                              Frame current_frame) {
     current_game_model.RollbackFrom(confirm_game_model_);
+    const auto delta =
+        current_frame.signed_index() - input_manager_.last_confirm_frame().signed_index();
+    for (int i = 0; i < delta; ++i) {
+      current_game_model.set_inputs(input_manager_.inputs(
+          Frame{input_manager_.last_confirm_frame().signed_index() + i + 1}));
+      current_game_model.Tick();
+    }
   }
+  auto& input_manager() { return input_manager_; }
+  const auto& input_manager() const { return input_manager_; }
 
  private:
   static_assert(ConfirmableGameModel<GameModelT, kChecksumSystemCount>,
                 "GameModel should have a checksums() method that calculates "
                 "the current checksums");
   GameModelT confirm_game_model_;
+  InputManager<PlayerInputT, kMaxInputHistory, kMaxPlayerCount> input_manager_;
 };
 
 }  // namespace common
