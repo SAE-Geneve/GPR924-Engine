@@ -18,7 +18,7 @@ class Body {
   void AddForce(core::Vec2F force);
   void Tick(float dt);
 
-  [[nodiscard]] bool IsInvalid() const { return mass_ <= 0.f; }
+  [[nodiscard]] bool IsInvalid() const { return mass_ < 0.f; }
   void SetAsInvalid() { mass_ = -1; }
   [[nodiscard]] static Body GenerateInvalidValue() { return Body(-1); }
 

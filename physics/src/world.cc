@@ -248,7 +248,7 @@ void set_contact_listener(listeners::ContactListener* l) {
 core::Index<Body> AddBody(float mass) { return g_world.AddBody(mass); }
 
 core::Index<Body> AddStaticBody() {
-  core::Index<Body> idx = g_world.AddBody(1.f);
+  core::Index<Body> idx = g_world.AddBody(0.f);
   g_world.body_at(idx).is_static = true;
   return idx;
 }

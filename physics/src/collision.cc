@@ -163,8 +163,8 @@ void ResolveCollision(Contact& contact, float restitution) {
     return;
   }
 
-  float invMassA = A.is_static ? 0.f : 1.f / A.mass();
-  float invMassB = B.is_static ? 0.f : 1.f / B.mass();
+  float invMassA = (A.is_static || A.mass() <= 0.f) ? 0.f : 1.f / A.mass();
+  float invMassB = (B.is_static || B.mass() <= 0.f) ? 0.f : 1.f / B.mass();
   float denom = invMassA + invMassB;
   if (denom <= 0.0f) return; // both static
 
