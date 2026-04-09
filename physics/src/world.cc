@@ -53,6 +53,10 @@ Body& PhysicsWorld::body_at(core::Index<Body> idx) {
   return bodies_.At(idx);
 }
 
+const Body& PhysicsWorld::body_at(core::Index<Body> idx) const {
+  return bodies_.At(idx);
+}
+
 void PhysicsWorld::RemoveBody(core::Index<Body> idx) { bodies_.Remove(idx); }
 
 core::Index<Collider> PhysicsWorld::AddCollider(
@@ -67,6 +71,10 @@ core::Index<Collider> PhysicsWorld::AddCollider(
 }
 
 Collider& PhysicsWorld::collider_at(core::Index<Collider> idx) {
+  return colliders_.At(idx);
+}
+
+const Collider& PhysicsWorld::collider_at(core::Index<Collider> idx) const {
   return colliders_.At(idx);
 }
 
@@ -258,6 +266,9 @@ void set_contact_listener(listeners::ContactListener* l) {
 core::Index<Body> AddBody(float mass) { return g_world.AddBody(mass); }
 
 Body& body_at(core::Index<Body> idx) { return g_world.body_at(idx); }
+const Body& const_body_at(core::Index<Body> idx) {
+  return const_cast<const PhysicsWorld&>(g_world).body_at(idx);
+}
 void RemoveBody(core::Index<Body> idx) { g_world.RemoveBody(idx); }
 
 core::Index<Collider> AddColliderToBody(core::Index<Body> body_idx,
@@ -269,6 +280,9 @@ core::Index<Collider> AddColliderToBody(core::Index<Body> body_idx,
 }
 Collider& collider_at(core::Index<Collider> idx) {
   return active_world_->collider_at(idx);
+}
+const Collider& const_collider_at(core::Index<Collider> idx) {
+  return const_cast<const PhysicsWorld*>(active_world_)->collider_at(idx);
 }
 void RemoveCollider(core::Index<Collider> idx) { g_world.RemoveCollider(idx); }
 

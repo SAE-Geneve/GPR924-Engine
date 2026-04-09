@@ -100,12 +100,14 @@ class PhysicsWorld {
   [[nodiscard]] core::Index<Body> AddBody(float mass);
   [[nodiscard]] core::Index<Body> AddStaticBody();
   [[nodiscard]] Body& body_at(core::Index<Body> idx);
+  [[nodiscard]] const Body& body_at(core::Index<Body> idx) const;
   void RemoveBody(core::Index<Body> idx);
 
   [[nodiscard]] core::Index<Collider> AddCollider(
       core::Index<Body> body_idx, core::Vec2F offset, float restitution,
       Shape shape, ShapeType shape_type, bool is_trigger);
   [[nodiscard]] Collider& collider_at(core::Index<Collider> idx);
+  [[nodiscard]] const Collider& collider_at(core::Index<Collider> idx) const;
   void RemoveCollider(core::Index<Collider> idx);
 
   void Tick(float dt);
@@ -135,12 +137,14 @@ void set_contact_listener(listeners::ContactListener* listener);
 
 [[nodiscard]] core::Index<Body> AddBody(float mass);
 [[nodiscard]] Body& body_at(core::Index<Body> idx);
+[[nodiscard]] const Body& const_body_at(core::Index<Body> idx);
 void RemoveBody(core::Index<Body> idx);
 
 [[nodiscard]] core::Index<Collider> AddColliderToBody(
     core::Index<Body> body_idx, core::Vec2F offset, float restitution,
     Shape shape, ShapeType shape_type, bool is_trigger);
 [[nodiscard]] Collider& collider_at(core::Index<Collider> idx);
+[[nodiscard]] const Collider& const_collider_at(core::Index<Collider> idx);
 void RemoveCollider(core::Index<Collider> idx);
 
 void Tick(float dt);
