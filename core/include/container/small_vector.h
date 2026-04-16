@@ -8,6 +8,7 @@
 #include <algorithm>
 #include <cstdlib>
 #include <stdexcept>
+#include <array>
 
 namespace core {
 
