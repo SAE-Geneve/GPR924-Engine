@@ -101,7 +101,7 @@ class InputManager {
     if (frame_index >= kMaxInputHistory) {
       throw std::runtime_error("Over-capacity of the input history");
     }
-    if (frame_index > inputs_.size()) {
+    if (frame_index >= inputs_.size()) {
       inputs_.resize(
           kMaxInputHistory,
           inputs_.back());  // no allocation as we pre-allocated max history
