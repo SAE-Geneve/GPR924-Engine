@@ -78,6 +78,7 @@ class RollbackManager {
   }
   auto& input_manager() { return input_manager_; }
   const auto& input_manager() const { return input_manager_; }
+  GameModelT& confirm_model() { return confirm_game_model_; }
 
  private:
   static_assert(
